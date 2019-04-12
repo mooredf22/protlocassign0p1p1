@@ -1,0 +1,143 @@
+---
+title: "Assignment of Proteins to Subcellular Locations Using protlocassign"
+author: "Dirk Moore"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{protlocassign}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+Determining the location of proteins in the cell is an important but complex problem. Differential centrifugation of cellular components into multiple fractions is a useful tool for doing this. This package takes data from centrifugation fractions for large numbers of proteins to determine their relative abundance among the fractions, and by extension to their relative abundance among subcelluar locations. The input data consisist of a file with one column, `geneName`, of gene/protein identifers, and multiple columns of the relative abundances of the proteins among the centrifugal fracions, with the abundance levels constrained to sum to 1. The fractions typically comprise the N, M, L1, L2, P, and S fractions, and may be supplemented by one to three additional "Nyc" fractons. Another key input to the program is a curated list of reference genes and their subcellular locations.This list is used to classify addtional genes to subcelluar locations.
+
+Two assignment methods are implemented. One is known as "constrained proportional assignmet", or CPA (Jatot et al., 2016). This method first determines the profiles of abundance levels of genes in the reference set. Then, for each gene, finds either a profile matching a single compartment or a linear combination of compartment profiles that match the profile of that gene. The relative weights of the linear combination in principle reflect the relative abundance of proteins for that gene among different compartments. The CPA method, unlike metamass, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences.
+
+Another assignment method, which has been deemed "metamass", uses unsupervised clustering to find a large number of small clusters, members of which are then assigned to the subcellular location of the location of the majority of reference genes in that cluster; genes in clusters with no reference genes remain unassigned. This method is designed to assign genes which are mainly resident in a single compartment.
+
+
+
+## Tutorial on gene assignment
+
+Let us illustrate with an example. Jadot et al. (2016) presented abundance levels of proteins among seven fractions: N, M, L1, L2, P, and S, and an additional fraction, "Nyc2", from a Nycodenz fraction. Eight subcellular compartments were considered: nucleus, mitochondria, lysosomes, peroxisomes, golgi apparatus, plasma membrane, and cytosol. The CPA method assigns each of a large number of genes to one or more of these compartments, based on profiles from a set of reference genes. To run the program, the `prolocate` library must be installed. Also, the `BB` library is required; it may be downloaded from CRAN by typing `install.packages("BB") `.
+
+
+```{r, echo=TRUE}
+library("protlocassign")
+dim(geneProfileSummaryJadotExptA)
+head(geneProfileSummaryJadotExptA)
+```
+The data set gives relative fraction levels for 8071 genes. The last two columns give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.)
+
+The reference genes may be accessed as follows:
+```{r, echo=TRUE}
+dim(refLocProteinsJadot)
+refLocProteinsJadot[c(1,2,6,7,12,13,17,18,21,22,27,28,31,32,35,36),]
+```
+There are 39 genes in this reference set; two for each compartment are shown here.
+
+To obtain profiles for the reference genes, use the function `cpaSetup`: 
+
+```{r, echo=TRUE, eval=TRUE}
+matLocR <- cpaSetup(geneProfileSummary=geneProfileSummaryJadotExptA, refLocProteins=refLocProteinsJadot, n.channels=7)
+matLocR
+
+##referenceProfilePlot(refLocProteins = refLocProteinsJadot,
+##  geneProfileSummary = geneProfileSummaryJadotExptA, matLocR = matLocR, n.channels=7)
+```
+
+To view them, use `referenceProfilePlot`:
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+
+#par(mfrow=c(4,3))
+referenceProfilePlot(refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryJadotExptA,
+                     matLocR=matLocR, dataUse=dataUse, n.channels=7)
+```
+
+Now run the CPA routine; this may take several minutes to complete:
+
+```{r, echo=TRUE, eval=TRUE}
+assignProbsOut <- proLocAll(geneProfileSummary=geneProfileSummaryJadotExptA, refLocProteins=refLocProteinsJadot,
+                            n.channels=7)
+```
+
+Now make a list of assignments:
+```{r, echo=TRUE, eval=TRUE}
+Locations <- row.names(matLocR)
+n.compartments <- 8
+propMat <- assignProbsOut[,2:(n.compartments+1)]
+
+catAssign <- apply(propMat, 1, assignCPAloc, Locations=Locations)
+table(catAssign)
+assignProbsOutAssign <- data.frame(assignProbsOut, catAssign)
+head(assignProbsOutAssign)
+```
+
+Now make a reference set, consisting of genes assigned with a proportion >= 0.8:
+```{r, echo=TRUE, eval=TRUE}
+
+catAssign80.vec <- apply(propMat, 1, assignCPAloc, cutoff=0.8, Locations=Locations)
+
+
+refLocProp80all <- data.frame(geneProfileSummaryJadotExptA$geneName, catAssign80.vec)
+names(refLocProp80all) <- c("geneName", "referenceCompartment")
+
+refLocProp80 <- refLocProp80all[refLocProp80all$referenceCompartment != "unclassified",]
+dim(refLocProp80)
+head(refLocProp80)
+```
+
+Here is a plot of the newly-created reference gene set:
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+referenceProfilePlot(refLocProteins=refLocProp80, geneProfileSummary=geneProfileSummaryJadotExptA,
+                     matLocR=matLocR, dataUse=dataUse, markersUse=markersUse)
+```
+
+## Metamass classification
+
+Lund-Johansen et al. (2016) proposed a metamass tool for subcellular proteomics data. A key component of metamass is an alternative method of classifying genes to subcellular locations. We have adapted this method as follows. First, we use unsupervised clustering with the "kmeans" procedure in the R system, to agglomerate all of the genes into a large number small clusters, the idea being that all genes in a cluster will belong to the same subcellular location. Following this step, a set of reference genes, with prsumably known subcellular residences, is merged with these clusters. Then for each cluster, the majority residence of the reference genes is identified, and then all genes in the cluster are assigned to that residence. Genes in clusters containing no reference genes remain unclassified. Also, if a cluster contains reference genes with multiple residences, and if there is a tie for the maximum, all genes in that cluster are marked as unclassified. When a cluster contains genes with multiple residences, the "purity" is defined as the ratio of the number of reference genes of the majority residence divided by the total number of reference genes in that cluster.
+
+Now carry out the metamass clustering procedure, using an average cluster size of 10 genes, and the \code{refLocProp80} reference set we just created. 
+
+```{r, echo=TRUE, eval=TRUE}
+geneProfileSummaryMclustOnce <-  protCluster(geneProfileSummary=geneProfileSummaryJadotExptA,
+                                             refLocProteins=refLocProp80, refCol=1, nCol=7, clustSize=10)
+head(geneProfileSummaryMclustOnce$clProtsOrd)
+head(geneProfileSummaryMclustOnce$purityStats)
+head(geneProfileSummaryMclustOnce$purity.df)
+
+```
+The first column, "cl", is the cluster number. The column "classif" is the original reference classification, and "maxCat.vec" is the residency assigned by the metamass procedure.
+
+# Appendix
+## Outlier rejection and computation of mean profiles
+
+The profiles of some compartments (e.g. nuclear and mitochondrial) show a high relative abundance level in the N or M fractions, respectively, and little in the others. Cytosolic proteins also are high in one fraction (S) and low in the others. Peroxisomes have high activity levels in the L1 and L2 fractions, and low levels in the others, including Nyc2. Lysosomes, like peroxisomes, have high level in the L1 and L2 fractions, but, unlike peroxisomes, high levels in Nyc2. The other compartments (ER, Golgi, and PM) have more complex profiles. Once we have obtained reference profiles for each of the eight compartments, we score each new protein as the optimal combination of the reference proteins, thereby obtaining estimates of the proportionate contributions of each reference profile to that of the protein being considered.
+
+
+The first step is an outlier screen, for each protein, of the abundance levels for each fraction of all of the spectra. Abundance levels $p$ are first log2 transformed via $y = log_2(p + \delta)$, where $\delta$ is an estimate of the background "noise" in the abundance estimates. Here we used $\delta = 10^{(-5)}$. Then boxplot outliers are identified as values more than three times the interquartile range beyond the first or third quartile. We discard any spectrum for which any observation is thereby classified as an outlier. This process is repeated for all proteins.
+
+
+## Constrained proportional assignment
+Once outlier spectra have been removed, the next step is to determine a mean profile for each protein. If a protein has at least 4 spectra and at least 3 different sequences (peptides), we ordinarily have enough data to fit a random effects model. This model computes, for each EF in each fraction of this protein, a weighted average and standard error of the measures, accounting for the fact that spectra are nested within sequences. (This computation is carried out using the “lmer” function in the “lme4” R package.) . The result is essentially the mean and standard error of the observations, with an adjustment for the nested structure of the data. This procedure prevents a sequence with a very large number of spectra from dominating the estimates of the mean and standard error.  Occasionally the “lmer” program will fail to converge for a particular abundance. If that happens or if the condition of having at least 4 spectra and 3 different sequences is not met, we compute the simple mean and standard error of the (log2 transformed) for that abundance level. If there are fewer than 3 spectra, we cannot compute a standard error, and thus only report the mean.  When this process has been completed, every protein has a mean profile $\underset{\sim}x = (x_1, x_2, ..., x_q)$  of abundance levels in the $q$ fractions N, M, L1, L2, P, S, and Nyc2.  For proteins with at least 2 peptides and three spectra, each component of the profile has an estimate of its standard deviation. 
+
+Next, the profiles of the reference proteins are selected. For each of the eight compartments (Cytosol, ER, Golgi, Lysosome, Mitochondria, Nucleus, Peroxisome, and PM), the reference protein relative abundance levels are averaged to form eight compartment profiles $\underset{\sim}s_1, \underset{\sim}s_2, ..., \underset{\sim}s_8$, where each vector $\underset{\sim}s_j$ is a $q \times 1$ vector of mean levels of the $q=7$ or $q=9$ channels. 
+
+Finally, for each protein, we find estimated proportions $\hat{p}_1, \hat{p}_2, ..., \hat{p}_8$ so that
+$$\underset{\sim}y = \hat{p}_1 \underset{\sim}s_1 + ...+ \hat{p}_8 \underset{\sim}s_8$$
+is as close as possible to the observed value $\underset{\sim}x$, subject to the constraints
+$$ 0 \leq p_j \leq 1 {\space \rm for\space all \space} j, {\space\rm and}$$
+$$ \sum_{j=1}^{8} \hat{p}_j = 1 $$
+where "close" is defined by minimizing the sum of squares of the differences
+
+$$ Q=\sum_{i=1}^{q}(y_i - x_i)^2 $$
+Thus, we may view the proportions $\hat{p}_j$ as proportional allocations of the eight standard profiles to form $\underset{\sim}y$, which is as close as possible to the observed $\underset{\sim}x$ for this particular protein. This constrained optimization is carried out using the “spg” function in the R package “BB” to compute assignment probabilities for each profile for each organelle. 
+
+
+
