@@ -3,11 +3,12 @@
 #' @param geneProfileSummary data frame of gene/protein identifiers (geneName) and their relative abundance in centrifugation fractions.
 #' @param n.diff.chan Number of channels of differential centrifugation fractions
 #' @param n.nyc.chan Number of nycodenz fractions (derived from the L1 fraction)
+#' @param nycL1Adjust   True if adjust nyc by L1
 #' @return A matrix geneProfileSummary with re-weighted relative abundance fractions
 
 #'
 
-protDataPrep <- function(geneProfileSummary, n.diff.chan=6, n.nyc.chan=3) {
+protDataPrep <- function(geneProfileSummary, n.diff.chan=6, n.nyc.chan=3, nycL1Adjust=T) {
    # prepare the geneProfileSummary data with different constraints
    # for differential fractions and Nyc fractions
 
@@ -37,7 +38,12 @@ protDataPrep <- function(geneProfileSummary, n.diff.chan=6, n.nyc.chan=3) {
     differentialFractionsT <- allFractionsT[,1:n.diff.chan]
     nycFractionsT <- allFractionsT[,(1 + n.diff.chan):(n.diff.chan + n.nyc.chan)]
     differentialFractions <- t(apply(differentialFractionsT,1, function(x) x/sum(x)))  # constrain rows to sum to 1
-    nycFractions <- t(apply(nycFractionsT, 1, function(x) x/sum(x)))*differentialFractions[,3]   # constrain rows to sum to 1; mult by L1
+    if (nycL1Adjust) {
+      nycFractions <- t(apply(nycFractionsT, 1, function(x) x/sum(x)))*differentialFractions[,3]   # constrain rows to sum to 1; mult by L1
+    }
+    if (!nycL1Adjust) {
+      nycFractions <- t(apply(nycFractionsT, 1, function(x) x/sum(x)))   # constrain rows to sum to 1; DON'T mult by L1
+    }
     allFractionsT <- data.frame(differentialFractions, nycFractions)
   }
   if (n.nyc.chan == 1) {

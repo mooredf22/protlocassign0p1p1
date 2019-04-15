@@ -176,11 +176,11 @@ ans <- spg(rep(1/n.locs, n.locs), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(m
 #' Carry out constrained proportional assignment on all genes
 #'
 #' @param geneProfileSummary data frame of protein names and relative abundance levels.
-#' @param refLocProteins List of reference proteins and their subcellular locations
+#' @param matLocR A matrix giving the abundance level profiles of the subcellular locations
 #' @param n.channels Number of channels of abundance levels
 #' @return assignProbsOut  Data frame of proportionate assignments of each protein to compartments
-proLocAll <- function(geneProfileSummary, refLocProteins, n.channels=n.channels, log2Transf=F) {
-  matLocR <- cpaSetup(geneProfileSummary, refLocProteins, n.channels=n.channels)
+proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Transf=F) {
+  #matLocR <- cpaSetup(geneProfileSummary, refLocProteins, n.channels=n.channels)
   n.gene <- nrow(geneProfileSummary)
   indList <- 1:n.gene
   #indList <- 1:50
@@ -195,11 +195,16 @@ proLocAll <- function(geneProfileSummary, refLocProteins, n.channels=n.channels,
   #dim(allPeptideProfilesMat)
   # [1] 278867      7
   checkCols <- {ncol(assignProbs) == nrow(matLocR) + 2}
-  if (checkCols) {names(assignProbs) <- c(row.names(matLocR), "Nspectra", "Npeptides")
+  if (checkCols) {
+    names(assignProbs) <- c(row.names(matLocR), "Nspectra", "Npeptides")
     geneName <- geneProfileSummary$geneName
     assignProbsOut <- data.frame(geneName, assignProbs)
     }
-  if (!checkCols) assignProbsOut <- "column number error; check column names of geneProfileSummary"
+  if (!checkCols) {
+    names(assignProbs) <- row.names(matLocR)
+    geneName <- geneProfileSummary$geneName
+    assignProbsOut <- data.frame(geneName, assignProbs)
+    }
   assignProbsOut
   }
 

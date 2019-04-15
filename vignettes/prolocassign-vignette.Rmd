@@ -63,7 +63,7 @@ referenceProfilePlot(refLocProteins=refLocProteinsJadot, geneProfileSummary=gene
 Now run the CPA routine; this may take several minutes to complete:
 
 ```{r, echo=TRUE, eval=TRUE}
-assignProbsOut <- proLocAll(geneProfileSummary=geneProfileSummaryJadotExptA, refLocProteins=refLocProteinsJadot,
+assignProbsOut <- proLocAll(geneProfileSummary=geneProfileSummaryJadotExptA, matLocR=matLocR,
                             n.channels=7)
 ```
 
