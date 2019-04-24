@@ -12,9 +12,11 @@
 
 referenceProfilePlot <- function(refLocProteins=refLocProteins, geneProfileSummary=geneProfileSummary, matLocR=matLocR,
                                  n.channels=7, dataUse="", markersUse="")  {
+  names(geneProfileSummary)[1] <- "geneName"
   meanReferenceGenes <- merge(x=refLocProteins, y=geneProfileSummary,
                             by.x="geneName", by.y="geneName", all.x=F, sort=F)
   matLoc <- t(matLocR)
+  max.val <- max(matLoc)
   #if (pdfout) pdf(file=paste("ClassificationMarkerProfilesTransformOutlierRej", dataUse, markersUse, ".pdf", sep=''), width=9, height=10)
   #if (!pdfout) windows(width=9, height=10)
   #if (dataUse == "TMT10revisit2") pdf(file="ClassificationMarkerProfiles2.pdf", width=9, height=10)
@@ -43,7 +45,8 @@ referenceProfilePlot <- function(refLocProteins=refLocProteins, geneProfileSumma
     #if (!log2prop) mean.i <- 2^as.numeric(matLoc[,i]) - eps
     #plot(mean.i ~ xvals, ylim=c(min.y,max.y.vec[i]), axes="F", type="l", ylab="")
     #plot(mean.i ~ xvals, ylim=c(-6,0.5), axes="F", type="l", ylab="")
-    plot(mean.i ~ xvals, ylim=c(0,0.7), axes="F", type="n", ylab="",
+    # max.val <- 0.7
+    plot(mean.i ~ xvals, ylim=c(0,max.val), axes="F", type="n", ylab="",
           xlab="")
     axis(1,at=xvals,labels=fractions.list, cex.axis=0.5)
     axis(2)
