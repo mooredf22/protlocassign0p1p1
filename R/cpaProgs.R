@@ -6,7 +6,7 @@
 #' @return A matrix matLocR giving the abundance level profiles of the subcellular locations
 
 #'
-#'
+
 cpaSetup <- function(geneProfileSummary, refLocProteins=refLocProteins, n.channels) {
   # Find the mean profiles of the subcellular locations
 
