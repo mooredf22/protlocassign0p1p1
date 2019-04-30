@@ -49,6 +49,7 @@ abundanceTransform <- function(matLocR, nDiffFractions=6, nNycFractions=3,
 #mixCytoLyso90 <- 0.9*relAmtProtFrac[1,] + 0.1*relAmtProtFrac[4,]
 #mixCytoLyso <- rbind(mixCytoLyso10, mixCytoLyso50, mixCytoLyso90)
 
+#' Compute relative specific activity and RSA fractions from rlatve amounts in protein fractions
 #' @param relAmtProtFrac amount of given protein in fraction / amount of given protein in starting material
 #' @param nDiffFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
 #' @param nNycFractions Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none
@@ -74,4 +75,36 @@ RSAtransform <- function(relAmtProtFrac, nDiffFractions=6, nNycFractions=3,
 
 #RSAtransform(mixCytoLyso)
 
+#' compute a mixture of proteins in two compartments
+#' @param relAmtProtFrac amount of given protein in fraction / amount of given protein in starting material
+#' @param Loc1  row number of one compartment
+#' @param Loc2  row number of other compartment
+#' @param increment fraction increment from 0 to 1
+#' @return mixAmount relative amounts of proteins in the fractions
+proteinMix <- function(relAmtProtFrac, Loc1, Loc2, increment=0.10) {
+  nrowRef <- nrow(relAmtProtFrac)
+  if (Loc1 > Loc2) {
+     Loc1orig <- Loc1
+     Loc2orig <- Loc2
+     Loc1 <- Loc2orig
+     Loc2 <- Loc1orig
+  }
+  if (Loc2 > nrowRef) cat("Error, not enough rows\n")
+  LocNames <- row.names(relAmtProtFrac)
+  prop.vec <- seq(0,1,increment)
+  qrop.vec <- 1 - prop.vec
+  nrow.out <- length(prop.vec)
+  mixAmount <- NULL
+  mixProtNames <- NULL
+  for (i in 1:nrow.out) {
+    mixAmount.i <- prop.vec[i]*relAmtProtFrac[1,] + qrop.vec[i]*relAmtProtFrac[4,]
+    mixAmount <- rbind(mixAmount, mixAmount.i)
+    mixProtNames.i <- paste(prop.vec[i],"_", LocNames[Loc1], ":", qrop.vec[i], "_",LocNames[Loc2], sep='')
+    mixProtNames <- c(mixProtNames, mixProtNames.i)
+  }
+  row.names(mixAmount) <- mixProtNames
+  mixAmount
+  }
 
+#mixCytoLyso <- proteinMix(relAmtProtFrac, 1, 4)
+#RSAtransform(mixCytoLyso)$rsaFractions
