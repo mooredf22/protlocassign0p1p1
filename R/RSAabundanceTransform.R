@@ -8,6 +8,7 @@
 #' @param totProt Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's
 #'
 #' @return amtProtFrac: amount of protein in a given fraction
+#' @return relAmtProtFrac amount of given protein in fraction / amount of given protein in starting material
 
 abundanceTransform <- function(matLocR, nDiffFractions=6, nNycFractions=3,
                                totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)) {
@@ -20,7 +21,8 @@ abundanceTransform <- function(matLocR, nDiffFractions=6, nNycFractions=3,
   if (nNycFractions == 0) nycFractions <- NULL
 
   # Compute amount of protein in a given fraction   # yellow in Excel spreadsheet: "RSAtransformation instructions Lobel 29 Apr 2019"
-  amtProtFrac <- matLocR %*% diag(totProt)
+  amtProtFrac <- data.frame(matLocR %*% diag(totProt))
+  names(amtProtFrac) <- colnames(matLocR)
 
   # Compute amount of given protein in fraction / amount of given protein in starting material
   # use these values to create mixtures
