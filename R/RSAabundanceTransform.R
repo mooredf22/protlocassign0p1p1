@@ -110,3 +110,31 @@ proteinMix <- function(relAmtProtFrac, Loc1, Loc2, increment=0.10) {
 
 #mixCytoLyso <- proteinMix(relAmtProtFrac, 1, 4)
 #RSAtransform(mixCytoLyso)$rsaFractions
+
+#' Directly compute relative specific activity from geneProfileSummary (or from matLocR)
+#'
+#' @param geneProfileLevels A matrix (with no gene names) giving the abundance level profiles of the subcellular locations, from 'cpaSetup', or many gene profiles
+#' @param nDiffFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
+#' @param nNycFractions Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none
+#' @param totProt Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's
+#'
+#' @return geneProfileRSA: relative specific activity
+
+rsaDirect <- function(geneProfileLevels, nDiffFractions=6, nNycFractions=1,
+                      totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)) {
+
+  if ((nDiffFractions + nNycFractions) != ncol(geneProfileLevels)) {
+    cat("Error from RSAtransform\nTotal number of fractions must be the number of columns of matLocR\n")
+    return()
+  }
+  diffFractions <- geneProfileLevels[,1:nDiffFractions]
+  if (nNycFractions > 0) nycFractions <- geneProfileLevels[,(nDiffFractions+1):(nDiffFractions+nNycFractions)]
+  if (nNycFractions == 0) nycFractions <- NULL
+
+  Difp <- sum(totProt[1:nDiffFractions])   # total protein in the differential fractions
+  TT <- as.matrix(geneProfileLevels[,1:nDiffFractions]) %*% totProt[1:nDiffFractions]
+  geneProfileRSA <- diag(as.numeric(1/TT)) %*% as.matrix(geneProfileLevels) * Difp
+  geneProfileRSA
+ }
+
+# matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596))

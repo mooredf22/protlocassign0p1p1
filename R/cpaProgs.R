@@ -204,7 +204,7 @@ proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Tr
     names(assignProbs) <- row.names(matLocR)
     geneName <- geneProfileSummary$geneName
     assignProbsOut <- data.frame(geneName, assignProbs)
-    }
+  }
   assignProbsOut
   }
 

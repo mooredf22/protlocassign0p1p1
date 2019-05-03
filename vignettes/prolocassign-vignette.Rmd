@@ -59,12 +59,29 @@ To view them, use `referenceProfilePlot`:
 referenceProfilePlot(refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryJadotExptA,
                      matLocR=matLocR, dataUse=dataUse, n.channels=7)
 ```
+Before finding the constrained proportional estimates, it is preferable to transform them to relative specific activities (RSA's), which are the amount of a given protein in a fraction divided by the amount of starting material of that protein (see Appendix section on adjusting protein levels):
 
-Now run the CPA routine; this may take several minutes to complete:
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596)
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=1, totProt=totProt)
+round(matLocRrsa, digits=4)
+nDiffFractions <- 6
+nNycFractions <- 1
+geneProfileLevels <- geneProfileSummaryJadotExptA[,2:(1 +nDiffFractions+nNycFractions)]
+geneProfileLevelsRSA <- rsaDirect(geneProfileLevels=geneProfileLevels, 
+                                   nDiffFractions=6, nNycFractions=1, totProt=totProt)
+```
+
+Here, the vector "totProt" is the amount of starting material in the six differential fractions and in the Nyc2 fraction.
+
+Now put the gene names back in the first column and run the CPA routine; this may take several minutes to complete:
 
 ```{r, echo=TRUE, eval=TRUE}
-assignProbsOut <- proLocAll(geneProfileSummary=geneProfileSummaryJadotExptA, matLocR=matLocR,
+geneProfileRSA <- data.frame(geneProfileSummaryJadotExptA$geneName, geneProfileLevelsRSA)
+names(geneProfileRSA)[1] <- "geneName"
+assignProbsOut <- proLocAll(geneProfileSummary=geneProfileRSA, matLocR=matLocRrsa,
                             n.channels=7)
+head(assignProbsOut)
 ```
 
 Now make a list of assignments:
@@ -228,4 +245,40 @@ round(rsaResult$rsaFractions, digits=4)
 round(matLocR, digits=4)
 ```
 
+If we just need to obtain the RSA transformed data directly, just do this:
+```{r, echo=TRUE, eval=TRUE}
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596))
+round(matLocRrsa, digits=4)
+```
 
+## Simulating proteins resident in multiple subcellular locations
+
+We may simulate data from proteins with multiple residences using the "proteinMix" function. For example, to simulate date from proteins resident in a range of proportions in cytosol and lysosomes, we do this:
+```{r, echo=TRUE, eval=TRUE}
+totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596)
+protAbund <- abundanceTransform(matLocR, 6,1 , totProt=totProt)
+relAmtProtFrac <- protAbund$relAmtProtFrac
+mixCytoLyso <- proteinMix(relAmtProtFrac, 1, 4)
+mixCytoLyso
+```
+
+Then we can test the CPA algorithm by first converting this mixture data to RSA's:
+```{r, echo=TRUE, eval=TRUE}
+
+mixCytoLysoRSA <- RSAtransform(relAmtProtFrac=mixCytoLyso, nDiffFractions=6, nNycFractions=3, totProt=totProt)$rsa
+  
+mixCytoLysoRelAmt <- data.frame(rownames(mixCytoLysoRSA), mixCytoLysoRSA)
+names(mixCytoLysoRelAmt)[1] <- "geneName"
+mixCytoLysoRelAmt
+
+#matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, totProt=totProt)
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=1, totProt=totProt)
+rownames(matLocRrsa) <- rownames(matLocR)
+```
+Finally, we fit the CPA algorithm to this RSA-transformed, simulated data:
+
+```{r, echo=TRUE, eval=TRUE}
+proLocAll(geneProfileSummary=mixCytoLysoRelAmt, matLocR=matLocRrsa,
+                            n.channels=7)
+```
+The estimated proportions correspond closely to the the proportions used in the simulation.
