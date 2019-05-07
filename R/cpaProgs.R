@@ -121,6 +121,7 @@ protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgre
   Nspectra.i <- geneProfileSummary$Nspectra[i]   # this is the number of spectra for a gene
   Nseq.i <- geneProfileSummary$Nseq[i] # number of unique sequences
   #channelsProb.i <- matrix(NA, nrow=nboot, ncol=8)
+
   if (!log2Transf) {
    temp <- try(BB::spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumsquares", quiet=T,
     #temp <- try(spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumabsvalue", quiet=T,
@@ -134,7 +135,13 @@ protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgre
     temp <- try(BB::spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yyLog2, gmat=t(matLocRlog), methodQ="sumsquares", quiet=T,
                     #temp <- try(spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumabsvalue", quiet=T,
                     control=list(trace=F)))
-    }
+  }
+  convergeInd <- as.numeric(!inherits(temp, "try-error"))
+ # if (temp$message != "Successful convergence") {
+ #   cat(paste(i, "\n"))
+ #   cat(paste(as.character(yy),"\n"))
+ #   cat(paste(as.character(geneProfileSummary[i,])," \n"))
+ # }
   channelsMeanProb.i <- rep(NA, n.compartments)
   #channelsProbCImat.i <- matrix(NA, nrow=2, ncol=8)
   convCrit.i <- NA
@@ -143,6 +150,7 @@ protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgre
      channelsMeanProb.i <- temp$par
      convCrit.i <- temp$gradient
      feval.i <- temp$feval
+     convergeInd <- as.numeric((temp$message == "Successful convergence"))
      }
   nNoConverge.i <- 0
 
@@ -154,10 +162,10 @@ protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgre
 
 
     parEstTemp <- channelsMeanProb.i
-    parEst <- c(parEstTemp, Nspectra.i, Nseq.i)
+    parEst <- c(parEstTemp, Nspectra.i, Nseq.i, convergeInd)
 
 
-  parEst
+   parEst
    }
 
 # test
@@ -196,12 +204,12 @@ proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Tr
   # [1] 278867      7
   checkCols <- {ncol(assignProbs) == nrow(matLocR) + 2}
   if (checkCols) {
-    names(assignProbs) <- c(row.names(matLocR), "Nspectra", "Npeptides")
+    names(assignProbs) <- c(row.names(matLocR), "Nspectra", "Npeptides", "convergeInd")
     geneName <- geneProfileSummary$geneName
     assignProbsOut <- data.frame(geneName, assignProbs)
     }
   if (!checkCols) {
-    names(assignProbs) <- row.names(matLocR)
+    names(assignProbs) <- c(row.names(matLocR), "convergeInd")
     geneName <- geneProfileSummary$geneName
     assignProbsOut <- data.frame(geneName, assignProbs)
   }
