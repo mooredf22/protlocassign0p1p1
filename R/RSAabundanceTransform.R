@@ -134,6 +134,11 @@ rsaDirect <- function(geneProfileLevels, nDiffFractions=6, nNycFractions=1,
   Difp <- sum(totProt[1:nDiffFractions])   # total protein in the differential fractions
   TT <- as.matrix(geneProfileLevels[,1:nDiffFractions]) %*% totProt[1:nDiffFractions]
   geneProfileRSA <- diag(as.numeric(1/TT)) %*% as.matrix(geneProfileLevels) * Difp
+
+  # truncate any large values at 15, for numerical stability
+  geneProfileRSAtemp <- geneProfileRSA
+  ind.too.big <- {geneProfileRSAtemp > 15}
+  geneProfileRSA[ind.too.big] <- 15
   geneProfileRSA
  }
 
