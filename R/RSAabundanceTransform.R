@@ -121,7 +121,8 @@ proteinMix <- function(relAmtProtFrac, Loc1, Loc2, increment=0.10) {
 #' @return geneProfileRSA: relative specific activity
 
 rsaDirect <- function(geneProfileLevels, nDiffFractions=6, nNycFractions=1,
-                      totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)) {
+                      totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587),
+                      maxRSA=12) {
 
   if ((nDiffFractions + nNycFractions) != ncol(geneProfileLevels)) {
     cat("Error from RSAtransform\nTotal number of fractions must be the number of columns of matLocR\n")
@@ -137,8 +138,8 @@ rsaDirect <- function(geneProfileLevels, nDiffFractions=6, nNycFractions=1,
 
   # truncate any large values at 15, for numerical stability
   geneProfileRSAtemp <- geneProfileRSA
-  ind.too.big <- {geneProfileRSAtemp > 15}
-  geneProfileRSA[ind.too.big] <- 15
+  ind.too.big <- {geneProfileRSAtemp > maxRSA}
+  geneProfileRSA[ind.too.big] <- maxRSA
   geneProfileRSA
  }
 
