@@ -63,7 +63,8 @@ Before finding the constrained proportional estimates, it is preferable to trans
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596)
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=1, totProt=totProt)
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=1, totProt=totProt, maxRSA=9)
+row.names(matLocRrsa) <- row.names(matLocR)
 round(matLocRrsa, digits=4)
 nDiffFractions <- 6
 nNycFractions <- 1
@@ -247,7 +248,8 @@ round(matLocR, digits=4)
 
 If we just need to obtain the RSA transformed data directly, just do this:
 ```{r, echo=TRUE, eval=TRUE}
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596))
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=1, 
+                        totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596))
 round(matLocRrsa, digits=4)
 ```
 
@@ -272,7 +274,7 @@ names(mixCytoLysoRelAmt)[1] <- "geneName"
 mixCytoLysoRelAmt
 
 #matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, totProt=totProt)
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=1, totProt=totProt)
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=1, totProt=totProt, maxRSA=25)
 rownames(matLocRrsa) <- rownames(matLocR)
 ```
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data:
