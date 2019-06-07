@@ -125,7 +125,7 @@ protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgre
   if (!log2Transf) {
    temp <- try(BB::spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumsquares", quiet=T,
     #temp <- try(spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumabsvalue", quiet=T,
-                                  control=list(trace=F)))
+                                  control=list(maxit=5000, trace=F)))
   }
   if (log2Transf) {
     eps <- 2^(-5)
