@@ -100,7 +100,7 @@ protIndex <- function(protName, geneProfileSummary) {
 #protIndex("TPP1", geneProfileSummary)
 
 
-protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgress=T, log2Transf=F) {
+protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgress=T, log2Transf=F, maxit=10000) {
   # use the spg function (in package BB) to assign proportionate assignments to compartments
   #nboot=1
   # i=2
@@ -125,7 +125,7 @@ protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgre
   if (!log2Transf) {
    temp <- try(BB::spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumsquares", quiet=T,
     #temp <- try(spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumabsvalue", quiet=T,
-                                  control=list(maxit=10000, trace=F)))
+                                  control=list(maxit=maxit, trace=F)))
   }
   if (log2Transf) {
     eps <- 2^(-5)
@@ -187,7 +187,7 @@ ans <- spg(rep(1/n.locs, n.locs), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(m
 #' @param matLocR A matrix giving the abundance level profiles of the subcellular locations
 #' @param n.channels Number of channels of abundance levels
 #' @return assignProbsOut  Data frame of proportionate assignments of each protein to compartments
-proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Transf=F) {
+proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Transf=F, maxit=10000) {
   #matLocR <- cpaSetup(geneProfileSummary, refLocProteins, n.channels=n.channels)
   n.gene <- nrow(geneProfileSummary)
   indList <- 1:n.gene
@@ -195,7 +195,7 @@ proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Tr
 
    result <- sapply(indList, protLocAssign,
                 geneProfileSummary=geneProfileSummary, matLocR=matLocR, n.channels=n.channels, showProgress=T,
-                simplify=T, log2Transf=log2Transf)
+                simplify=T, log2Transf=log2Transf, maxit=maxit)
 
   assignProbs <- data.frame(t(result))
   #dim(assignProbs)
