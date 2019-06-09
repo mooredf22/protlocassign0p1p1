@@ -100,7 +100,7 @@ protIndex <- function(protName, geneProfileSummary) {
 #protIndex("TPP1", geneProfileSummary)
 
 
-protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgress=T, log2Transf=F, maxit=10000) {
+protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgress=T, log2Transf=F, maxit=maxit) {
   # use the spg function (in package BB) to assign proportionate assignments to compartments
   #nboot=1
   # i=2
