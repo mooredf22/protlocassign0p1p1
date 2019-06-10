@@ -100,11 +100,18 @@ protIndex <- function(protName, geneProfileSummary) {
 #protIndex("TPP1", geneProfileSummary)
 
 
-protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgress=T, log2Transf=F, maxit=maxit) {
+protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgress=T, log2Transf=F, maxit, assignProbsStart) {
+  # maxit and assignPRobsStart must be specified
   # use the spg function (in package BB) to assign proportionate assignments to compartments
   #nboot=1
   # i=2
-  # i=100010
+  # i=1000
+  if (!is.null(assignProbsStart)) {
+    testEq <- {geneProfileSummary$geneName == assignProbsStart$geneName}
+    if (sum(as.numeric(testEq)) != nrow(geneProfileSummary)) {
+      cat("Error in protLocAssign: geneName not identical in geneProfileSummary and assignProbsStart\n")
+    }
+  }
   n.compartments <- nrow(matLocR)
   allPeptideProfilesMat <- geneProfileSummary[,1 + 1:n.channels]     # just the data
 
@@ -122,10 +129,21 @@ protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgre
   Nseq.i <- geneProfileSummary$Nseq[i] # number of unique sequences
   #channelsProb.i <- matrix(NA, nrow=nboot, ncol=8)
 
+  startValsUnif <- rep(1/n.compartments, n.compartments)   # start with uniform probabilities
+  if (!is.null(assignProbsStart)) startVals <- as.numeric(assignProbsStart[i, 2:(n.compartments + 1)]) # start with
   if (!log2Transf) {
-   temp <- try(BB::spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumsquares", quiet=T,
+   # first attempt at minimization: use uniform starting values
+   temp <- try(BB::spg(startValsUnif, fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumsquares", quiet=T,
     #temp <- try(spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumabsvalue", quiet=T,
                                   control=list(maxit=maxit, trace=F)))
+   convergeInd <- as.numeric((temp$message == "Successful convergence"))
+
+   # If starting values are given (assignProbsStart is not null) and if the first attempt failed, try the starting values
+   if ({convergeInd != 1} & {!is.null(assignProbsStart)}) {
+   temp <- try(BB::spg(startVals, fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumsquares", quiet=T,
+                        #temp <- try(spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumabsvalue", quiet=T,
+                        control=list(maxit=maxit, trace=F)))
+   }
   }
   if (log2Transf) {
     eps <- 2^(-5)
@@ -134,7 +152,7 @@ protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgre
     yyLog2= log2(yy + eps)
     temp <- try(BB::spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yyLog2, gmat=t(matLocRlog), methodQ="sumsquares", quiet=T,
                     #temp <- try(spg(rep(1/n.compartments, n.compartments), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(matLocR), methodQ="sumabsvalue", quiet=T,
-                    control=list(trace=F)))
+                    control=list(maxit=maxit, trace=F)))
   }
   convergeInd <- as.numeric(!inherits(temp, "try-error"))
  # if (temp$message != "Successful convergence") {
@@ -187,7 +205,7 @@ ans <- spg(rep(1/n.locs, n.locs), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(m
 #' @param matLocR A matrix giving the abundance level profiles of the subcellular locations
 #' @param n.channels Number of channels of abundance levels
 #' @return assignProbsOut  Data frame of proportionate assignments of each protein to compartments
-proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Transf=F, maxit=10000) {
+proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Transf=F, maxit=10000, assignProbsStart=NULL) {
   #matLocR <- cpaSetup(geneProfileSummary, refLocProteins, n.channels=n.channels)
   n.gene <- nrow(geneProfileSummary)
   indList <- 1:n.gene
@@ -195,7 +213,7 @@ proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Tr
 
    result <- sapply(indList, protLocAssign,
                 geneProfileSummary=geneProfileSummary, matLocR=matLocR, n.channels=n.channels, showProgress=T,
-                simplify=T, log2Transf=log2Transf, maxit=maxit)
+                simplify=T, log2Transf=log2Transf, maxit=maxit, assignProbsStart=assignProbsStart)
 
   assignProbs <- data.frame(t(result))
   #dim(assignProbs)

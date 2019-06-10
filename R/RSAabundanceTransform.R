@@ -122,7 +122,7 @@ proteinMix <- function(relAmtProtFrac, Loc1, Loc2, increment=0.10) {
 
 rsaDirect <- function(geneProfileLevels, nDiffFractions=6, nNycFractions=3,
                       totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587),
-                      maxRSA=12) {
+                      maxRSA=22) {
 
   missing.rows <- geneProfileLevels[!complete.cases(geneProfileLevels),]
   if ({nrow(missing.rows) > 0} | {is.null(missing.rows)}) {
