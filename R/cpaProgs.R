@@ -102,6 +102,7 @@ protIndex <- function(protName, geneProfileSummary) {
 
 protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgress=T, log2Transf=F, maxit, assignProbsStart) {
   # maxit and assignPRobsStart must be specified
+  # assignProbsStart must be NULL or have a column "geneName" and assignment probabilities to use as starting values
   # use the spg function (in package BB) to assign proportionate assignments to compartments
   #nboot=1
   # i=2
@@ -204,6 +205,8 @@ ans <- spg(rep(1/n.locs, n.locs), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(m
 #' @param geneProfileSummary data frame of protein names and relative abundance levels.
 #' @param matLocR A matrix giving the abundance level profiles of the subcellular locations
 #' @param n.channels Number of channels of abundance levels
+#' @param maxit maximum number of iterations
+#' @param assignProbsStart A matrix of starting values, one for each gene. The first column must be geneName
 #' @return assignProbsOut  Data frame of proportionate assignments of each protein to compartments
 proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Transf=F, maxit=10000, assignProbsStart=NULL) {
   #matLocR <- cpaSetup(geneProfileSummary, refLocProteins, n.channels=n.channels)
