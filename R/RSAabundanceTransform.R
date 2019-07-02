@@ -99,7 +99,7 @@ proteinMix <- function(relAmtProtFrac, Loc1, Loc2, increment=0.10) {
   mixAmount <- NULL
   mixProtNames <- NULL
   for (i in 1:nrow.out) {
-    mixAmount.i <- prop.vec[i]*relAmtProtFrac[1,] + qrop.vec[i]*relAmtProtFrac[4,]
+    mixAmount.i <- prop.vec[i]*relAmtProtFrac[Loc1,] + qrop.vec[i]*relAmtProtFrac[Loc2,]
     mixAmount <- rbind(mixAmount, mixAmount.i)
     mixProtNames.i <- paste(prop.vec[i],"_", LocNames[Loc1], ":", qrop.vec[i], "_",LocNames[Loc2], sep='')
     mixProtNames <- c(mixProtNames, mixProtNames.i)
