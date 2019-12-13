@@ -23,8 +23,10 @@ referenceProfilePlot <- function(refLocProteins=refLocProteins, geneProfileSumma
   #if (dataUse == "TMT10revisit3") pdf(file="ClassificationMarkerProfiles3.pdf", width=9, height=10)
   #par(mfrow=c(4,3))
   fractions.list <- rownames(matLoc)
-  #location.list <- as.character(location.list)
-  location.list <- colnames(matLoc)
+
+  #location.list <- colnames(matLoc)
+  location.list <- sort(unique(refLocProteins$referenceCompartment))
+
 
   #temp <- strsplit(fractions.list, "constrained")
   #unlist(temp)
@@ -48,8 +50,8 @@ referenceProfilePlot <- function(refLocProteins=refLocProteins, geneProfileSumma
     # max.val <- 0.7
     plot(mean.i ~ xvals, ylim=c(0,max.val), axes="F", type="n", ylab="",
           xlab="")
-    axis(1,at=xvals,labels=fractions.list, cex.axis=0.5)
-    axis(2)
+    axis(1,at=xvals,labels=fractions.list, cex.axis=0.6)
+    axis(2, las=1)
     for (j in 1:nrow(channels.i)) {
       means.j <- as.numeric(channels.i[j,])
       #if (!log2prop) means.j <- 2^as.numeric(channels.i[j,]) - eps
