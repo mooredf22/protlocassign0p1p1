@@ -25,17 +25,17 @@ Another assignment method, which has been deemed "metamass", uses unsupervised c
 
 ## Tutorial on gene assignment
 
-Let us illustrate with an example. Jadot et al. (2016) presented abundance levels of proteins among seven fractions: N, M, L1, L2, P, and S, and an additional fraction, "Nyc2", from a Nycodenz fraction. Eight subcellular compartments were considered: nucleus, mitochondria, lysosomes, peroxisomes, golgi apparatus, plasma membrane, and cytosol. The CPA method assigns each of a large number of genes to one or more of these compartments, based on profiles from a set of reference genes. To run the program, the `prolocate` library must be installed. Also, the `BB` library is required; it may be downloaded from CRAN by typing `install.packages("BB") `.
+Let us illustrate with an example. Tannous et al. (2020) presented abundance levels of proteins among seven fractions: N, M, L1, L2, P, and S, and three additional fractions, "Nyc1", Nyc2", and "Nyc3", from Nycodenz fractions. Eight subcellular compartments were considered: nucleus, mitochondria, lysosomes, peroxisomes, golgi apparatus, plasma membrane, and cytosol. The CPA method assigns each of a large number of genes to one or more of these compartments, based on profiles from a set of reference genes. To run the program, the `prolocate` library must be installed. Also, the `BB` library is required; it may be downloaded from CRAN by typing `install.packages("BB") `.
 
 
 ```{r, echo=TRUE}
-library("protlocassign")
-dim(geneProfileSummaryJadotExptA)
-head(geneProfileSummaryJadotExptA)
+library(protlocassign)
+dim(geneProfileSummaryTMTms2)
+head(geneProfileSummaryTMTms2)
 ```
-The data set gives relative fraction levels for 8071 genes. The last two columns give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.)
+The data set gives relative fraction levels for 7893 genes. The last two columns give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.)
 
-The reference genes may be accessed as follows:
+The reference genes, which are from Jadot et al (2016), may be accessed as follows:
 ```{r, echo=TRUE}
 dim(refLocProteinsJadot)
 refLocProteinsJadot[c(1,2,6,7,12,13,17,18,21,22,27,28,31,32,35,36),]
@@ -45,7 +45,7 @@ There are 39 genes in this reference set; two for each compartment are shown her
 To obtain profiles for the reference genes, use the function `cpaSetup`: 
 
 ```{r, echo=TRUE, eval=TRUE}
-matLocR <- cpaSetup(geneProfileSummary=geneProfileSummaryJadotExptA, refLocProteins=refLocProteinsJadot, n.channels=7)
+matLocR <- cpaSetup(geneProfileSummary=geneProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
 matLocR
 
 ##referenceProfilePlot(refLocProteins = refLocProteinsJadot,
@@ -56,54 +56,50 @@ To view them, use `referenceProfilePlot`:
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
 #par(mfrow=c(4,3))
-referenceProfilePlot(refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryJadotExptA,
-                     matLocR=matLocR, dataUse=dataUse, n.channels=7)
+referenceProfilePlot(refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryTMTms2,
+                     matLocR=matLocR, dataUse=dataUse, n.channels=9)
 ```
 Before finding the constrained proportional estimates, it is preferable to transform them to relative specific activities (RSA's), which are the amount of a given protein in a fraction divided by the amount of starting material of that protein (see Appendix section on adjusting protein levels):
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596)
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=1, totProt=totProt, maxRSA=9)
+totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
+
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3, totProt=totProt, maxRSA=20)
 row.names(matLocRrsa) <- row.names(matLocR)
 round(matLocRrsa, digits=4)
 nDiffFractions <- 6
-nNycFractions <- 1
-geneProfileLevels <- geneProfileSummaryJadotExptA[,2:(1 +nDiffFractions+nNycFractions)]
+nNycFractions <- 3
+geneProfileLevels <- geneProfileSummaryTMTms2[,2:(1 +nDiffFractions+nNycFractions)]
 geneProfileLevelsRSA <- rsaDirect(geneProfileLevels=geneProfileLevels, 
-                                   nDiffFractions=6, nNycFractions=1, totProt=totProt)
+                                   nDiffFractions=6, nNycFractions=3, totProt=totProt)
 ```
 
-Here, the vector "totProt" is the amount of starting material in the six differential fractions and in the Nyc2 fraction.
+Here, the vector "totProt" is the amount of starting material in the six differential fractions and in the three Nyc fractions.
 
 Now put the gene names back in the first column and run the CPA routine; this may take several minutes to complete:
 
 ```{r, echo=TRUE, eval=TRUE}
-geneProfileRSA <- data.frame(geneProfileSummaryJadotExptA$geneName, geneProfileLevelsRSA)
+geneProfileRSA <- data.frame(geneProfileSummaryTMTms2$geneName, geneProfileLevelsRSA)
 names(geneProfileRSA)[1] <- "geneName"
 assignProbsOut <- proLocAll(geneProfileSummary=geneProfileRSA, matLocR=matLocRrsa,
-                            n.channels=7)
+                            n.channels=9)
 head(assignProbsOut)
 ```
 
-Now make a list of assignments:
+Now define the names of the subcellular locations, and extract the proportionate assignments:
 ```{r, echo=TRUE, eval=TRUE}
 Locations <- row.names(matLocR)
 n.compartments <- 8
 propMat <- assignProbsOut[,2:(n.compartments+1)]
-
-catAssign <- apply(propMat, 1, assignCPAloc, Locations=Locations)
-table(catAssign)
-assignProbsOutAssign <- data.frame(assignProbsOut, catAssign)
-head(assignProbsOutAssign)
 ```
 
-Now make a reference set, consisting of genes assigned with a proportion >= 0.8:
+Now make a reference set, consisting of genes assigned with a proportion >= 0.8, and add the gene names:
 ```{r, echo=TRUE, eval=TRUE}
 
 catAssign80.vec <- apply(propMat, 1, assignCPAloc, cutoff=0.8, Locations=Locations)
+table(catAssign80.vec)
 
-
-refLocProp80all <- data.frame(geneProfileSummaryJadotExptA$geneName, catAssign80.vec)
+refLocProp80all <- data.frame(geneProfileSummaryTMTms2$geneName, catAssign80.vec)
 names(refLocProp80all) <- c("geneName", "referenceCompartment")
 
 refLocProp80 <- refLocProp80all[refLocProp80all$referenceCompartment != "unclassified",]
@@ -113,8 +109,8 @@ head(refLocProp80)
 
 Here is a plot of the newly-created reference gene set:
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-referenceProfilePlot(refLocProteins=refLocProp80, geneProfileSummary=geneProfileSummaryJadotExptA,
-                     matLocR=matLocR, dataUse=dataUse, markersUse=markersUse)
+referenceProfilePlot(refLocProteins=refLocProp80, geneProfileSummary=geneProfileSummaryTMTms2,
+                     matLocR=matLocR, n.channels=9)
 ```
 
 ## Metamass classification
@@ -124,8 +120,8 @@ Lund-Johansen et al. (2016) proposed a metamass tool for subcellular proteomics 
 Now carry out the metamass clustering procedure, using an average cluster size of 10 genes, and the \code{refLocProp80} reference set we just created. 
 
 ```{r, echo=TRUE, eval=TRUE}
-geneProfileSummaryMclustOnce <-  protCluster(geneProfileSummary=geneProfileSummaryJadotExptA,
-                                             refLocProteins=refLocProp80, refCol=1, nCol=7, clustSize=10)
+geneProfileSummaryMclustOnce <-  protCluster(geneProfileSummary=geneProfileSummaryTMTms2,
+                                             refLocProteins=refLocProp80, refCol=1, nCol=9, clustSize=10)
 head(geneProfileSummaryMclustOnce$clProtsOrd)
 head(geneProfileSummaryMclustOnce$purityStats)
 head(geneProfileSummaryMclustOnce$purity.df)
@@ -164,7 +160,7 @@ The input data, geneProfileSummary, consists of a list of gene names (first colu
 The first transformation involves finding the amount of a given protein in a fraction divided by the amount of protein in the starting material. To see how this works, let us consider the Jadot reference protein profiles
 
 ```{r, echo=TRUE, eval=TRUE}
-matLocR <- cpaSetup(geneProfileSummary=geneProfileSummaryJadotExptA, refLocProteins=refLocProteinsJadot, n.channels=7)
+matLocR <- cpaSetup(geneProfileSummary=geneProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
 round(matLocR, digits=4)
 
 ##referenceProfilePlot(refLocProteins = refLocProteinsJadot,
@@ -174,7 +170,8 @@ round(matLocR, digits=4)
 Here, each row represents the profile for a protein resident solely in a particular compartment. The amount of starting material, totProt, in each fraction is as follows:
 
 ```{r, echo=TRUE, eval=TRUE}
-totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596)
+totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
+
 totProtdf <- data.frame(t(matrix(totProt)))
 names(totProtdf) <- colnames(matLocR)
 totProtdf
@@ -183,13 +180,14 @@ The total amount of starting material is the sum of the amounts given in the fir
 ```{r, echo=TRUE, eval=TRUE}
 sum(totProt[1:6])
 ```
-(The last amount, Nyc2, is the middle of three Nycodenz fractions, which were derived from L1.)
+(The last three "Nyc" columns were derived from L1.)
 
 To compute the amount of protein in each fraction, we multiply each column by the amount of starting material in each fraction. The function abundanceTransform does this:
 
 ```{r, echo=TRUE, eval=TRUE}
-totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596)
-protAbund <- abundanceTransform(matLocR,6,1, totProt=totProt)
+totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
+
+protAbund <- abundanceTransform(matLocR,6,3, totProt=totProt)
 round(protAbund$amtProtFrac, digits=4)
 round(protAbund$relAmtProtFrac, digits=4)
 ```
@@ -248,8 +246,9 @@ round(matLocR, digits=4)
 
 If we just need to obtain the RSA transformed data directly, just do this:
 ```{r, echo=TRUE, eval=TRUE}
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=1, 
-                        totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596))
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3, 
+        totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587))
+
 round(matLocRrsa, digits=4)
 ```
 
@@ -257,8 +256,9 @@ round(matLocRrsa, digits=4)
 
 We may simulate data from proteins with multiple residences using the "proteinMix" function. For example, to simulate date from proteins resident in a range of proportions in cytosol and lysosomes, we do this:
 ```{r, echo=TRUE, eval=TRUE}
-totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596)
-protAbund <- abundanceTransform(matLocR, 6,1 , totProt=totProt)
+totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
+
+protAbund <- abundanceTransform(matLocR, nDiffFractions=6, nNycFractions=3 , totProt=totProt)
 relAmtProtFrac <- protAbund$relAmtProtFrac
 mixCytoLyso <- proteinMix(relAmtProtFrac, 1, 4)
 mixCytoLyso
@@ -274,13 +274,13 @@ names(mixCytoLysoRelAmt)[1] <- "geneName"
 mixCytoLysoRelAmt
 
 #matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, totProt=totProt)
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=1, totProt=totProt, maxRSA=25)
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3, totProt=totProt, maxRSA=25)
 rownames(matLocRrsa) <- rownames(matLocR)
 ```
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data:
 
 ```{r, echo=TRUE, eval=TRUE}
 proLocAll(geneProfileSummary=mixCytoLysoRelAmt, matLocR=matLocRrsa,
-                            n.channels=7)
+                            n.channels=9)
 ```
 The estimated proportions correspond closely to the the proportions used in the simulation.
