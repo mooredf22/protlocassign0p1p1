@@ -96,7 +96,7 @@ protIndex <- function(protName, geneProfileSummary) {
 
   inx
   }
-#protIndex("Tpp1", geneProfileSummary)
+#protIndex("Tpp1", geneProfileSummaryTMTms2)
 #protIndex("TPP1", geneProfileSummary)
 
 
