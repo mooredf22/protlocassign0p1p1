@@ -5,7 +5,7 @@
 \title{Carry out constrained proportional assignment on all genes}
 \usage{
 proLocAll(geneProfileSummary, matLocR, n.channels = n.channels,
-  log2Transf = F)
+  log2Transf = F, maxit = 10000, assignProbsStart = NULL)
 }
 \arguments{
 \item{geneProfileSummary}{data frame of protein names and relative abundance levels.}
@@ -13,6 +13,10 @@ proLocAll(geneProfileSummary, matLocR, n.channels = n.channels,
 \item{matLocR}{A matrix giving the abundance level profiles of the subcellular locations}
 
 \item{n.channels}{Number of channels of abundance levels}
+
+\item{maxit}{maximum number of iterations}
+
+\item{assignProbsStart}{A matrix of starting values, one for each gene. The first column must be geneName}
 }
 \value{
 assignProbsOut  Data frame of proportionate assignments of each protein to compartments
