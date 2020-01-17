@@ -11,10 +11,12 @@ This is the full dataset for TMT-MS2 (A Tannous et al., 2020), including genes, 
 }
 \usage{data("tmtMS2orig")}
 \format{
-  A data frame with 131699 observations on the following 13 variables.
+  A data frame with 131699 observations on the following 15 variables.
   \describe{
     \item{\code{gene}}{a character vector}
     \item{\code{peptide}}{a character vector}
+    \item{\code{modifications}}{a character vector}
+    \item{\code{Filename..scan}}{a character vector}
     \item{\code{N}}{a numeric vector}
     \item{\code{M}}{a numeric vector}
     \item{\code{L1}}{a numeric vector}
@@ -33,14 +35,14 @@ geneID is a unique numeric identifier for gene, and geneSeqId is a unique numeri
 %%  ~~ If necessary, more details than the __description__ above ~~
 }
 \source{
+A Tannous et al. (2020) submitted manuscript
 %%  ~~ reference to a publication or URL from which the data were obtained ~~
 }
 \references{
-A Tannous et al. (2020) submitted manuscript
 %%  ~~ possibly secondary sources and usages ~~
 }
 \examples{
-data(tmtMS2orig)
 str(tmtMS2orig)
+
 }
 \keyword{datasets}
