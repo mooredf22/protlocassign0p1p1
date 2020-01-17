@@ -5,8 +5,15 @@
 \title{Assign genes to locations using metamass procedure; Carries out protCluster multiple
   times to assess consistency of assignments to compartments}
 \usage{
-protClusterStable(geneProfileSummary, refLocProteins, refCol = 1,
-  nCol = 9, clustSize = 5, nReps = 100, assignCutoff = 0.5)
+protClusterStable(
+  geneProfileSummary,
+  refLocProteins,
+  refCol = 1,
+  nCol = 9,
+  clustSize = 5,
+  nReps = 100,
+  assignCutoff = 0.5
+)
 }
 \arguments{
 \item{geneProfileSummary}{data frame of protein names and relative abundance levels.}

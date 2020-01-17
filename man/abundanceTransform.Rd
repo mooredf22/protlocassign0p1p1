@@ -4,9 +4,13 @@
 \alias{abundanceTransform}
 \title{Set up RSA (relative specific activity) profiles for constrained proportional assignment}
 \usage{
-abundanceTransform(matLocR, nDiffFractions = 6, nNycFractions = 3,
-  totProt = c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584,
-  58.181818, 0.0368564, 0.0684596, 1.27301587))
+abundanceTransform(
+  matLocR,
+  nDiffFractions = 6,
+  nNycFractions = 3,
+  totProt = c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564,
+    0.0684596, 1.27301587)
+)
 }
 \arguments{
 \item{matLocR}{A matrix giving the abundance level profiles of the subcellular locations, from 'cpaSetup', or many gene profiles}

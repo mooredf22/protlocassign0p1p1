@@ -4,8 +4,13 @@
 \alias{protCluster}
 \title{Assign genes to locations using metamass procedure}
 \usage{
-protCluster(geneProfileSummary, refLocProteins, refCol = 1, nCol = 9,
-  clustSize = 5)
+protCluster(
+  geneProfileSummary,
+  refLocProteins,
+  refCol = 1,
+  nCol = 9,
+  clustSize = 5
+)
 }
 \arguments{
 \item{geneProfileSummary}{data frame of protein names and relative abundance levels.}

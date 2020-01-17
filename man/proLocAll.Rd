@@ -4,8 +4,14 @@
 \alias{proLocAll}
 \title{Carry out constrained proportional assignment on all genes}
 \usage{
-proLocAll(geneProfileSummary, matLocR, n.channels = n.channels,
-  log2Transf = F, maxit = 10000, assignProbsStart = NULL)
+proLocAll(
+  geneProfileSummary,
+  matLocR,
+  n.channels = n.channels,
+  log2Transf = F,
+  maxit = 10000,
+  assignProbsStart = NULL
+)
 }
 \arguments{
 \item{geneProfileSummary}{data frame of protein names and relative abundance levels.}

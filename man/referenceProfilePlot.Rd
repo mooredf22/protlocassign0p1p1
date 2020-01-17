@@ -4,9 +4,14 @@
 \alias{referenceProfilePlot}
 \title{Plot profiles of reference genes}
 \usage{
-referenceProfilePlot(refLocProteins = refLocProteins,
-  geneProfileSummary = geneProfileSummary, matLocR = matLocR,
-  n.channels = 7, dataUse = "", markersUse = "")
+referenceProfilePlot(
+  refLocProteins = refLocProteins,
+  geneProfileSummary = geneProfileSummary,
+  matLocR = matLocR,
+  n.channels = 7,
+  dataUse = "",
+  markersUse = ""
+)
 }
 \arguments{
 \item{refLocProteins}{List of reference proteins}

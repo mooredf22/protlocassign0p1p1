@@ -4,9 +4,13 @@
 \alias{RSAtransform}
 \title{Compute relative specific activity and RSA fractions from rlatve amounts in protein fractions}
 \usage{
-RSAtransform(relAmtProtFrac, nDiffFractions = 6, nNycFractions = 3,
-  totProt = c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584,
-  58.181818, 0.0368564, 0.0684596, 1.27301587))
+RSAtransform(
+  relAmtProtFrac,
+  nDiffFractions = 6,
+  nNycFractions = 3,
+  totProt = c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564,
+    0.0684596, 1.27301587)
+)
 }
 \arguments{
 \item{relAmtProtFrac}{amount of given protein in fraction / amount of given protein in starting material}

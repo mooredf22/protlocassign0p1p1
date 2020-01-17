@@ -4,8 +4,12 @@
 \alias{protDataPrep}
 \title{Prepare data for constrained proportional assignment by reweighting differential and nyc fractions}
 \usage{
-protDataPrep(geneProfileSummary, n.diff.chan = 6, n.nyc.chan = 3,
-  nycL1Adjust = T)
+protDataPrep(
+  geneProfileSummary,
+  n.diff.chan = 6,
+  n.nyc.chan = 3,
+  nycL1Adjust = T
+)
 }
 \arguments{
 \item{geneProfileSummary}{data frame of gene/protein identifiers (geneName) and their relative abundance in centrifugation fractions.}

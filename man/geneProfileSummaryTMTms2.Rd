@@ -11,7 +11,7 @@
 \format{
   A data frame with 7893 observations on the following 12 variables.
   \describe{
-    \item{\code{geneName}}{a factor with levels for each of the 7893 genes }}
+    \item{\code{geneName}}{a factor with levels for each of the 7893 genes }
     \item{\code{N}}{a numeric vector}
     \item{\code{M}}{a numeric vector}
     \item{\code{L1}}{a numeric vector}
@@ -23,8 +23,9 @@
     \item{\code{Nyc.3}}{a numeric vector}
     \item{\code{Nspectra}}{a numeric vector}
     \item{\code{Nseq}}{a numeric vector}
+    }
   }
-}
+
 \details{
 Nspectra is a count of the total number of spectra for each gene, and Nseq is the number of sequences (peptides) for that gene.
 %%  ~~ If necessary, more details than the __description__ above ~~
