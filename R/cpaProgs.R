@@ -83,7 +83,7 @@ proj.simplex <- function(y, c=1) {
 
 
 
-protIndex <- function(protName, geneProfileSummary) {
+protIndex <- function(protName, geneProfileSummary=geneProfileSummaryTMTms2) {
   # return index of a protein name
   n.prot <- nrow(geneProfileSummary)
 
@@ -98,7 +98,6 @@ protIndex <- function(protName, geneProfileSummary) {
   }
 #protIndex("Tpp1", geneProfileSummaryTMTms2)
 #protIndex("TPP1", geneProfileSummary)
-
 
 protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgress=T, log2Transf=F, maxit, assignProbsStart) {
   # maxit and assignPRobsStart must be specified

@@ -59,10 +59,11 @@ To view them, use `referenceProfilePlot`:
 referenceProfilePlot(refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryTMTms2,
                      matLocR=matLocR, dataUse=dataUse, n.channels=9)
 ```
-Before finding the constrained proportional estimates, it is preferable to transform them to relative specific activities (RSA's), which are the amount of a given protein in a fraction divided by the amount of starting material of that protein (see Appendix section on adjusting protein levels):
+Before finding the constrained proportional estimates, it is preferable to transform them to relative specific activities (RSA's), which are the amount of a given protein in a fraction divided by the amount of starting material of that protein (see Appendix section on adjusting protein levels). These levels are in the dataset "tmtMS2totProt":
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
+totProt <- tmtMS2totProt
+totProt
 
 matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3, totProt=totProt, maxRSA=20)
 row.names(matLocRrsa) <- row.names(matLocR)
@@ -85,6 +86,12 @@ assignProbsOut <- proLocAll(geneProfileSummary=geneProfileRSA, matLocR=matLocRrs
                             n.channels=9)
 head(assignProbsOut)
 ```
+We can look at the profile of, for example, the gene "AADAC" by first finding the gene number and then plotting it:
+```{r, echo=TRUE, eval=TRUE}
+protIndex("AADAC")
+#protPlotfun(protPlot=93, assignProbsOut=assignProbsOut)
+```
+
 
 Now define the names of the subcellular locations, and extract the proportionate assignments:
 ```{r, echo=TRUE, eval=TRUE}

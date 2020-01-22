@@ -11,10 +11,12 @@ Description: Fits a constrained proportional assignment model and a metamass mod
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 3.5.0)
+Depends: 
+    R (>= 3.5.0),
+    lme4,
+    BB
 RoxygenNote: 7.0.2
 Imports: 
-    BB
 Suggests: 
     knitr,
     rmarkdown
