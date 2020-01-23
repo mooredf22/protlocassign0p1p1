@@ -10,7 +10,7 @@
 #'
 
 
-referenceProfilePlot <- function(refLocProteins=refLocProteins, geneProfileSummary=geneProfileSummary, matLocR=matLocR,
+referenceProfilePlot <- function(refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryTMTms2, matLocR=matLocR,
                                  n.channels=7, dataUse="", markersUse="")  {
   names(geneProfileSummary)[1] <- "geneName"
   meanReferenceGenes <- merge(x=refLocProteins, y=geneProfileSummary,
