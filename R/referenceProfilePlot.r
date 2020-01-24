@@ -11,7 +11,7 @@
 
 
 referenceProfilePlot <- function(refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryTMTms2, matLocR=matLocR,
-                                 n.channels=7, dataUse="", markersUse="")  {
+                                 n.channels=9)  {
   names(geneProfileSummary)[1] <- "geneName"
   meanReferenceGenes <- merge(x=refLocProteins, y=geneProfileSummary,
                             by.x="geneName", by.y="geneName", all.x=F, sort=F)
@@ -47,9 +47,11 @@ referenceProfilePlot <- function(refLocProteins=refLocProteinsJadot, geneProfile
     #if (!log2prop) mean.i <- 2^as.numeric(matLoc[,i]) - eps
     #plot(mean.i ~ xvals, ylim=c(min.y,max.y.vec[i]), axes="F", type="l", ylab="")
     #plot(mean.i ~ xvals, ylim=c(-6,0.5), axes="F", type="l", ylab="")
-    # max.val <- 0.7
-    plot(mean.i ~ xvals, ylim=c(0,max.val), axes="F", type="n", ylab="",
+    max.val <- max(channels.i)
+    # ylim=c(0,max.val),
+    plot(mean.i ~ xvals,ylim=c(0,max.val), axes="F", type="n", ylab="",
           xlab="")
+
     axis(1,at=xvals,labels=fractions.list, cex.axis=0.6)
     axis(2, las=1)
     for (j in 1:nrow(channels.i)) {
@@ -57,11 +59,11 @@ referenceProfilePlot <- function(refLocProteins=refLocProteinsJadot, geneProfile
       #if (!log2prop) means.j <- 2^as.numeric(channels.i[j,]) - eps
       lines(as.numeric(means.j) ~ xvals, col="red")
     }
-    lines(mean.i ~ xvals, lwd=3, lty=1, col="yellow")
-    lines(mean.i ~ xvals, lwd=3, lty=2)
+    #lines(mean.i ~ xvals, lwd=1, lty=1, col="yellow")
+    lines(mean.i ~ xvals, lwd=2, lty=2)
     title(paste(loc.i,"profiles"))
   }
 
-#  if (pdfout) dev.off()
+
   }
 

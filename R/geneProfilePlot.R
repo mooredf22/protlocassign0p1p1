@@ -12,6 +12,7 @@
 #'         (number of spectra) and Nseq (number of peptides)
 #' @param matLocR A matrix matLocR giving the abundance level profiles of the subcellular locations
 #'        8 columns are subcellular locations, and n.fractions rows are the fraction names
+#' @param predictedProp.mat A matrix of CPA predicted proportions, from proLocAll
 #' @param confint indicator for if there are standard errors (from bootstrapping) for the assigned proportions
 #'        (in geneProfileSummary)
 #' @param predictedPropL.mat Matrix of lower confidence limits, one row for each gene, and 9 columns
@@ -21,7 +22,8 @@
 #'
 
 protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, finalList=finalListUse, n.fractions=9,
-                        Nspectra=T, matLocR=matLocRuse, confInt=F, predictedPropL.mat=NULL, predictedPropU.mat) {
+                        Nspectra=T, matLocR=matLocRuse, predictedProp.mat=assignPropsUse,
+                        confInt=F, predictedPropL.mat=NULL, predictedPropU.mat=NULL) {
   # protPlot is the number of the protein (gene) to plot
   # geneProfileSummaryUse is a matrix with components:
   #    geneName: name of gene (protein)
@@ -39,7 +41,7 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, fina
   # protPlot <- 6540
   # protPlot <- 93
   #protName.i <- as.character(meanCovarGenesUseAll.t$protNames[protPlot])
-  assignProbsOut <- geneProfileSummary[,1:(1+n.fractions)]   # just the gene name and the n.fractions assigned proportions
+  assignProbsOut <- geneProfileSummary[,1:(1+8)]   # just the gene name and the assigned proportions to the 8 compartments
   meanCovarGenes <- assignProbsOut[,-1]  # drop gene name column
   channelsAll <-  assignProbsOut[,-1]  # another name for this
   row.names(meanCovarGenes) <- assignProbsOut$geneName
@@ -55,7 +57,8 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, fina
   if (se) seMat.i <- seMat[protPlot,]  # just the standard errors
   #finalList.t <- finalList
   finalList.i <- finalList[toupper(finalList$gene) == protName.i, ]
-  fractions.i <- finalList.i[,2 + c(1:n.fractions)]
+  if (nrow(finalList.i) > 0) fractions.i <- finalList.i[,2 + c(1:n.fractions)]
+  if (nrow(finalList.i) == 0) stop("no corresponding spectra in finalList")
   #  add these back in:
   #exc.ind.i <- {finalList.i$outCountBoxPlot > 0}
   #fractions.use.i <- fractions.i[!exc.ind.i,]
@@ -112,12 +115,16 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, fina
   par(mar=c(0,0,0,0))
   plot(y ~ x,type="n",axes=F,cex=1)
   #aa <- 1.34
+
   if (length(indAssignProb.prot) > 0) {
     text(x=2.5,y=0.3,paste(protName.i), cex=2)
 
-    NpeptidesPlot <- geneProfileSummary$Nseq[indAssignProb.prot]
+    NpeptidesPlot <- geneProfileSummary$Npeptides[indAssignProb.prot]
     NspectraPlot <- geneProfileSummary$Nspectra[indAssignProb.prot]
     NpeptidesPlotText <- " peptides and "
+
+    browser()
+
     if (NpeptidesPlot == 1) NpeptidesPlotText <- " peptide and "
     NspectraPlotText <- " spectra"
     if (NspectraPlot == 1) NspectraPlotText <- " spectrum"

@@ -218,11 +218,9 @@ proLocAll <- function(geneProfileSummary, matLocR, n.channels=n.channels, log2Tr
                 simplify=T, log2Transf=log2Transf, maxit=maxit, assignProbsStart=assignProbsStart)
 
   assignProbs <- data.frame(t(result))
-  #dim(assignProbs)
-  # [1] 278867      8
-  #dim(allPeptideProfilesMat)
-  # [1] 278867      7
+
   checkCols <- {ncol(assignProbs) == nrow(matLocR) + 3}
+
   if (checkCols) {
     names(assignProbs) <- c(row.names(matLocR), "Nspectra", "Npeptides", "convergeInd")
     geneName <- geneProfileSummary$geneName
