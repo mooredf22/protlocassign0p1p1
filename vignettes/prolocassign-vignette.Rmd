@@ -106,9 +106,9 @@ Now we can run the CPA routine on the RSA-transformed levels; this may take seve
 ```{r, echo=TRUE, eval=TRUE}
 assignPropsOutTemp <- proLocAll(geneProfileSummary=geneProfileSummaryRSA, matLocR=matLocRrsa,
                             n.channels=9)
-ncol.a <- ncol(assignProbsOutTemp)   # last column is a convergence indicator, which should be 1
+ncol.a <- ncol(assignPropsOutTemp)   # last column is a convergence indicator, which should be 1
 assignPropsUse <- data.frame(assignPropsOutTemp[,-ncol.a] ) # drop this last column
-head(assignProbsOut)
+head(assignPropsUse)
 ```
 
 We can look at the profile of, for example, the gene "AADAC" by first finding the gene number and then plotting it:
@@ -121,14 +121,14 @@ We shall now set up the data to examine the profiles of any gene. First, select 
 
 ```{r, echo=TRUE, eval=TRUE}
 geneProfileSummaryUse <- subset(geneProfileSummaryTMTms2,subset={{Nspectra >= 3} & {Nseq >= 2}})  # just the data, and need sufficient spectra and peptides
-genesInclude <- geneProfileSummary$geneName
+genesInclude <- geneProfileSummaryUse$geneName
 
 ```
 
 Next, load the original data, with spectra and peptides, and select out the same genes in "genesInclude":
 
 ```{r, echo=TRUE, eval=TRUE}
-finalListUse <- subset(tmtMS2orig, select={c(gene:peptide,N:Nyc.3)}, subset={gene %in% genesInclude})
+#finalListUse <- subset(tmtMS2orig, select={c(gene:peptide,N:Nyc.3)}, subset={gene %in% genesInclude})
 finalListUse <- subset(tmtMS2orig, select={c(gene:peptide,N:Nyc.3)})
 ```
 
@@ -151,10 +151,10 @@ finalListRSAuse <- data.frame(finalListUse[,1:2], finalListRSAuseT)
 
 #geneProfileRSAuse <- data.frame(geneProfileRSA, geneProfileSummaryUse)
 protPlotfun(protPlot=93, geneProfileSummary=geneProfileSummaryRSA, finalList=finalListRSAuse, n.fractions=9,
-                        Nspectra=T, matLocR=matLocRrsa)
+                        Nspectra=T, matLocR=matLocRrsa, assignPropsMat=assignPropsUse)
                         
 protPlotfun(protPlot=93, geneProfileSummary=assignProbsOut, finalList=finalListUse, n.fractions=9,
-                        Nspectra=T, matLocR=matLocRuse, predictedProp.mat=assignPropsUse)
+                        Nspectra=T, matLocR=matLocRuse, assignPropsMat=assignPropsUse)
 protPlotfun(protPlot=3, geneProfileSummary=assignProbsOut, finalList=finalListUse, n.fractions=9,
                         Nspectra=T, matLocR=matLocRuse)
 
