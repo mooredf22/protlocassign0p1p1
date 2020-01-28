@@ -46,8 +46,8 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
   # protPlot <- 93
   #protName.i <- as.character(meanCovarGenesUseAll.t$protNames[protPlot])
   genesOK <- {geneProfileSummary$geneName == assignProps$geneName}
-  if(!genesOK) cat("Error: genes names don't match\n")
-  stopifnot(genesOK)
+  ##if(!genesOK) cat("Error: genes names don't match\n")
+  ##stopifnot(genesOK)
   #assignProbsOut <- geneProfileSummary[,1:(1+8)]   # just the gene name and the assigned proportions to the 8 compartments
   meanProteinLevels <- geneProfileSummary[,2:(1+n.fractions)]  # drop gene name column
   # (formerly named meanCovarGenes)
