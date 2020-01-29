@@ -146,17 +146,16 @@ protIndex("AADAC")
 This function also accepts partial matching of the first few letters of a gene. For example, we can find the indices of the genes starting with "AAD""
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("AAD")
-#protPlotfun(protPlot=93, assignProbsOut=assignProbsOut)
 ```
 Now we plot the results for gene number AADAC, which has index number 93:
 
-```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=8}
+```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
 
 protPlotfun(protPlot=93, geneProfileSummary=geneProfileSummaryRSA, finalList=finalListRSAuse, n.fractions=9,
                         Nspectra=T, matLocR=matLocRrsa, assignPropsMat=assignPropsUse)
 ```                        
 
-
+The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the peptides, which are represented by the blue lines; thicker blue lines indicate larger numbers of spectra for a particular peptide. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 92\% residence proportion to endoplasmic reticulum. Visually, we see that the observed red profile closely matches the expected yellow-black profile for endoplasmic reticulum.
 
 
 # Appendix

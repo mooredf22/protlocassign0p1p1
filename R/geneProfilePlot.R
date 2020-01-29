@@ -151,7 +151,14 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
   # max.y <- max(c(max(means.peptides.i), max(matLocR[i,])))
   min.y <- 0
   par(mar=c(2,1.5,2,1.5))
-  for (i in 1:8) {    # do all the subcellular locations
+  # The plots are in alphabetical order
+  # re-arrange the plots so that they are in this order:
+  #   Mito (7)     Lyso  (4)   Perox (5)
+  #   ER (2)       Golgi (1)   PM (8)
+  #   Cyto (3 )    Nuc (6)
+  #
+  loc.ord <- c(7, 4, 5, 2, 1, 8, 3, 6)
+  for (i in loc.ord) {    # do all the subcellular locations
     # i=1
     if (T) {
       if ({i == 4} | {i == 7}) {
