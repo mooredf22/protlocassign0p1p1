@@ -14,7 +14,7 @@
 #' @param matLocR A matrix matLocR giving the abundance level profiles of the subcellular locations
 #'        n.compartments = 8 columns are subcellular locations, and n.fractions rows are the fraction names
 #' @param assignPropsMat A matrix of assignment proportions, from the constrained proportional assignment algorithm,
-#'        and optionally upper and lower 95% confidence limits
+#'        and optionally upper and lower 95 percent confidence limits
 #' @param propCI True if lower and upper confidence intervals are included in assignPros
 #' @param predictedProp.mat A matrix of CPA predicted proportions, from proLocAll
 #' @param confint indicator for if there are standard errors (from bootstrapping) for the assigned proportions
@@ -45,6 +45,8 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
   # protPlot <- 6540
   # protPlot <- 93
   #protName.i <- as.character(meanCovarGenesUseAll.t$protNames[protPlot])
+  oldpar <- par(no.readonly=TRUE)
+  on.exit(par(oldpar))
   genesOK <- {geneProfileSummary$geneName == assignPropsMat$geneName}
   ##if(!genesOK) cat("Error: genes names don't match\n")
   ##stopifnot(genesOK)

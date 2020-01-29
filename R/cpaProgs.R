@@ -88,13 +88,18 @@ protIndex <- function(protName, geneProfileSummary=geneProfileSummaryTMTms2) {
   n.prot <- nrow(geneProfileSummary)
 
   prot.list <- as.character(geneProfileSummary[,1])  # must be in column 1
-  if (protName %in% prot.list)  {inx <- (1:n.prot)[{prot.list == protName}]}
-  else if (protName %in% toupper(prot.list))  {inx <- (1:n.prot)[{toupper(prot.list) == protName}]}
+  inx <- grep(paste("^",protName, sep=""), prot.list, ignore.case=T)
+  if (length(inx) == 0) inx <- NA
+  #if (protName %in% prot.list)  {inx <- (1:n.prot)[{prot.list == protName}]}
+  #else if (protName %in% toupper(prot.list))  {inx <- (1:n.prot)[{toupper(prot.list) == protName}]}
   #is this all that is necessary?:
-  else if (toupper(protName) %in% toupper(prot.list))  {inx <- (1:n.prot)[{toupper(prot.list) == toupper(protName)}]}
-  else inx <- NA
+  #else if (toupper(protName) %in% toupper(prot.list))  {inx <- (1:n.prot)[{toupper(prot.list) == toupper(protName)}]}
+  #else inx <- NA
 
   inx
+  result <- data.frame(inx, prot.list[inx])
+  names(result) <- c("Gene index number", "Gene name")
+  result
   }
 #protIndex("Tpp1", geneProfileSummaryTMTms2)
 #protIndex("TPP1", geneProfileSummary)

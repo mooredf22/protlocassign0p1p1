@@ -7,38 +7,47 @@
 protPlotfun(
   protPlot,
   geneProfileSummary = geneProfileSummaryUse,
+  Nspectra = T,
   finalList = finalListUse,
   n.fractions = 9,
-  Nspectra = T,
+  n.compartments = 8,
   matLocR = matLocRuse,
-  confInt = F,
-  predictedPropL.mat = NULL,
-  predictedPropU.mat
+  assignPropsMat = assignPropsUse,
+  propCI = F
 )
 }
 \arguments{
-\item{geneProfileSummary}{data frame of protein names and relative abundance levels.}
+\item{geneProfileSummary}{data frame of protein names and their relative abundance levels..}
+
+\item{Nspectra}{indicator for if there are columns in geneProfileSummary for Nspectra
+(number of spectra) and Nseq (number of peptides)}
 
 \item{finalList}{spectrum-level abundance levels by protein and peptide}
 
 \item{n.fractions}{number of fractions per protein}
 
-\item{Nspectra}{indicator for if there are columns in geneProfileSummary for Nspectra
-(number of spectra) and Nseq (number of peptides)}
+\item{n.compartments}{number of compartments (8 in Jadot data)}
 
 \item{matLocR}{A matrix matLocR giving the abundance level profiles of the subcellular locations
-8 columns are subcellular locations, and n.fractions rows are the fraction names}
+n.compartments = 8 columns are subcellular locations, and n.fractions rows are the fraction names}
+
+\item{assignPropsMat}{A matrix of assignment proportions, from the constrained proportional assignment algorithm,
+and optionally upper and lower 95 percent confidence limits}
+
+\item{propCI}{True if lower and upper confidence intervals are included in assignPros}
+
+\item{refLocProteins}{List of reference proteins}
+
+\item{predictedProp.mat}{A matrix of CPA predicted proportions, from proLocAll}
+
+\item{confint}{indicator for if there are standard errors (from bootstrapping) for the assigned proportions
+(in geneProfileSummary)}
 
 \item{predictedPropL.mat}{Matrix of lower confidence limits, one row for each gene, and 9 columns
 of lower confidence interval limits}
 
 \item{predictedPropU.mat}{Matrix of upper confidence limits, one row for each gene, and 9 columns
 of upper confidence interval limits}
-
-\item{refLocProteins}{List of reference proteins}
-
-\item{confint}{indicator for if there are standard errors (from bootstrapping) for the assigned proportions
-(in geneProfileSummary)}
 }
 \description{
 This function plots the average profiles of any gene in the dataset,

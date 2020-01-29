@@ -5,12 +5,10 @@
 \title{Plot profiles of reference genes}
 \usage{
 referenceProfilePlot(
-  refLocProteins = refLocProteins,
-  geneProfileSummary = geneProfileSummary,
+  refLocProteins = refLocProteinsJadot,
+  geneProfileSummary = geneProfileSummaryTMTms2,
   matLocR = matLocR,
-  n.channels = 7,
-  dataUse = "",
-  markersUse = ""
+  n.channels = 9
 )
 }
 \arguments{
