@@ -157,11 +157,13 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
   #   ER (2)       Golgi (1)   PM (8)
   #   Cyto (3 )    Nuc (6)
   #
-  loc.ord <- c(7, 4, 5, 2, 1, 8, 3, 6)
+  #loc.ord <- c(7, 4, 5, 2, 1, 8, 3, 6)
+  loc.ord <- c(5, 4, 7, 2, 3, 8, 1, 6)
   for (i in loc.ord) {    # do all the subcellular locations
     # i=1
     if (T) {
-      if ({i == 4} | {i == 7}) {
+      #if ({loc.ord[i] == 4} | {loc.ord[i] == 7}) {
+      if ({i == 2} | {i == 1}) {
         x <- c(0,5)
         y <- c(0,0.5)
         par(mar=c(0,0,0,0))
