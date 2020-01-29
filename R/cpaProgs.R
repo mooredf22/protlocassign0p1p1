@@ -97,8 +97,11 @@ protIndex <- function(protName, geneProfileSummary=geneProfileSummaryTMTms2) {
   #else inx <- NA
 
   inx
-  result <- data.frame(inx, prot.list[inx])
-  names(result) <- c("Gene index number", "Gene name")
+  if (!is.na(inx[1])) {
+    result <- data.frame(inx, prot.list[inx])
+    names(result) <- c("Gene index number", "Gene name")
+    }
+  if (is.na(inx[1])) result <- "gene not found"
   result
   }
 #protIndex("Tpp1", geneProfileSummaryTMTms2)
