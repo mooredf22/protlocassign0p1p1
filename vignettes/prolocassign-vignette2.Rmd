@@ -117,13 +117,6 @@ protIndex("AADAC")
 #protPlotfun(protPlot=93, assignProbsOut=assignProbsOut)
 ```
 
-We shall now set up the data to examine the profiles of any gene. First, select only the genes with at least two peptides and three spectra, and extract the genes that are included:
-
-```{r, echo=TRUE, eval=TRUE}
-geneProfileSummaryUse <- subset(geneProfileSummaryTMTms2,subset={{Nspectra >= 3} & {Nseq >= 2}})  # just the data, and need sufficient spectra and peptides
-genesInclude <- geneProfileSummaryUse$geneName
-
-```
 
 Next, load the original data, with spectra and peptides, and select out the same genes in "genesInclude":
 
@@ -156,48 +149,8 @@ protPlotfun(protPlot=93, geneProfileSummary=geneProfileSummaryRSA, finalList=fin
                         Nspectra=T, matLocR=matLocRrsa, assignPropsMat=assignPropsUse)
                         
 
-Now define the names of the subcellular locations, and extract the proportionate assignments:
-```{r, echo=TRUE, eval=TRUE}
-Locations <- row.names(matLocR)
-n.compartments <- 8
-propMat <- assignProbsOut[,2:(n.compartments+1)]
-```
 
-Now make a reference set, consisting of genes assigned with a proportion >= 0.8, and add the gene names:
-```{r, echo=TRUE, eval=TRUE}
 
-catAssign80.vec <- apply(propMat, 1, assignCPAloc, cutoff=0.8, Locations=Locations)
-table(catAssign80.vec)
-
-refLocProp80all <- data.frame(geneProfileSummaryTMTms2$geneName, catAssign80.vec)
-names(refLocProp80all) <- c("geneName", "referenceCompartment")
-
-refLocProp80 <- refLocProp80all[refLocProp80all$referenceCompartment != "unclassified",]
-dim(refLocProp80)
-head(refLocProp80)
-```
-
-Here is a plot of the newly-created reference gene set:
-```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-referenceProfilePlot(refLocProteins=refLocProp80, geneProfileSummary=geneProfileSummaryTMTms2,
-                     matLocR=matLocR, n.channels=9)
-```
-
-## Metamass classification
-
-Lund-Johansen et al. (2016) proposed a metamass tool for subcellular proteomics data. A key component of metamass is an alternative method of classifying genes to subcellular locations. We have adapted this method as follows. First, we use unsupervised clustering with the "kmeans" procedure in the R system, to agglomerate all of the genes into a large number small clusters, the idea being that all genes in a cluster will belong to the same subcellular location. Following this step, a set of reference genes, with prsumably known subcellular residences, is merged with these clusters. Then for each cluster, the majority residence of the reference genes is identified, and then all genes in the cluster are assigned to that residence. Genes in clusters containing no reference genes remain unclassified. Also, if a cluster contains reference genes with multiple residences, and if there is a tie for the maximum, all genes in that cluster are marked as unclassified. When a cluster contains genes with multiple residences, the "purity" is defined as the ratio of the number of reference genes of the majority residence divided by the total number of reference genes in that cluster.
-
-Now carry out the metamass clustering procedure, using an average cluster size of 10 genes, and the \code{refLocProp80} reference set we just created. 
-
-```{r, echo=TRUE, eval=TRUE}
-geneProfileSummaryMclustOnce <-  protCluster(geneProfileSummary=geneProfileSummaryTMTms2,
-                                             refLocProteins=refLocProp80, refCol=1, nCol=9, clustSize=10)
-head(geneProfileSummaryMclustOnce$clProtsOrd)
-head(geneProfileSummaryMclustOnce$purityStats)
-head(geneProfileSummaryMclustOnce$purity.df)
-
-```
-The first column, "cl", is the cluster number. The column "classif" is the original reference classification, and "maxCat.vec" is the residency assigned by the metamass procedure.
 
 # Appendix
 ## Outlier rejection and computation of mean profiles

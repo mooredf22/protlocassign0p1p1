@@ -45,7 +45,7 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
   # protPlot <- 6540
   # protPlot <- 93
   #protName.i <- as.character(meanCovarGenesUseAll.t$protNames[protPlot])
-  genesOK <- {geneProfileSummary$geneName == assignProps$geneName}
+  genesOK <- {geneProfileSummary$geneName == assignPropsMat$geneName}
   ##if(!genesOK) cat("Error: genes names don't match\n")
   ##stopifnot(genesOK)
   #assignProbsOut <- geneProfileSummary[,1:(1+8)]   # just the gene name and the assigned proportions to the 8 compartments
@@ -127,7 +127,7 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
   plot(y ~ x,type="n",axes=F,cex=1)
   #aa <- 1.34
 
-  if (length(indAssignProp.prot) > 0) {
+  #if (length(indAssignProp.prot) > 0) {
     text(x=2.5,y=0.3,paste(protName.i), cex=2)
 
     NpeptidesPlot <- geneProfileSummary$Nseq[protPlot]
@@ -141,10 +141,10 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
     if (NspectraPlot == 1) NspectraPlotText <- " spectrum"
     text(x=2.5,y=0.1, paste(NpeptidesPlot, NpeptidesPlotText,
                             NspectraPlot , NspectraPlotText), cex=2)
-  }
-  if (length(indAssignProp.prot) ==0) {
-    text(x=2.5,y=0.3,protName.i, cex=2)
-  }
+  #}
+ # if (length(indAssignProp.prot) ==0) {
+ #   text(x=2.5,y=0.3,protName.i, cex=2)
+ # }
 
   # max.y <- max(c(max(means.peptides.i), max(matLocR[i,])))
   min.y <- 0
@@ -222,7 +222,7 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
       ))
     }
     if (!propCI) {
-      title(paste(assignLong.i, "\n p = ", round(assignPropsMat[indAssignProp.prot,1+i], digits=2 )))
+      title(paste(assignLong.i, "\n p = ", round(assignPropsMat[protPlot,1+i], digits=2 )))
     }
   }
   x <- c(0,5)
