@@ -196,27 +196,29 @@ round(matLocR, digits=4)
 ##  geneProfileSummary = geneProfileSummaryJadotExptA, matLocR = matLocR, n.channels=7)
 ```
 
-Here, each row represents the profile for a protein resident solely in a particular compartment. The amount of starting material, totProt, in each fraction is as follows:
+Here, each row represents the profile for a protein resident solely in a particular compartment. The amount of starting material, tmtMS2totProt, in each fraction is as follows:
 
 ```{r, echo=TRUE, eval=TRUE}
-totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
+#totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
+totProtUse <- tmtMS2totProt
+totProtUse
 
-totProtdf <- data.frame(t(matrix(totProt)))
+totProtdf <- data.frame(t(matrix(totProtUse)))
 names(totProtdf) <- colnames(matLocR)
 totProtdf
 ```
 The total amount of starting material is the sum of the amounts given in the first six (differential) fractions (N, M, L1, L2, P, and S).
 ```{r, echo=TRUE, eval=TRUE}
-sum(totProt[1:6])
+sum(totProtUse[1:6])
 ```
 (The last three "Nyc" columns were derived from L1.)
 
 To compute the amount of protein in each fraction, we multiply each column by the amount of starting material in each fraction. The function abundanceTransform does this:
 
 ```{r, echo=TRUE, eval=TRUE}
-totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
+#totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
 
-protAbund <- abundanceTransform(matLocR,6,3, totProt=totProt)
+protAbund <- abundanceTransform(matLocR,6,3, totProt=totProtUse)
 round(protAbund$amtProtFrac, digits=4)
 round(protAbund$relAmtProtFrac, digits=4)
 ```
@@ -225,7 +227,7 @@ The first component of the result, amtProtFrac, is the amount of protein in each
 is the amount of given protein in fraction / amount of given protein in starting material. For example, for a cytosolic protein, the amount of protein in each fraction is given by
 
 ```{r, echo=TRUE, eval=TRUE}
-matLocR[,1]*totProt[1]
+matLocR[,1]*totProtUse[1]
 protAbund$amtProtFrac[1,]
 ```
 This is the first column of amtProtFrac.
@@ -250,14 +252,14 @@ Finally, we compute the relative specific activity (RSA):
 
 To get this, we first find Difp, the total protein in the six differential fractions (nDiffFractions = 6), and then the proportions propFrac of protein in the differential fractions:
 ```{r, echo=TRUE, eval=TRUE}
-rsaResult <- RSAtransform(protAbund$relAmtProtFrac, totProt=totProt)
+rsaResult <- RSAtransform(protAbund$relAmtProtFrac, totProt=totProtUse)
 round(rsaResult$rsa, digits=4)
 ```
 
 ```{r, echo=TRUE, eval=TRUE}
-Difp <- sum(totProt[1:6])   # total protein in the differential fractions
+Difp <- sum(totProtUse[1:6])   # total protein in the differential fractions
 Difp
-propFrac <- totProt/Difp  # proportion of protein in the differential fractions
+propFrac <- totProtUse/Difp  # proportion of protein in the differential fractions
 propFrac
 ```
 
@@ -276,7 +278,7 @@ round(matLocR, digits=4)
 If we just need to obtain the RSA transformed data directly, just do this:
 ```{r, echo=TRUE, eval=TRUE}
 matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3, 
-        totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587))
+        totProt=totProtUse)
 
 round(matLocRrsa, digits=4)
 ```
@@ -285,36 +287,40 @@ round(matLocRrsa, digits=4)
 
 We may simulate data from proteins with multiple residences using the "proteinMix" function. For example, to simulate date from proteins resident in a range of proportions in cytosol and lysosomes, we do this:
 ```{r, echo=TRUE, eval=TRUE}
-totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
+#totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
 
-protAbund <- abundanceTransform(matLocR, nDiffFractions=6, nNycFractions=3 , totProt=totProt)
+protAbund <- abundanceTransform(matLocR, nDiffFractions=6, nNycFractions=3 , totProt=totProtUse)
 relAmtProtFrac <- protAbund$relAmtProtFrac
 mixCytoLyso <- proteinMix(relAmtProtFrac, 1, 4)
-mixCytoLyso
+round(mixCytoLyso, digits=4)
 ```
 
 Then we can test the CPA algorithm by first converting this mixture data to RSA's:
 ```{r, echo=TRUE, eval=TRUE}
 
-mixCytoLysoRSA <- RSAtransform(relAmtProtFrac=mixCytoLyso, nDiffFractions=6, nNycFractions=3, totProt=totProt)$rsa
+mixCytoLysoRSA <- RSAtransform(relAmtProtFrac=mixCytoLyso, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)$rsa
   
 mixCytoLysoRelAmt <- data.frame(rownames(mixCytoLysoRSA), mixCytoLysoRSA)
 names(mixCytoLysoRelAmt)[1] <- "geneName"
-mixCytoLysoRelAmt
+round(mixCytoLysoRelAmt[,-1], digits=4)
 
 #matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, totProt=totProt)
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3, totProt=totProt, maxRSA=25)
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3, totProt=totProtUse, maxRSA=25)
 rownames(matLocRrsa) <- rownames(matLocR)
 ```
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data:
 
 ```{r, echo=TRUE, eval=TRUE}
-proLocAll(geneProfileSummary=mixCytoLysoRelAmt, matLocR=matLocRrsa,
+mixCytoLysoPropT <- proLocAll(geneProfileSummary=mixCytoLysoRelAmt, matLocR=matLocRrsa,
                             n.channels=9)
+mixCytoLysoProp <- mixCytoLysoPropT[,-c(1,10)]
+row.names(mixCytoLysoProp) <- mixCytoLysoPropT[,1]
+round(mixCytoLysoProp, digits=4)
+
 ```
 The estimated proportions correspond closely to the the proportions used in the simulation.
 
-#References
+## References
 
 Jadot M, Boonen M, Thirion J, Wang N, Xing J, Zhao C, Tannous A, Qian M, Zheng H, Everett JK, Moore DF, Sleat DE, Lobel P (2016) Accounting for protein subcellular localization: a compartmental map of the rat liver proteome. Molecular and Cellular Proteomics 16, 194-212. doi:10.1074/mcp.M116.064527  PMCID: PMC5294208
 
