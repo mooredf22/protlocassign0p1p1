@@ -2,7 +2,8 @@
 title: "Assignment of Proteins to Subcellular Locations Using protlocassign"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+#output: rmarkdown::html_vignette
+output: word_document
 vignette: >
   %\VignetteIndexEntry{protlocassign}
   %\VignetteEngine{knitr::rmarkdown}
