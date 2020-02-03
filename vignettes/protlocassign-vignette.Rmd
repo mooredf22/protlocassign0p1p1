@@ -176,7 +176,13 @@ Next, the profiles of the reference proteins are selected. For each of the eight
 Finally, for each protein, we find estimated proportions $\hat{p}_1, \hat{p}_2, ..., \hat{p}_8$ so that
 $$\underset{\sim}y = \hat{p}_1 \underset{\sim}s_1 + ...+ \hat{p}_8 \underset{\sim}s_8$$
 is as close as possible to the observed value $\underset{\sim}x$, subject to the constraints
-$$ 0 \leq p_j \leq 1 {\space \rm for\space all \space} j, {\space\rm and}$$
+
+$$ 0 \leq p_j \leq 1$$
+
+for all $j$, and
+
+
+
 $$ \sum_{j=1}^{8} \hat{p}_j = 1 $$
 where "close" is defined by minimizing the sum of squares of the differences
 
