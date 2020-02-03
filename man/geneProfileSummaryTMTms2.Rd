@@ -31,7 +31,7 @@ Nspectra is a count of the total number of spectra for each gene, and Nseq is th
 %%  ~~ If necessary, more details than the __description__ above ~~
 }
 \source{
-A Tannous et al. (2020) submitted.
+Tannous A, Boonen M, Zheng H, Zhao C, Germain C, Moore D, Sleat D, Jadot M, Lobel P. Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. Journal of Proteome Research 2020, in press
 %%  ~~ reference to a publication or URL from which the data were obtained ~~
 }
 \references{
