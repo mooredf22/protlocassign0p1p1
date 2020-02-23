@@ -24,8 +24,12 @@ referenceProfilePlot <- function(refLocProteins=refLocProteinsJadot, geneProfile
   #par(mfrow=c(4,3))
   fractions.list <- rownames(matLoc)
 
-  #location.list <- colnames(matLoc)
-  location.list <- sort(unique(refLocProteins$referenceCompartment))
+  location.list <- colnames(matLoc)
+  #location.list <- sort(unique(refLocProteins$referenceCompartment))
+  location.list2 <- unique(refLocProteins$referenceCompartment) # should be same as location.list
+  if (sum({location.list == location.list2}) != length(location.list)) {
+      cat("error: locations in matLoc don't match those in refLocProteins\n")
+  }
 
 
   #temp <- strsplit(fractions.list, "constrained")

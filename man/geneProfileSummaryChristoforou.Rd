@@ -1,11 +1,11 @@
-\name{geneProfileSummaryChristoforouExpt1}
-\alias{geneProfileSummaryChristoforouExpt1}
+\name{geneProfileSummaryChristoforou}
+\alias{geneProfileSummaryChristoforou}
 \docType{data}
 \title{
 geneProfileSummaryChristoforouExpt1
 %%   ~~ data name/kind ... ~~
 }
-\description{This is a list of 5032 genes and their relative expression levels in Experiment 1, described in Christoforou et al (2016)
+\description{This is a list of 5032 genes and their relative expression levels in Experiments 1 and 2, described in Christoforou et al (2016)
 
 %%  ~~ A concise (1-5 lines) description of the dataset. ~~
 }
@@ -23,6 +23,15 @@ geneProfileSummaryChristoforouExpt1
     \item{\code{X129C}}{a numeric vector}
     \item{\code{X130N}}{a numeric vector}
     \item{\code{X130C}}{a numeric vector}
+    \item{\code{X126.1}}{a numeric vector}
+    \item{\code{X127N.1}}{a numeric vector}
+    \item{\code{X127C.1}}{a numeric vector}
+    \item{\code{X128N.1}}{a numeric vector}
+    \item{\code{X128C.1}}{a numeric vector}
+    \item{\code{X129N.1}}{a numeric vector}
+    \item{\code{X129C.1}}{a numeric vector}
+    \item{\code{X130N.1}}{a numeric vector}
+    \item{\code{X130C.1}}{a numeric vector}
     \item{\code{Nspectra}}{a numeric vector}
     \item{\code{Nseq}}{a numeric vector}
   }

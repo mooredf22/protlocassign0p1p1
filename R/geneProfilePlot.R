@@ -54,7 +54,9 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
   meanProteinLevels <- geneProfileSummary[,2:(1+n.fractions)]  # drop gene name column
   # (formerly named meanCovarGenes)
   #channelsAll <-  [,-1]  # another name for this
-  row.names(meanProteinLevels) <- geneProfileSummary$geneName
+  geneName <- as.character(geneProfileSummary$geneName)
+  geneNameUnique <- make.unique(geneName)
+  row.names(meanProteinLevels) <- geneProfileSummary$geneNameUnique
   subCellNames <- rownames(matLocR)
   subCellNames[8] <- "Plasma membrane"
   subCellNames[4] <- "Lysosomes"
@@ -65,37 +67,39 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
 
   protName.i <- as.character(geneProfileSummary$geneName[protPlot])
 
-  finalList.i <- finalList[toupper(finalList$gene) == protName.i, ]
-  if (nrow(finalList.i) > 0) fractions.i <- finalList.i[,2 + c(1:n.fractions)]
-  if (nrow(finalList.i) == 0) stop("no corresponding spectra in finalList")
-  Nspectra <- nrow(finalList.i)
-  Npeptides <- length(unique(finalList.i$peptide))
+  if (!is.null(finalList)) {
+    finalList.i <- finalList[toupper(finalList$gene) == protName.i, ]
+
+    if (nrow(finalList.i) > 0) fractions.i <- finalList.i[,2 + c(1:n.fractions)]
+    if (nrow(finalList.i) == 0) stop("no corresponding spectra in finalList")
+    Nspectra <- nrow(finalList.i)
+    Npeptides <- length(unique(finalList.i$peptide))
   #  add these back in:
   #exc.ind.i <- {finalList.i$outCountBoxPlot > 0}
   #fractions.use.i <- fractions.i[!exc.ind.i,]
   #finalList.use.i <- finalList.i[!exc.ind.i,]
-  finalList.use.i <-  finalList.i
+    finalList.use.i <-  finalList.i
   #fractions.use.i <- fractions.i
-  fractions.use.i <- finalList.use.i[,-c(1,2)]     # just the numbers
-  peptide.i <- as.character(finalList.use.i$peptide)
-  n.uniq.peptide.i <- length(unique(peptide.i))
-  uniq.peptides.list <- unique(peptide.i)
-  means.peptides.i <- matrix(NA, nrow=n.uniq.peptide.i, ncol=n.fractions)
-  n.spectra.i <- rep(NA, n.uniq.peptide.i)
+    fractions.use.i <- finalList.use.i[,-c(1,2)]     # just the numbers
+    peptide.i <- as.character(finalList.use.i$peptide)
+    n.uniq.peptide.i <- length(unique(peptide.i))
+    uniq.peptides.list <- unique(peptide.i)
+    means.peptides.i <- matrix(NA, nrow=n.uniq.peptide.i, ncol=n.fractions)
+    n.spectra.i <- rep(NA, n.uniq.peptide.i)
   #browser()
-  for (jj in 1:n.uniq.peptide.i) {
-    fractions.use.i.jj <- fractions.use.i[uniq.peptides.list[jj] == peptide.i,]
-    means.peptides.i[jj,] <- apply(fractions.use.i.jj,2,mean)
-    n.spectra.i[jj] <- nrow(fractions.use.i.jj)
+    for (jj in 1:n.uniq.peptide.i) {
+      fractions.use.i.jj <- fractions.use.i[uniq.peptides.list[jj] == peptide.i,]
+      means.peptides.i[jj,] <- apply(fractions.use.i.jj,2,mean)
+      n.spectra.i[jj] <- nrow(fractions.use.i.jj)
+    }
+    max.y <- max(means.peptides.i, na.rm=T)
+    min.y <-0
+    n.assign <- nrow(assignPropsUse)
+    #indAssignProp.prot <- (1:n.assign)[assignPropsUse$geneName == protName.i] # indicators of genes used
+
+
+    n.fractions.i <- nrow(fractions.i)
   }
-  max.y <- max(means.peptides.i, na.rm=T)
-  min.y <-0
-  n.assign <- nrow(assignPropsUse)
-  #indAssignProp.prot <- (1:n.assign)[assignPropsUse$geneName == protName.i] # indicators of genes used
-
-
-  n.fractions.i <- nrow(fractions.i)
-
 
   #yy= as.numeric(channelsAll[protPlot,])
   yy <- as.numeric(meanProteinLevels[protPlot,])

@@ -27,7 +27,7 @@ cpaSetup <- function(geneProfileSummary, refLocProteins=refLocProteins, n.channe
 
   # Find mean profiles for each sub-cellular location, using reference genes
   #location.list <- unique(meanCovarGenesStringent$referenceCompartment)
-  location.list <- unique(meanReferenceGenes$referenceCompartment)
+  location.list <- as.character(unique(meanReferenceGenes$referenceCompartment))
   n.loc <- length(location.list)
   meanProfile <- NULL
   for (i in 1:n.loc) {
