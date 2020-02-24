@@ -7,6 +7,7 @@
 
 #'
 
+
 cpaSetup <- function(geneProfileSummary, refLocProteins=refLocProteins, n.channels) {
   # Find the mean profiles of the subcellular locations
 
