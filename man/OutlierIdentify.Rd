@@ -6,7 +6,7 @@
 OutlierIdentify to identify outliers in a matrix
 using both scoresMod and boxplotMod}
 \usage{
-OutlierIdentify(protClass, refCol, nCol, save.data = TRUE, byPeptide = FALSE)
+OutlierIdentify(protClass, refCol, nCol, save.data = FALSE, byPeptide = FALSE)
 }
 \arguments{
 \item{input.Data:}{a matrix of numbers}
@@ -20,8 +20,15 @@ data columns}
 
 \item{byPeptide:}{outliers by peptide(T) or gene(F)?}
 }
+\value{
+: Input.Data plus outlier indicators
+}
 \description{
 ================================================================
 OutlierIdentify to identify outliers in a matrix
 using both scoresMod and boxplotMod
+}
+\examples{
+protsCombineCnew <- Outlier.Identify(protClass=tmtMS2orig, refCol=4, nCol=9, Save.data=F)
+================================================================
 }
