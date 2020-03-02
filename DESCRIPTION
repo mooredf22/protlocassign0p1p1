@@ -16,7 +16,9 @@ Depends:
     lme4,
     BB
 RoxygenNote: 7.0.2
-Imports: 
+Imports:
+    tidyverse,
+    optimx
 Suggests: 
     knitr,
     rmarkdown

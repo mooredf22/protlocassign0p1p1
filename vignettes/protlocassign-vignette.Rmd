@@ -177,6 +177,25 @@ protIndex("AAD")
 nearestGenes("AADAC", n.nearest=10,  distGenes=distUse, geneNames=genesUse)
 ```
 
+## Working with spectral level data
+The spectral level data for tmtMS2 is in the dataset "tmtMS2orig". This dataset contains a list of 
+spectra nested within peptides, which are in turn nested within proteins. Outliers may be identified as follows:
+
+```
+protsCombineCnew <- OutlierIdentify(protClass=tmtMS2orig, refCol=4, nCol=9, save.data=F)
+```
+
+The following function computes mean profiles using a random effects model with spectra nested within genes, 
+after removing outliers:
+
+```
+gProfSummaryTMTms2 <- geneProfileEstimate(protsCombineCnew = protsCombineCnew, outlier="boxplot",
+                                        refCol=4, nCol=9, eps=0.029885209, dataUse="tmtMS2", save.data=F)
+head(gProfSummaryTMTms2)
+```
+
+
+
 
 ## Christoforou example
 Christoforou (2015) provided a set of profiles of 20 channels (from two separate runs) for over 5000 genes. Here are the constrained proportional assignments as computed by "proLocAll":
