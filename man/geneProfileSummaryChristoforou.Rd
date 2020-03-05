@@ -5,7 +5,7 @@
 geneProfileSummaryChristoforouExpt1
 %%   ~~ data name/kind ... ~~
 }
-\description{This is a list of 5032 genes and their relative expression levels in Experiments 1 and 2, described in Christoforou et al (2016)
+\description{This is a list of 5032 genes and their relative expression levels in Experiments 1 and 2, described in Christoforou et al (2016). The first column is the gene name, and the next two sets of ten columns are the channel values for experiments 1 and 2, respectively
 
 %%  ~~ A concise (1-5 lines) description of the dataset. ~~
 }
@@ -13,7 +13,7 @@ geneProfileSummaryChristoforouExpt1
 \format{
   A data frame with 5032 observations on the following 12 variables.
   \describe{
-    \item{\code{geneName}}{a character vector}
+    \item{\code{geneName}}{a character vector representing the gene name}
     \item{\code{X126}}{a numeric vector}
     \item{\code{X127N}}{a numeric vector}
     \item{\code{X127C}}{a numeric vector}
@@ -32,8 +32,8 @@ geneProfileSummaryChristoforouExpt1
     \item{\code{X129C.1}}{a numeric vector}
     \item{\code{X130N.1}}{a numeric vector}
     \item{\code{X130C.1}}{a numeric vector}
-    \item{\code{Nspectra}}{a numeric vector}
-    \item{\code{Nseq}}{a numeric vector}
+    \item{\code{Nspectra}}{a numeric vector indicating number of spectra}
+    \item{\code{Nseq}}{a numeric vector indicating number of peptides (sequences)}
   }
 }
 \details{
@@ -49,7 +49,7 @@ Chrisoforou A, Mulvey CM, Breckels LM, Geladaki A, Hurrell T, Hayward PC, Naake 
 %%  ~~ possibly secondary sources and usages ~~
 }
 \examples{
-data(geneProfileSummaryChristoforouExpt1)
-str(geneProfileSummaryChristoforouExpt1)
+
+head(geneProfileSummaryChristoforou)
 }
 \keyword{datasets}
