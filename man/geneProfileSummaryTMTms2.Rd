@@ -35,12 +35,14 @@ Tannous A, Boonen M, Zheng H, Zhao C, Germain C, Moore D, Sleat D, Jadot M, Lobe
 %%  ~~ reference to a publication or URL from which the data were obtained ~~
 }
 \references{
-Experimental details may be found in Jadot M, Boonen M, Thirion J, Wang N, Xing J, Zhao C, Tannous A, Qian M, Zheng H, Everett JK, Moore DF, Sleat DE, and Lobel P (2016) Accounting for protein subcellular localization: a compartmental map of the rat liver proteome. Molecular and Cellular Proteomics 16, 194-212.
+Jadot M, Boonen M, Thirion J, Wang N, Xing J, Zhao C, Tannous A, Qian M, Zheng H, Everett JK, Moore DF, Sleat DE, and Lobel P (2016) Accounting for protein subcellular localization: a compartmental map of the rat liver proteome. Molecular and Cellular Proteomics 16, 194-212.
 doi:10.1074/mcp.M116.064527  PMCID: PMC5294208
-%%  ~~ possibly secondary sources and usages ~~
+
+Tannous A, Boonen M, Zheng H, Zhao C, Germain C, Moore D, Sleat D, Jadot M, Lobel P. Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. Journal of Proteome Research 2020, in press
+
 }
 \examples{
-data(geneProfileSummaryTMTms2)
-## maybe str(geneProfileSummaryTMTms2) ; plot(geneProfileSummaryTMTms2) ...
+head(geneProfileSummaryTMTms2)
+
 }
 \keyword{datasets}
