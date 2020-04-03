@@ -13,7 +13,7 @@ install.packages("devtools")
 Then install the protlocassign package by typing
 
 ```
-devtools::install_github("protlocassign0p1p1")
+devtools::install_github("mooredf22/protlocassign0p1p1")
 library(protlocassign0p1p1)
 ```
 
