@@ -14,7 +14,7 @@ Then install the protlocassign package by typing
 
 ```
 devtools::install_github("mooredf22/protlocassign0p1p1")
-library(protlocassign0p1p1)
+library(protlocassign)
 ```
 
 This will make the programs and datasets available.Instructions for use of the package are in the vignette.
