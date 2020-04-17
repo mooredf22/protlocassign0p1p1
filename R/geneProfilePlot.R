@@ -3,6 +3,7 @@
 #' This function plots the average profiles of any gene in the dataset,
 #'   the peptide profiles, and also the reference profile for each compartment
 #'
+#' @param protName Name of the protein (gene) to plot
 #' @param refLocProteins List of reference proteins
 #' @param geneProfileSummary data frame of protein names and their relative abundance levels..
 #' @param Nspectra indicator for if there are columns in geneProfileSummary for Nspectra
@@ -25,7 +26,7 @@
 #'        of upper confidence interval limits
 #'
 
-protPlotfun <- function(protName, protPlot=NULL, geneProfileSummary=geneProfileSummaryUse, Nspectra=T, finalList=finalListUse,
+protPlotfun <- function(protName, geneProfileSummary=geneProfileSummaryUse, Nspectra=T, finalList=finalListUse,
                         n.fractions=9, n.compartments=8,
                         matLocR=matLocRuse, assignPropsMat=assignPropsUse, propCI=F) {
   # protPlot is the number of the protein (gene) to plot
