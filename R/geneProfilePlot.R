@@ -25,7 +25,7 @@
 #'        of upper confidence interval limits
 #'
 
-protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspectra=T, finalList=finalListUse,
+protPlotfun <- function(protName, protPlot=NULL, geneProfileSummary=geneProfileSummaryUse, Nspectra=T, finalList=finalListUse,
                         n.fractions=9, n.compartments=8,
                         matLocR=matLocRuse, assignPropsMat=assignPropsUse, propCI=F) {
   # protPlot is the number of the protein (gene) to plot
@@ -48,6 +48,22 @@ protPlotfun <- function(protPlot, geneProfileSummary=geneProfileSummaryUse, Nspe
   oldpar <- par(no.readonly=TRUE)
   on.exit(par(oldpar))
   genesOK <- {geneProfileSummary$geneName == assignPropsMat$geneName}
+
+  temp <- protIndex(protName, geneProfileSummary)
+  # this can be a vector, matrix, or vector, so handling is complicated
+  #if (is.matrix(tempx)) temp <- tempx   # leave it alone
+  # if temp is not a matrix, can then test for being NA with no error returned
+  if (!is.matrix(temp)) {
+    if (is.na(temp)[1]) {
+      cat(paste("protName not found \n"))  # first element is Na
+      return(temp)
+    }
+  }
+  if (nrow(temp) > 1) {
+    cat(paste("more than one gene matches pattern \n"))
+    return(temp)
+  }
+  protPlot <- temp[1,1]   # works even if temp is a vector
   ##if(!genesOK) cat("Error: genes names don't match\n")
   ##stopifnot(genesOK)
   #assignProbsOut <- geneProfileSummary[,1:(1+8)]   # just the gene name and the assigned proportions to the 8 compartments

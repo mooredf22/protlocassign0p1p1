@@ -7,7 +7,7 @@ date: "`r Sys.Date()`"
 
 output: 
   word_document:
-    reference_docx: word-styles-reference-02.docx
+    reference_docx: word-styles-reference-03.docx
     
 vignette: >
   %\VignetteIndexEntry{protlocassign}
@@ -59,19 +59,22 @@ In this example we will work with the TMT ms2 data from Tannous et al. (2020). T
 ```{r, echo=TRUE}
 library(protlocassign)
 dim(geneProfileSummaryTMTms2)
-options(digits=3)
-head(geneProfileSummaryTMTms2)
+options(digits=2)
+geneProfileSummaryTMTms2[1:5,1:10]
 ```
-The data set gives relative fraction levels for 7893 genes. The last two columns give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.)
+The data set gives relative fraction levels for 7893 genes. The last two columns give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.) Here are the numbers of spectra and peptides (sequences) from columns 11 and 12, along with the gene names in column 1:
+```{r, echo=TRUE}
+geneProfileSummaryTMTms2[1:5, c(1, 11:12)]
+```
 
-The reference genes, which are from Jadot et al (2016), may be accessed as follows:
+There are 39 reference genes, which are from Jadot et al (2016); they may be accessed as follows:
 ```{r, echo=TRUE}
 dim(refLocProteinsJadot)
-refLocProteinsJadot[c(1,2,6,7,12,13,17,18,21,22,27,28,31,32,35,36),]
+refLocProteinsJadot
 ```
-There are 39 genes in this reference set; two for each compartment are shown here.
 
-To obtain profiles for the reference genes, use the function `cpaSetup`: 
+
+To obtain profiles for the reference genes, use the function `cpaSetup`, which averages the spectra in each reference gene. 
 
 ```{r, echo=TRUE, eval=TRUE}
 matLocRuse <- cpaSetup(geneProfileSummary=geneProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
@@ -112,11 +115,11 @@ Next, load the original data, with spectra and peptides, and select the columns 
 finalListUse <- subset(tmtMS2orig, select={c(gene:peptide, N:Nyc.3)})
 ```
 
-Now we plot the results for gene number AADAC, which has index number 93:
+Now we plot the results for gene number AADAC:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
-
-protPlotfun(protPlot=93, geneProfileSummary=geneProfileSummaryTMTms2, finalList=finalListUse, n.fractions=9,
+protPlotfun(protName="AADAC",
+ geneProfileSummary=geneProfileSummaryTMTms2, finalList=finalListUse, n.fractions=9,
                         Nspectra=T, matLocR=matLocRuse, assignPropsMat=assignPropsUse)
 ```                        
 
@@ -133,7 +136,7 @@ Then select the gene names:
 ```{r, echo=TRUE, eval=TRUE}
 genesUse <- geneProfileSummaryTMTms2[,1]
 ```
-Finally, provide a gene name. Here, for the gene "AADAC", we find the 10 nearest genes.
+Finally, provide a gene name. Here, we first look for genes in our dataset that start with "AADA". We choose the gene "AADAC", and find the 10 nearest genes.
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("AAD")
 nearestGenes("AADAC", n.nearest=10,  distGenes=distUse, geneNames=genesUse)
@@ -145,5 +148,7 @@ Christoforou A, Mulvey, CM, Breckels LM, Geladaki A, Hurrell T, Hayward PC, Naak
 
 Jadot M, Boonen M, Thirion J, Wang N, Xing J, Zhao C, Tannous A, Qian M, Zheng H, Everett JK, Moore DF, Sleat DE, Lobel P (2016) Accounting for protein subcellular localization: a compartmental map of the rat liver proteome. Molecular and Cellular Proteomics 16, 194-212. doi:10.1074/mcp.M116.064527  PMCID: PMC5294208
 
-Tannous A, Boonen M, Zheng H, Zhao C, Germain C, Moore D, Sleat D, Jadot M, Lobel P. Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. Journal of Proteome Research 2020, in press
+Tannous A, Boonen M, Zheng H, Zhao C, Germain C, Moore D, Sleat D, Jadot M, Lobel P. (2020) Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. Journal of Proteome Research. Journal of Proteome Research 19, 1718-1730.
+doi.org/10.1021/acs.jproteome.9b00862
+
 

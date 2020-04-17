@@ -102,11 +102,14 @@ protIndex <- function(protName, geneProfileSummary=geneProfileSummaryTMTms2) {
     result <- data.frame(inx, prot.list[inx])
     names(result) <- c("Gene index number", "Gene name")
     }
-  if (is.na(inx[1])) result <- "gene not found"
+  if (is.na(inx[1])) {
+    result <- NA
+    cat("gene not found\n")
+  }
   result
   }
 #protIndex("Tpp1", geneProfileSummaryTMTms2)
-#protIndex("TPP1", geneProfileSummary)
+
 
 protLocAssign <- function(i, geneProfileSummary, matLocR, n.channels, showProgress=T, log2Transf=F, maxit, assignProbsStart) {
   # maxit and assignPRobsStart must be specified
