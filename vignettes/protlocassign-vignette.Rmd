@@ -125,7 +125,7 @@ protPlotfun(protName="TLN1",
  n.fractions=9, Nspectra=T, matLocR=matLocRuse, assignPropsMat=assignPropsUse)
 ```                        
 
-The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the peptides, which are represented by the blue lines; thicker blue lines indicate larger numbers of spectra for a particular peptide. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines.
+The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the peptides, which are represented by the blue lines; thicker blue lines indicate larger numbers of spectra for a particular peptide. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines. Also note that there is one peptide, plotted in solid blue, with a quite different profile from the other peptides. This is likely due to a peptide (specifically, MVAAAK) incorrectly assigned to this protein. This peptide was removed from the estimation of the average profile by an outlier rejection procedure. This outlier rejection procedure is discussed in another vignette.
 
 ## Nearest genes in a data set
 We may find the genes with profiles nearest to a given gene using the function "nearestGenes". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the genes in a list of mean profiles, such as "geneProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
@@ -171,6 +171,7 @@ Now we can plot the CPA estimates from the Christoforou data.
 protPlotfun(protName="TLN1_MOUSE", geneProfileSummary=geneProfileSummaryChristoforou, finalList=NULL, n.fractions=20,
             Nspectra=T, matLocR=matLocRuse, assignPropsMat=assignPropsUse)
 ```
+
 This data set yields estimates of 73 percent plasma membrane and 22 percent cytosol, which are comparable to the rates from Tannous et al discussed above (59 percent and 35 percent, respectively).
 
 ## References

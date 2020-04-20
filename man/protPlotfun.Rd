@@ -5,7 +5,7 @@
 \title{Plot profiles of reference genes}
 \usage{
 protPlotfun(
-  protPlot,
+  protName,
   geneProfileSummary = geneProfileSummaryUse,
   Nspectra = T,
   finalList = finalListUse,
@@ -17,6 +17,8 @@ protPlotfun(
 )
 }
 \arguments{
+\item{protName}{Name of the protein (gene) to plot}
+
 \item{geneProfileSummary}{data frame of protein names and their relative abundance levels..}
 
 \item{Nspectra}{indicator for if there are columns in geneProfileSummary for Nspectra
