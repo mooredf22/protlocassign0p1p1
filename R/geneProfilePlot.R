@@ -201,12 +201,14 @@ protPlotfun <- function(protName, geneProfileSummary=geneProfileSummaryUse, Nspe
     ##?? means.peptides.i <- meanProteinLevels[{names(as.data.frame(matLocR)) == as.character(assign.i)},]
     #mean.i <- matLoc[,i]
     mean.i <- matLocR[i,]
-    max.y <- max(c(max(means.peptides.i), max(matLocR[i,])))
+    if (!is.null(finalList)) max.y <- max(c(max(means.peptides.i), max(matLocR[i,])))
+    if (is.null(finalList)) max.y <- max(matLocR[i,])
     plot(mean.i ~ xvals,  axes="F", type="l",
          ylim=c(min.y, max.y))
     axis(1,at=xvals,labels=fractions.list)
     axis(2)
 
+  if (!is.null(finalList)) {
     for (j in 1:n.uniq.peptide.i) {
       lwdplot <- 1
       colplot <- "cyan"
@@ -226,7 +228,7 @@ protPlotfun <- function(protName, geneProfileSummary=geneProfileSummaryUse, Nspe
       lines(as.numeric(means.peptides.i[j,]) ~ xvals, cex=0.5, lwd=lwdplot, col=colplot)
 
     }
-
+  }
 
 
 
