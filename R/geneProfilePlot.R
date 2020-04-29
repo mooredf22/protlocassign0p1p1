@@ -8,8 +8,8 @@
 #' @param geneProfileSummary data frame of protein names and their relative abundance levels..
 #' @param Nspectra indicator for if there are columns in geneProfileSummary for Nspectra
 #'         (number of spectra) and Nseq (number of peptides)
-#' @param finalList spectrum-level abundance levels by protein and peptide
-#'
+#' @param finalList spectrum-level abundance levels by protein and peptide; Ehis is NULL
+#'        if not available
 #' @param n.fractions  number of fractions per protein
 #' @param n.compartments number of compartments (8 in Jadot data)
 #' @param matLocR A matrix matLocR giving the abundance level profiles of the subcellular locations
@@ -26,7 +26,7 @@
 #'        of upper confidence interval limits
 #'
 
-protPlotfun <- function(protName, geneProfileSummary=geneProfileSummaryUse, Nspectra=T, finalList=finalListUse,
+protPlotfun <- function(protName, geneProfileSummary=geneProfileSummaryUse, Nspectra=T, finalList=NULL,
                         n.fractions=9, n.compartments=8,
                         matLocR=matLocRuse, assignPropsMat=assignPropsUse, propCI=F) {
   # protPlot is the number of the protein (gene) to plot

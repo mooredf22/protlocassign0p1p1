@@ -54,7 +54,9 @@ Once you have installed a package, you do not need to re-install it the next tim
 
 These are the only packages you need to run the programs that work with data that are presented as mean levels for a protein/gene. In another vignette there is a description of R functions that work with data at the spectral level; additional packages will be needed to process spectral-level data and produce gene-level data.
 
-In this example we will work with the TMT ms2 data from Tannous et al. (2020). To get started, load the package and look at the dimensions of the data set and then the first few rows:
+To use this package you will need two data sets. One consists of a column of gene names followed by a series of columns of relative protein levels derived from a differential fractionation experiment. The other data set consists of a list of reference proteins in the first column and the name of the known subcellular compartment in the second column.
+
+Consider for example the TMT ms2 data from Tannous et al. (2020). To get started, load the package and look at the dimensions of the data set and then the first few rows:
 
 ```{r, echo=TRUE}
 library(protlocassign)
@@ -62,67 +64,71 @@ dim(geneProfileSummaryTMTms2)
 options(digits=2)
 geneProfileSummaryTMTms2[1:5,1:10]
 ```
-The data set gives relative fraction levels for 7893 genes. The last two columns give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.) Here are the numbers of spectra and peptides (sequences) from columns 11 and 12, along with the gene names in column 1:
-```{r, echo=TRUE}
-geneProfileSummaryTMTms2[1:5, c(1, 11:12)]
-```
+The data set gives relative fraction levels for 7893 genes. The last two columns give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.) 
 
-There are 39 reference genes, which are from Jadot et al (2016); they may be accessed as follows:
+The second data set we need has 39 reference genes and their respective subcellular compartments, which are from Jadot et al (2016); they may be accessed as follows:
 ```{r, echo=TRUE}
 dim(refLocProteinsJadot)
 refLocProteinsJadot
 ```
 
 
-To obtain profiles for the reference genes, use the function `cpaSetup`, which averages the spectra in each reference gene. 
+In order to assign proteins proportionately to their respective compartments, we first must obtain profiles for the reference genes, use the function `cpaSetup`, which averages the spectra in each reference gene. 
 
 ```{r, echo=TRUE, eval=TRUE}
-matLocRuse <- cpaSetup(geneProfileSummary=geneProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
-matLocRuse
+markerLocRuse <- cpaSetup(geneProfileSummary=geneProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
+markerLocRuse
 
 ```
 
-To view them, use `referenceProfilePlot`:
+To view a particular compartment profile and its component genes, use `refProfilePlot`. To examine the available compartments, use the row names of markerLocR. 
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+rownames(markerLocR)
+```
+
+For example, to plot the profile for cytosol, use this:
+
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
 #par(mfrow=c(4,3))
-referenceProfilePlot(refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryTMTms2,
-                     matLocR=matLocRuse, n.channels=9)
+refProfilePlot(refLoc="Cyto", refLocProteins=refLocProteinsJadot,
+                     geneProfileSummary=geneProfileSummaryTMTms2,
+                     markerLocR=markerLocRuse)
 ```
-Now we can run the CPA routine; this may take several minutes to complete. The last column is a convergence indicator, with 1 indicating successful convergence. We remove this last column to get a matrix of gene names, and columns indicating the estimated proportional assignments of each gene among the eight subcellular locations.
+
+Now we can run the CPA routine, which assigns proteins to their respective compartments; this may take several minutes to complete. 
 
 ```{r, echo=TRUE, eval=TRUE}
-assignPropsOutTemp <- proLocAll(geneProfileSummary=geneProfileSummaryTMTms2, matLocR=matLocRuse,
-                            n.channels=9)
-ncol.a <- ncol(assignPropsOutTemp)   # last column is a convergence indicator, which should be 1
-assignPropsUse <- data.frame(assignPropsOutTemp[,-ncol.a] ) # drop this last column
+assignPropsUse <- proLocAll(geneProfileSummary=geneProfileSummaryTMTms2,
+                            markerLocR=markerLocRuse, n.channels=9)
+
 head(assignPropsUse)
 ```
 
 
 We can look at the profile of, for example, the gene "TLN1". We can first find the gene in the dataset, and also the row number of that gene:
+
 ```{r, echo=TRUE, eval=TRUE}
-#protIndex("AADAC")
 protIndex("TLN1")
 #protPlotfun(protPlot=93, assignProbsOut=assignProbsOut)
 ```
-This function also accepts partial matching of the first few letters of a gene. For example, we can find the indices of the genes starting with "TLN""
-```{r, echo=TRUE, eval=TRUE}
-#protIndex("AAD")
-protIndex("TLN")
-```
-Next, load the original data, with spectra and peptides, and select the columns for gene name, peptide name, and the nine fractions ranging from N to Nyc:
+
+This function also accepts partial matching of the first few letters of a gene. For example, we can find the indices of the genes starting with "TLN":
 
 ```{r, echo=TRUE, eval=TRUE}
-finalListUse <- subset(tmtMS2orig, select={c(gene:peptide, N:Nyc.3)})
+protIndex("TLN")
 ```
+
+
 
 Now we plot the results for gene number TLN1:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
-protPlotfun(protName="TLN1",
- geneProfileSummary=geneProfileSummaryTMTms2, finalList=finalListUse, 
- n.fractions=9, Nspectra=T, matLocR=matLocRuse, assignPropsMat=assignPropsUse)
+#protPlotfun(protName="TLN1",
+# geneProfileSummary=geneProfileSummaryTMTms2, 
+#n.fractions=9, n.compartments=8,
+# Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
 ```                        
 
 The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the peptides, which are represented by the blue lines; thicker blue lines indicate larger numbers of spectra for a particular peptide. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines. Also note that there is one peptide, plotted in solid blue, with a quite different profile from the other peptides. This is likely due to a peptide (specifically, MVAAAK) incorrectly assigned to this protein. This peptide was removed from the estimation of the average profile by an outlier rejection procedure. This outlier rejection procedure is discussed in another vignette.
@@ -144,32 +150,32 @@ protIndex("TLN")
 nearestGenes("TLN1", n.nearest=10,  distGenes=distUse, geneNames=genesUse)
 ```
 
-We now consider the Christofrou data, which has 20 channels (from two combined experiments).
+We now consider the Christofrou data, which has 20 channels (from two combined experiments). We remove GPT_MOUSE and CPSM_MOUSE (rows 2 and 18)
 
 ```{r, echo=TRUE, eval=TRUE}
 refLocProteinsJadotMouseMod <- refLocProteinsJadotMouse[-c(2,18),] 
 # remove row 2 and 18  (GPT_MOUSE and CPSM_MOUSE)
-matLocRuse <- cpaSetup(geneProfileSummary=geneProfileSummaryChristoforou,
+markerLocRuse <- cpaSetup(geneProfileSummary=geneProfileSummaryChristoforou,
                        refLocProteins=refLocProteinsJadotMouseMod, n.channels=20)
-signif(matLocRuse, digits=2)
-matLocRuse
+signif(markerLocRuse, digits=2)
+markerLocRuse
 ```
 
 Next we estimate the CPA proportions for this experiment.
 
 ```{r, echo=TRUE, eval=TRUE}
-assignPropsOutTemp <- proLocAll(geneProfileSummary=geneProfileSummaryChristoforou,
-                                matLocR=matLocRuse, n.channels=20)
-ncol.a <- ncol(assignPropsOutTemp)   # last column is a convergence indicator, which should be 1
-assignPropsUse <- data.frame(assignPropsOutTemp[,-ncol.a] ) # drop this last column
+assignPropsUse <- proLocAll(geneProfileSummary=geneProfileSummaryChristoforou,
+                                markerLocR=markerLocRuse, n.channels=20)
+
 head(assignPropsUse)
 ```
 
 Now we can plot the CPA estimates from the Christoforou data.
 
 ```{r, echo=TRUE, eval=TRUE}
-protPlotfun(protName="TLN1_MOUSE", geneProfileSummary=geneProfileSummaryChristoforou, finalList=NULL, n.fractions=20,
-            Nspectra=T, matLocR=matLocRuse, assignPropsMat=assignPropsUse)
+#protPlotfun(protName="TLN1_MOUSE", geneProfileSummary=geneProfileSummaryChristoforou,
+#n.fractions=20, n.compartments=6,
+#            Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
 ```
 
 This data set yields estimates of 73 percent plasma membrane and 22 percent cytosol, which are comparable to the rates from Tannous et al discussed above (59 percent and 35 percent, respectively).
