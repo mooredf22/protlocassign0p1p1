@@ -2,8 +2,8 @@
 title: "Assignment of Proteins to Subcellular Locations Using protlocassign"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-#output: word_document
+#output: rmarkdown::html_vignette
+output: word_document
 
 #output: 
 #  word_document:
@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-Determining the locations of proteins in the cell is an important but complex problem. The major biochemical approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribtuion of different proteins among the centrifugation fractions. The location of proteins of interest are then inferred by comparing their distribution to those of known locations. This package takes data from centrifugation fractions for large numbers of proteins to determine their relative abundance among the fractions, and by extension to their relative abundance among subcelluar locations. 
+Determining the locations of proteins in the cell is an important but complex problem. The major biochemical approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribtuion of different proteins among the differential fractions. The location of proteins of interest are then inferred by comparing their distribution to those of known locations. This package takes data from centrifugation fractions for large numbers of proteins to determine their relative abundance among the fractions, and by extension to their relative abundance among subcelluar locations. 
 
 This package implements a subcellular protein assignment procedure as "constrained proportional assignmet", or CPA (Jadot et al, 2016). The input data consists of a file with one column, geneName, of gene/protein identifiers, or of peptide identifiers, and multiple columns of the relative abundances of the proteins among the centrifugal fractions. The sum of the abundance levels is constrained to 1 but can be further transfromed to improve the quality of the fit. Another key input to the program is a curated list of reference genes, and their subcellular locations. The method first determines the profiles of abundance levels of genes in a curated reference set. Then, for each gene, it finds either a profile matching a single compartment or a linear combination of compartment profiles that match the profile of that gene. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. The method can also be applied to classify individual peptides, gaining potential insight into subcellular location of protein isoforms. There is also a tool to compute nearest neighbor distances of proteins, allowing grouping of proteins with similar distributions.
 
@@ -67,16 +67,16 @@ library(protlocassign)
 dim(geneProfileSummaryTMTms2)
 ```
 
-Now use the `str` function to display the contents of `geneProfileSummaryTMTms2`:
+Now use the `str` function to summarize the contents of `geneProfileSummaryTMTms2`:
 
 ```{r, echo=TRUE}
 options(digits=2)
 str(geneProfileSummaryTMTms2)
 ```
 
-You may also examine the first few rows by typing `head(geneProfileSummaryTMTms2)`.
+Each row represents a column, and presents the variable name, type (character or number) and the first few values of that variable. The first column is the gene name and the next eight columns represent the relative abundance level of the gene product. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.) 
 
-The data set gives relative fraction levels for 7893 genes. The first column is the gene name and the next eight columns represent the relative abundance level of the gene product. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.) 
+Alternatively you may also examine the first few rows by typing `head(geneProfileSummaryTMTms2)`.
 
 The second data set we need has 39 reference genes and two columns, the first for the gene name and the second for their respective subcellular compartments . These are from Jadot et al (2016) and may be viewed as follows:
 ```{r, echo=TRUE}
@@ -130,7 +130,7 @@ refProfilePlot(refLoc="Cyto", refLocProteins=refLocProteinsJadot,
                      markerLocR=markerLocRuse)
 ```
 
-To plot all of the reference profiles we may set up a plot window with four rows and two columns and then loop through the eight subcellular compartments:
+To plot all of the reference profiles we may set up a plot window with four rows and two columns and then loop through the eight subcellular compartments. (Plots not shown here.)
 
 ```{r, echo=TRUE, eval=FALSE}
 loc.list <- rownames(markerLocRuse)
@@ -198,16 +198,40 @@ protIndex("TLN")
 nearestGenes("TLN1", n.nearest=10,  distGenes=distUse, geneNames=genesUse)
 ```
 
-We now consider the Christofrou data, which has 20 channels (from two combined experiments). We remove GPT_MOUSE and CPSM_MOUSE (rows 2 and 18)
+We now consider the Christofrou data, which has 20 channels (from two combined experiments). We remove GPT_MOUSE and CPSM_MOUSE (rows 2 and 18). Because of the large number of columns, the output text wraps around to dispaly all of them.
 
 ```{r, echo=TRUE, eval=TRUE}
 refLocProteinsJadotMouseMod <- refLocProteinsJadotMouse[-c(2,18),] 
 # remove row 2 and 18  (GPT_MOUSE and CPSM_MOUSE)
 markerLocRuse <- cpaSetup(geneProfileSummary=geneProfileSummaryChristoforou,
-                       refLocProteins=refLocProteinsJadotMouseMod, n.channels=20)
-signif(markerLocRuse, digits=2)
+                       refLocProteins=refLocProteinsJadotMouse, n.channels=20)
 markerLocRuse
 ```
+
+For example, to plot the profile for cytosol, use this:
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+
+refProfilePlot(refLoc="Cyto", refLocProteins=refLocProteinsJadotMouse,
+                     geneProfileSummary=geneProfileSummaryChristoforou,
+                     markerLocR=markerLocRuse, n.channels=20)
+```
+We can see that there is one protein labelled "Cyto" that appears different from the others, and may represent a data errror.
+
+As we did earlier, we may plot the profiles of all of the compartments for which at least one marker protein was found. (Plots not shown here.)
+
+```{r, echo=TRUE, eval=FALSE}
+loc.list <- rownames(markerLocRuse)
+n.loc <- length(loc.list)
+windows(width=7, height=10)
+par(mfrow=c(3,2))
+for (i in 1:n.loc) {
+  refProfilePlot(refLoc=loc.list[i], refLocProteins=refLocProteinsJadotMouse,
+                     geneProfileSummary=geneProfileSummaryChristoforou,
+                     markerLocR=markerLocRuse)
+  }
+```
+
 
 Next we estimate the CPA proportions for this experiment.
 
@@ -215,7 +239,7 @@ Next we estimate the CPA proportions for this experiment.
 assignPropsUse <- proLocAll(geneProfileSummary=geneProfileSummaryChristoforou,
                                 markerLocR=markerLocRuse, n.channels=20)
 
-head(assignPropsUse)
+str(assignPropsUse)
 ```
 
 Now we can plot the CPA estimates from the Christoforou data.

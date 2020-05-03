@@ -35,10 +35,10 @@ refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfi
 
   location.list <- colnames(markerLoc)
   #location.list <- sort(unique(refLocProteins$referenceCompartment))
-  location.list2 <- unique(refLocProteins$referenceCompartment) # should be same as location.list
-  if (sum({location.list == location.list2}) != length(location.list)) {
-      cat("error: locations in markerLoc don't match those in refLocProteins\n")
-  }
+  #location.list2 <- unique(refLocProteins$referenceCompartment) # should be same as location.list
+  #if (sum({location.list == location.list2}) != length(location.list)) {
+  #    cat("error: locations in markerLoc don't match those in refLocProteins\n")
+  #}
 
 
   #temp <- strsplit(fractions.list, "constrained")
@@ -49,7 +49,7 @@ refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfi
   n.loc <- ncol(markerLoc)
   #for (i in 1:n.loc) {
     # i=1
-    loc.i <- location.list[i]
+    #loc.i <- location.list[i]
     loc.i <- refLoc
     #assignLong.i <- assignmentLong.list[i]
     #channels.i <- meanCovarGenesStringent[meanCovarGenesStringent$AssignStringent == assign.i, 2+1:n.chan]

@@ -14,7 +14,7 @@ cpaSetup(geneProfileSummary, refLocProteins = refLocProteins, n.channels)
 \item{n.channels}{Number of channels of abundance levels}
 }
 \value{
-A matrix matLocR giving the abundance level profiles of the subcellular locations
+A matrix markerLocR giving the abundance level profiles of the subcellular locations
 }
 \description{
 Set up reference profiles for constrained proportional assignment

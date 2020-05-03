@@ -8,7 +8,7 @@ protPlotfun(
   protName,
   geneProfileSummary = geneProfileSummaryUse,
   Nspectra = T,
-  finalList = finalListUse,
+  finalList = NULL,
   n.fractions = 9,
   n.compartments = 8,
   matLocR = matLocRuse,
@@ -24,7 +24,8 @@ protPlotfun(
 \item{Nspectra}{indicator for if there are columns in geneProfileSummary for Nspectra
 (number of spectra) and Nseq (number of peptides)}
 
-\item{finalList}{spectrum-level abundance levels by protein and peptide}
+\item{finalList}{spectrum-level abundance levels by protein and peptide; Ehis is NULL
+if not available}
 
 \item{n.fractions}{number of fractions per protein}
 

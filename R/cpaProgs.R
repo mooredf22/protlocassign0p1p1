@@ -111,7 +111,8 @@ protIndex <- function(protName, geneProfileSummary=geneProfileSummaryTMTms2) {
 #protIndex("Tpp1", geneProfileSummaryTMTms2)
 
 
-protLocAssign <- function(i, geneProfileSummary, markerLocR, n.channels, showProgress=T, log2Transf=F, maxit, assignProbsStart) {
+protLocAssign <- function(i, geneProfileSummary, markerLocR, n.channels, showProgress=T,
+                          log2Transf=F, maxit, assignProbsStart) {
   # maxit and assignPRobsStart must be specified
   # assignProbsStart must be NULL or have a column "geneName" and assignment probabilities to use as starting values
   # use the spg function (in package BB) to assign proportionate assignments to compartments
@@ -167,6 +168,7 @@ protLocAssign <- function(i, geneProfileSummary, markerLocR, n.channels, showPro
                     control=list(maxit=maxit, trace=F)))
   }
   convergeInd <- as.numeric(!inherits(temp, "try-error"))
+
  # if (temp$message != "Successful convergence") {
  #   cat(paste(i, "\n"))
  #   cat(paste(as.character(yy),"\n"))
@@ -183,7 +185,7 @@ protLocAssign <- function(i, geneProfileSummary, markerLocR, n.channels, showPro
      convergeInd <- as.numeric((temp$message == "Successful convergence"))
      }
   nNoConverge.i <- 0
-
+  if (convergeInd != 1) cat(paste("cpa does not converge for gene", i, "\n"))
 
 
   if (showProgress) {
@@ -192,7 +194,7 @@ protLocAssign <- function(i, geneProfileSummary, markerLocR, n.channels, showPro
 
 
     parEstTemp <- channelsMeanProb.i
-    parEst <- c(parEstTemp, Nspectra.i, Nseq.i, convergeInd)
+    parEst <- c(parEstTemp, Nspectra.i, Nseq.i)
 
 
    parEst
@@ -231,16 +233,16 @@ proLocAll <- function(geneProfileSummary, markerLocR, n.channels=n.channels, log
 
   assignProbs <- data.frame(t(result))
 
-  checkCols <- {ncol(assignProbs) == nrow(markerLocR) + 3}
+  checkCols <- {ncol(assignProbs) == nrow(markerLocR) + 2}
 
   if (checkCols) {
-    names(assignProbs) <- c(row.names(markerLocR), "Nspectra", "Npeptides", "convergeInd")
-    geneName <- geneProfileSummary$geneName
+    names(assignProbs) <- c(row.names(markerLocR), "Nspectra", "Npeptides")
+    geneName <- as.character(geneProfileSummary$geneName)  # make sure it is character
     assignProbsOut <- data.frame(geneName, assignProbs)
     }
   if (!checkCols) {
-    names(assignProbs) <- c(row.names(markerLocR), "convergeInd")
-    geneName <- geneProfileSummary$geneName
+    names(assignProbs) <- row.names(markerLocR)
+    geneName <- as.character(geneProfileSummary$geneName)
     assignProbsOut <- data.frame(geneName, assignProbs)
   }
   assignProbsOut
@@ -263,7 +265,7 @@ proLocAllmcore <- function(geneProfileSummary, refLocProteins, n.channels=n.chan
   #dim(allPeptideProfilesMat)
   # [1] 278867      7
   names(assignProbs) <- c(row.names(markerLocR), "Nspectra", "Npeptides")
-  geneName <- geneProfileSummary$geneName
+  geneName <- as.characther(geneProfileSummary$geneName)
   assignProbsOut <- data.frame(geneName, assignProbs)
   assignProbsOut
   }

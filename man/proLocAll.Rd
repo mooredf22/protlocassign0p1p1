@@ -6,7 +6,7 @@
 \usage{
 proLocAll(
   geneProfileSummary,
-  matLocR,
+  markerLocR,
   n.channels = n.channels,
   log2Transf = F,
   maxit = 10000,
@@ -16,7 +16,7 @@ proLocAll(
 \arguments{
 \item{geneProfileSummary}{data frame of protein names and relative abundance levels.}
 
-\item{matLocR}{A matrix giving the abundance level profiles of the subcellular locations}
+\item{markerLocR}{A matrix giving the abundance level profiles of the subcellular locations}
 
 \item{n.channels}{Number of channels of abundance levels}
 
