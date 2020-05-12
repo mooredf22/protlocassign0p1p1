@@ -9,7 +9,7 @@ refProfilePlot(
   refLocProteins = refLocProteinsJadot,
   geneProfileSummary = geneProfileSummaryTMTms2,
   markerLocR = markerLocR,
-  n.channels = 9
+  refGenePlot = NULL
 )
 }
 \arguments{

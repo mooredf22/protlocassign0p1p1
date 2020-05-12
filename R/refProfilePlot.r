@@ -12,7 +12,7 @@
 
 
 refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryTMTms2,
-                           markerLocR=markerLocR)  {
+                           markerLocR=markerLocR, refGenePlot=NULL)  {
   n.channels <- ncol(markerLocR)
   names(geneProfileSummary)[1] <- "geneName"
   meanReferenceGenes <- merge(x=refLocProteins, y=geneProfileSummary,
@@ -54,8 +54,8 @@ refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfi
     #assignLong.i <- assignmentLong.list[i]
     #channels.i <- meanCovarGenesStringent[meanCovarGenesStringent$AssignStringent == assign.i, 2+1:n.chan]
      channels.i <- meanReferenceGenes[meanReferenceGenes$referenceCompartment == loc.i,2+1:n.channels]
-     refgenes.i <- as.character(meanReferenceGenes[meanReferenceGenes$referenceCompartment == loc.i,1])
-
+     refgenesvec.i <- as.character(meanReferenceGenes[meanReferenceGenes$referenceCompartment == loc.i,1])
+     n.refgenes.i <- length(refgenesvec.i)
      #channels.i <- nczfMeans[nczfMeans$AssignStringent == assign.i, c(3:8,10)]
     mean.i <- as.numeric(markerLoc[, {loc.i == location.list}] )
     xvals <- 1:length(mean.i)
@@ -70,16 +70,30 @@ refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfi
     axis(1,at=xvals,labels=fractions.list, cex.axis=0.6)
     axis(2, las=1)
     for (j in 1:nrow(channels.i)) {
+
       means.j <- as.numeric(channels.i[j,])
       #if (!log2prop) means.j <- 2^as.numeric(channels.i[j,]) - eps
-      lines(as.numeric(means.j) ~ xvals, col="red")
+      if (is.null(refGenePlot)) {
+        lines(as.numeric(means.j) ~ xvals, col="red")
+        }
+      if (!is.null(refGenePlot)) {
+        if (refGenePlot == j) {
+          lines(as.numeric(means.j) ~ xvals, col="red")
+          refgene.j <- refgenesvec.i[j]
+        }
+      }
     }
+
     #lines(mean.i ~ xvals, lwd=1, lty=1, col="yellow")
     lines(mean.i ~ xvals, lwd=2, lty=2)
-    title(paste(loc.i,"profiles"))
+    if (is.null(refGenePlot)) {
+      title(main=paste(loc.i,"profiles\n", as.character(n.refgenes.i), " reference genes"))
+    }
+    if (!is.null(refGenePlot)) {
+      title(main=paste(loc.i,"profiles\n", "reference gene ",as.character(refgene.j)))
+    }
+
  # }
-
-
 
 
   }

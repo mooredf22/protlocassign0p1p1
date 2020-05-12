@@ -125,9 +125,19 @@ For example, to plot the profile for cytosol, use this:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
-refProfilePlot(refLoc="Cyto", refLocProteins=refLocProteinsJadot,
+refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
                      geneProfileSummary=geneProfileSummaryTMTms2,
                      markerLocR=markerLocRuse)
+```
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+windows(height=10, width=7)
+par(mfrow=c(3,2))
+for (j in 1:5) {
+  refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
+                     geneProfileSummary=geneProfileSummaryTMTms2,
+                     markerLocR=markerLocRuse, refGenePlot=j)
+  }
 ```
 
 To plot all of the reference profiles we may set up a plot window with four rows and two columns and then loop through the eight subcellular compartments. (Plots not shown here.)
@@ -214,9 +224,12 @@ For example, to plot the profile for cytosol, use this:
 
 refProfilePlot(refLoc="Cyto", refLocProteins=refLocProteinsJadotMouse,
                      geneProfileSummary=geneProfileSummaryChristoforou,
-                     markerLocR=markerLocRuse, n.channels=20)
+                     markerLocR=markerLocRuse)
 ```
+
 We can see that there is one protein labelled "Cyto" that appears different from the others, and may represent a data errror.
+
+
 
 As we did earlier, we may plot the profiles of all of the compartments for which at least one marker protein was found. (Plots not shown here.)
 
