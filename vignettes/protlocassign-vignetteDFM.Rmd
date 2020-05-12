@@ -23,15 +23,15 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-Determining the locations of proteins in the cell is an important but complex problem. The major biochemical approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribtuion of different proteins among the differential fractions. The location of proteins of interest are then inferred by comparing their distribution to those of known locations. This package takes data from centrifugation fractions for large numbers of proteins to determine their relative abundance among the fractions, and by extension to their relative abundance among subcelluar locations. 
+Determining the locations of proteins in the cell is an important but complex problem. The major biochemical approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribution of different proteins among the differential fractions. The location of proteins of interest are then inferred by comparing their distribution to those of known locations. This package takes data from centrifugation fractions for large numbers of proteins to determine their relative abundance among the fractions, and by extension to their relative abundance among subcelluar locations. 
 
-This package implements a subcellular protein assignment procedure as "constrained proportional assignmet", or CPA (Jadot et al, 2016). The input data consists of a file with one column, geneName, of gene/protein identifiers, or of peptide identifiers, and multiple columns of the relative abundances of the proteins among the centrifugal fractions. The sum of the abundance levels is constrained to 1 but can be further transfromed to improve the quality of the fit. Another key input to the program is a curated list of reference genes, and their subcellular locations. The method first determines the profiles of abundance levels of genes in a curated reference set. Then, for each gene, it finds either a profile matching a single compartment or a linear combination of compartment profiles that match the profile of that gene. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. The method can also be applied to classify individual peptides, gaining potential insight into subcellular location of protein isoforms. There is also a tool to compute nearest neighbor distances of proteins, allowing grouping of proteins with similar distributions.
+This package implements a subcellular protein assignment procedure as "constrained proportional assignmet", or CPA (Jadot et al, 2016). The input data consists of a file with one column, geneName, of gene/protein identifiers, or of peptide identifiers, and multiple columns of the relative abundances of the proteins among the centrifugal fractions. The sum of the abundance levels is constrained to 1 but can be further transformed to improve the quality of the fit. Another key input to the program is a curated list of reference genes, and their subcellular locations. The method first determines the profiles of abundance levels of genes in a curated reference set. Then, for each gene, it finds either a profile matching a single compartment or a linear combination of compartment profiles that match the profile of that gene. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. The method can also be applied to classify individual peptides, gaining potential insight into subcellular location of protein isoforms. There is also a tool to compute nearest neighbor distances of proteins, allowing grouping of proteins with similar distributions.
 
 
 
 ## Tutorial on gene assignment
 
-We illustrate with an example. Tannous et al. (2020) presented abundance levels of proteins among six fractions from a differential centrifugation experiment: N, M, L1, L2, P, and S, and three fractions from a Nycodenz density gradient separation of the differential fraction L1 (Nyc1, Nyc2, and Nyc3). Eight subcellular compartments were considered: nucleus, mitochondria, lysosomes, peroxisomes, Golgi apparatus, plasma membrane, and cytosol. The CPA method assigns each of a large number of genes to one or more of these compartments, based on profiles from a set of reference genes. 
+We illustrate with an example. Tannous et al. (2020) presented abundance levels of proteins among six fractions from a differential centrifugation experiment (N, M, L1, L2, P, and S), and three fractions from a Nycodenz density gradient separation of the differential fraction L1 (Nyc1, Nyc2, and Nyc3). Eight subcellular compartments were considered: nucleus (Nuc), mitochondria (Mito), lysosomes (Lyso), peroxisomes (Perox), endoplasmic reticulum (ER) Golgi apparatus (Golgi), plasma membrane (PM), and cytosol (Cyto). The CPA method assigns each of a large number of genes to one or more of these compartments, based on profiles from a set of reference genes. 
 
 ## Installing the protlocassign package
 Start by installing the devtools package from CRAN, by typing
@@ -58,9 +58,9 @@ These are the only packages you need to run the programs that work with data tha
 
 ## Working with data
 
-To use this package you will need two data sets. One consists of a column of gene names followed by a series of columns of relative protein levels derived from a differential fractionation experiment. The other data set consists of a list of reference proteins in the first column and the name of the known subcellular compartment in the second column.
+To use this package you will need two data sets. One consists of a column of gene names followed by a series of columns of relative protein levels derived from a subcellular fractionation experiment. The other data set consists of a list of reference proteins in the first column and the name of the known subcellular compartment in the second column.
 
-Consider for example the TMT ms2 data from Tannous et al. (2020). To get started, load the package and look at the dimensions of the data set and then the last few rows:
+Consider for example the TMT MS2 data from Tannous et al. (2020). To get started, load the package and look at the dimensions of the data set and then the last few rows:
 
 ```{r, echo=TRUE}
 library(protlocassign)
@@ -76,9 +76,9 @@ str(geneProfileSummaryTMTms2)
 
 Each row represents a column, and presents the variable name, type (character or number) and the first few values of that variable. The first column is the gene name and the next eight columns represent the relative abundance level of the gene product. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.) 
 
-Alternatively you may also examine the first few rows by typing `head(geneProfileSummaryTMTms2)`.
+Alternatively, you may also examine the first few rows by typing `head(geneProfileSummaryTMTms2)`.
 
-The second data set we need has 39 reference genes and two columns, the first for the gene name and the second for their respective subcellular compartments . These are from Jadot et al (2016) and may be viewed as follows:
+The second data set we need has 39 reference genes and two columns, the first for the gene name and the second for their respective subcellular compartments. These are from Jadot et al (2016) and may be viewed as follows:
 ```{r, echo=TRUE}
 dim(refLocProteinsJadot)
 refLocProteinsJadot
@@ -90,7 +90,7 @@ The protlocassign package includes several other relative fraction data sets. In
 setwd("C:\\temp\\myproteindata")
 ```
 
-Note that in R each backslash character must be doubled to be interpreted correctly (since otherwise it will be incorrecly interpreted as an escape character). Alternatively, you may use a single foward slash:
+Note that in R each backslash character must be doubled to be interpreted correctly (since otherwise it will be incorrectly interpreted as an escape character). Alternatively, you may use a single foward slash:
 
 ```
 setwd("C:/temp/myproteindata")
@@ -153,7 +153,7 @@ assignPropsUse <- proLocAll(geneProfileSummary=geneProfileSummaryTMTms2,
 str(assignPropsUse)
 ```
 
-The first column contains the gene names, and the next 8 columns contain the allocation proportions of each gene to the eight compartments. The last two columns are the number of peptides and spectra, carried over from the input `geneProfileSummary` profile data.
+The first column contains the gene names, and the next 8 columns contain the allocation proportions of each gene to the eight compartments. The last two columns are the number of peptides and spectra, carried over from the input `geneProfileSummary` profile data, which is not essential for the CPA analysis.
 
 We can look at the profile of, for example, the gene "TLN1". We can first find the gene in the dataset, and also the row number of that gene:
 
@@ -198,7 +198,7 @@ protIndex("TLN")
 nearestGenes("TLN1", n.nearest=10,  distGenes=distUse, geneNames=genesUse)
 ```
 
-We now consider the Christofrou data, which has 20 channels (from two combined experiments). We remove GPT_MOUSE and CPSM_MOUSE (rows 2 and 18). Because of the large number of columns, the output text wraps around to dispaly all of them.
+We now consider the Christofrou data, which has 20 channels (from two combined experiments). We remove GPT_MOUSE and CPSM_MOUSE (rows 2 and 18). Because of the large number of columns, the output text wraps around to display all of them.
 
 ```{r, echo=TRUE, eval=TRUE}
 refLocProteinsJadotMouseMod <- refLocProteinsJadotMouse[-c(2,18),] 

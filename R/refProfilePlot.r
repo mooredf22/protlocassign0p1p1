@@ -11,8 +11,8 @@
 #'
 
 
-refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryTMTms2, markerLocR=markerLocR,
-                                 n.channels=9)  {
+refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryTMTms2,
+                           markerLocR=markerLocR)  {
   n.channels <- ncol(markerLocR)
   names(geneProfileSummary)[1] <- "geneName"
   meanReferenceGenes <- merge(x=refLocProteins, y=geneProfileSummary,
@@ -43,7 +43,7 @@ refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfi
 
   #temp <- strsplit(fractions.list, "constrained")
   #unlist(temp)
-  fractions.list.short <- sub("constrained", "", fractions.list)
+  #fractions.list.short <- sub("constrained", "", fractions.list)
 
 
   n.loc <- ncol(markerLoc)
@@ -54,8 +54,9 @@ refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfi
     #assignLong.i <- assignmentLong.list[i]
     #channels.i <- meanCovarGenesStringent[meanCovarGenesStringent$AssignStringent == assign.i, 2+1:n.chan]
      channels.i <- meanReferenceGenes[meanReferenceGenes$referenceCompartment == loc.i,2+1:n.channels]
+     refgenes.i <- as.character(meanReferenceGenes[meanReferenceGenes$referenceCompartment == loc.i,1])
 
-    #channels.i <- nczfMeans[nczfMeans$AssignStringent == assign.i, c(3:8,10)]
+     #channels.i <- nczfMeans[nczfMeans$AssignStringent == assign.i, c(3:8,10)]
     mean.i <- as.numeric(markerLoc[, {loc.i == location.list}] )
     xvals <- 1:length(mean.i)
     #if (!log2prop) mean.i <- 2^as.numeric(markerLoc[,i]) - eps
