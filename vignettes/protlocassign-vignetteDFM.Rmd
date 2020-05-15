@@ -121,7 +121,7 @@ To view a particular compartment profile and its component genes, use `refProfil
 rownames(markerLocRuse)
 ```
 
-For example, to plot the profile for cytosol, use this:
+For example, to plot the profile for plasma membrane, use this:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
@@ -130,8 +130,19 @@ refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
                      markerLocR=markerLocRuse)
 ```
 
+We see, in the plot title, that there are five reference genes. To plot, say, the second one, enter this code, using the option `refGenePlot=2`:
+
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-windows(height=10, width=7)
+
+refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
+                     geneProfileSummary=geneProfileSummaryTMTms2,
+                     markerLocR=markerLocRuse, refGenePlot=2)
+```
+
+To show all five of the reference genes, open a window 10 inches by 7 inches. Then set up a plot array with 3 rows and 2 columns, to allow plotting all five reference genes on a page. Finally, plot them one-by-one. (The plots are not shown here.)
+
+```{r, echo=TRUE, eval=FALSE}
+windows(width=7, height=10)
 par(mfrow=c(3,2))
 for (j in 1:5) {
   refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
