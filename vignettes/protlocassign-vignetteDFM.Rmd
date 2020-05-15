@@ -25,13 +25,13 @@ knitr::opts_chunk$set(
 ```
 Determining the locations of proteins in the cell is an important but complex problem. The major biochemical approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribution of different proteins among the differential fractions. The location of proteins of interest are then inferred by comparing their distribution to those of known locations. This package takes data from centrifugation fractions for large numbers of proteins to determine their relative abundance among the fractions, and by extension to their relative abundance among subcelluar locations. 
 
-This package implements a subcellular protein assignment procedure as "constrained proportional assignmet", or CPA (Jadot et al, 2016). The input data consists of a file with one column, geneName, of gene/protein identifiers, or of peptide identifiers, and multiple columns of the relative abundances of the proteins among the centrifugal fractions. The sum of the abundance levels is constrained to 1 but can be further transformed to improve the quality of the fit. Another key input to the program is a curated list of reference genes, and their subcellular locations. The method first determines the profiles of abundance levels of genes in a curated reference set. Then, for each gene, it finds either a profile matching a single compartment or a linear combination of compartment profiles that match the profile of that gene. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. The method can also be applied to classify individual peptides, gaining potential insight into subcellular location of protein isoforms. There is also a tool to compute nearest neighbor distances of proteins, allowing grouping of proteins with similar distributions.
+This package implements a subcellular protein assignment procedure as "constrained proportional assignment", or CPA (Jadot et al, 2016). The first column of the input data consists of the field "protName". This is a unique identifier for each row, e.g., a protein name, protein group, gene name, accession number, or peptide sequence. Following this are multiple columns of the relative abundances of the proteins among the centrifugal fractions. The sum of the abundance levels is constrained to 1 but can be further transformed to improve the quality of the fit. Another key input to the program is a curated list of reference proteins, and their subcellular locations. The method first determines the profiles of abundance levels of proteins in a curated reference set. Then, for each protein, it finds either a profile matching a single compartment or a linear combination of compartment profiles that match the profile of that protein. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. The method can also be applied to classify individual peptides, gaining potential insight into subcellular location of protein isoforms. There is also a tool to compute nearest neighbor distances of proteins, allowing grouping of proteins with similar distributions.
 
 
 
-## Tutorial on gene assignment
+## Tutorial on protein assignment
 
-We illustrate with an example. Tannous et al. (2020) presented abundance levels of proteins among six fractions from a differential centrifugation experiment (N, M, L1, L2, P, and S), and three fractions from a Nycodenz density gradient separation of the differential fraction L1 (Nyc1, Nyc2, and Nyc3). Eight subcellular compartments were considered: nucleus (Nuc), mitochondria (Mito), lysosomes (Lyso), peroxisomes (Perox), endoplasmic reticulum (ER) Golgi apparatus (Golgi), plasma membrane (PM), and cytosol (Cyto). The CPA method assigns each of a large number of genes to one or more of these compartments, based on profiles from a set of reference genes. 
+We illustrate with an example. Tannous et al. (2020) presented abundance levels of proteins among six fractions from a differential centrifugation experiment (N, M, L1, L2, P, and S), and three fractions from a Nycodenz density gradient separation of the differential fraction L1 (Nyc1, Nyc2, and Nyc3). Eight subcellular compartments were considered: nucleus (Nuc), mitochondria (Mito), lysosomes (Lyso), peroxisomes (Perox), endoplasmic reticulum (ER) Golgi apparatus (Golgi), plasma membrane (PM), and cytosol (Cyto). The CPA method assigns each of a large number of proteins to one or more of these compartments, based on profiles from a set of reference genes. 
 
 ## Installing the protlocassign package
 Start by installing the devtools package from CRAN, by typing
@@ -54,31 +54,31 @@ install.packages("BB")
 ```
 Once you have installed a package, you do not need to re-install it the next time you start up R.
 
-These are the only packages you need to run the programs that work with data that are presented as mean levels for a protein/gene. In another vignette there is a description of R functions that work with data at the spectral level; additional packages will be needed to process spectral-level data and produce gene-level data.
+These are the only packages you need to run the programs that work with data that are presented as mean levels for a protein/gene. In another vignette there is a description of R functions that work with data at the spectral level; additional packages will be needed to process spectral-level data and produce protein-level data.
 
 ## Working with data
 
-To use this package you will need two data sets. One consists of a column of gene names followed by a series of columns of relative protein levels derived from a subcellular fractionation experiment. The other data set consists of a list of reference proteins in the first column and the name of the known subcellular compartment in the second column.
+To use this package you will need two data sets. One consists of a column of protein names followed by a series of columns of relative protein levels derived from a subcellular fractionation experiment. (Optionally there may be two addtional columns representing the numbers of peptides and spectra that were used to compute mean protein abundance levels.) The other data set consists of a list of reference proteins in the first column and the name of the known subcellular compartment in the second column.
 
 Consider for example the TMT MS2 data from Tannous et al. (2020). To get started, load the package and look at the dimensions of the data set and then the last few rows:
 
 ```{r, echo=TRUE}
 library(protlocassign)
-dim(geneProfileSummaryTMTms2)
+dim(protProfileSummaryTMTms2)
 ```
 
-Now use the `str` function to summarize the contents of `geneProfileSummaryTMTms2`:
+Now use the `str` function to summarize the contents of `protProfileSummaryTMTms2`:
 
 ```{r, echo=TRUE}
 options(digits=2)
-str(geneProfileSummaryTMTms2)
+str(protProfileSummaryTMTms2)
 ```
 
-Each row represents a column, and presents the variable name, type (character or number) and the first few values of that variable. The first column is the gene name and the next eight columns represent the relative abundance level of the gene product. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.) 
+Each row represents a column, and presents the variable name, type (character or number) and the first few values of that variable. The first column is the protein name and the next nine columns represent its levels of the different fractions. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each protein.) 
 
-Alternatively, you may also examine the first few rows by typing `head(geneProfileSummaryTMTms2)`.
+Alternatively, you may also examine the first few rows by typing `head(protProfileSummaryTMTms2)`.
 
-The second data set we need has 39 reference genes and two columns, the first for the gene name and the second for their respective subcellular compartments. These are from Jadot et al (2016) and may be viewed as follows:
+The second data set we need has 39 reference proteins and two columns, the first for the protein name and the second for their respective subcellular compartments. These are from Jadot et al (2016) and may be viewed as follows:
 ```{r, echo=TRUE}
 dim(refLocProteinsJadot)
 refLocProteinsJadot
@@ -90,7 +90,7 @@ The protlocassign package includes several other relative fraction data sets. In
 setwd("C:\\temp\\myproteindata")
 ```
 
-Note that in R each backslash character must be doubled to be interpreted correctly (since otherwise it will be incorrectly interpreted as an escape character). Alternatively, you may use a single foward slash:
+Note that in R each backslash character must be doubled to be interpreted correctly (since otherwise it will be incorrectly interpreted as an escape character). Alternatively, you may use a single forward slash:
 
 ```
 setwd("C:/temp/myproteindata")
@@ -100,17 +100,17 @@ Then read in the two data sets (profile data and reference genes), which must be
 comma-separated format (`.csv`), with the first row containing column names:
 
 ```
-geneProfileSummaryMyProfiles <- read.csv(file="geneProfileSummaryMyProfiles.csv",
+protProfileSummaryMyProfiles <- read.csv(file="protProfileSummaryMyProfiles.csv",
                                          row.names=F
 refLocProteinsMyRefs <- read.csv(file="refLocProteinsMyRefs.csv", row.names=F)
 ```
 
-## Obtaining constrained proportionate assignments of gene products to compartments
+## Obtaining constrained proportionate assignments of proteins to compartments
 
-In order to assign proteins proportionately to their respective compartments, we first must obtain profiles for the reference genes, use the function `cpaSetup`, which averages the spectra in each reference gene. This matrix has one row for each compartment and one column for each fraction.
+In order to assign proteins proportionately to their respective compartments, we first use the function `cpaSetup` to obtain profiles for the compartments based on the mean of their reference proteins. This function produces a matrix that has one row for each compartment and one column for each fraction.
 
 ```{r, echo=TRUE, eval=TRUE}
-markerLocRuse <- cpaSetup(geneProfileSummary=geneProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
+markerLocRuse <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
 markerLocRuse
 
 ```
@@ -126,28 +126,28 @@ For example, to plot the profile for plasma membrane, use this:
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
 refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
-                     geneProfileSummary=geneProfileSummaryTMTms2,
+                     protProfileSummary=protProfileSummaryTMTms2,
                      markerLocR=markerLocRuse)
 ```
 
-We see, in the plot title, that there are five reference genes. To plot, say, the second one, enter this code, using the option `refGenePlot=2`:
+We see, in the plot title, that there are five reference proteins. To plot, say, the second one, enter this code, using the option `refProtPlot=2`:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
 refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
-                     geneProfileSummary=geneProfileSummaryTMTms2,
-                     markerLocR=markerLocRuse, refGenePlot=2)
+                     protProfileSummary=protProfileSummaryTMTms2,
+                     markerLocR=markerLocRuse, refProtPlot=2)
 ```
 
-To show all five of the reference genes, open a window 10 inches by 7 inches. Then set up a plot array with 3 rows and 2 columns, to allow plotting all five reference genes on a page. Finally, plot them one-by-one. (The plots are not shown here.)
+To show all five of the reference proteins, open a window 10 inches by 7 inches. Then set up a plot array with 3 rows and 2 columns, to allow plotting all five reference proteins on a page. Finally, plot them one-by-one. (The plots are not shown here.)
 
 ```{r, echo=TRUE, eval=FALSE}
 windows(width=7, height=10)
 par(mfrow=c(3,2))
 for (j in 1:5) {
   refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
-                     geneProfileSummary=geneProfileSummaryTMTms2,
-                     markerLocR=markerLocRuse, refGenePlot=j)
+                     protProfileSummary=protProfileSummaryTMTms2,
+                     markerLocR=markerLocRuse, refProtPlot=j)
   }
 ```
 
@@ -160,7 +160,7 @@ windows(width=7, height=10)
 par(mfrow=c(4,2))
 for (i in 1:n.loc) {
   refProfilePlot(refLoc=loc.list[i], refLocProteins=refLocProteinsJadot,
-                     geneProfileSummary=geneProfileSummaryTMTms2,
+                     protProfileSummary=protProfileSummaryTMTms2,
                      markerLocR=markerLocRuse)
   }
 ```
@@ -174,16 +174,16 @@ assignPropsUse <- proLocAll(geneProfileSummary=geneProfileSummaryTMTms2,
 str(assignPropsUse)
 ```
 
-The first column contains the gene names, and the next 8 columns contain the allocation proportions of each gene to the eight compartments. The last two columns are the number of peptides and spectra, carried over from the input `geneProfileSummary` profile data, which is not essential for the CPA analysis.
+The first column contains the protein names, and the next 8 columns contain the allocation proportions of each protein to the eight compartments. The last two columns are the number of peptides and spectra, carried over from the input `protProfileSummary` profile data, which is not essential for the CPA analysis.
 
-We can look at the profile of, for example, the gene "TLN1". We can first find the gene in the dataset, and also the row number of that gene:
+We can look at the profile of, for example, the protein "TLN1". We first find the protein in the dataset, and also the row number of that protein:
 
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("TLN1")
 #protPlotfun(protPlot=93, assignProbsOut=assignProbsOut)
 ```
 
-This function also accepts partial matching of the first few letters of a gene. For example, we can find the indices of the genes starting with "TLN":
+This function also accepts partial matching of the first few letters of a protein. For example, we can find the indices of the genes starting with "TLN":
 
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("TLN")
@@ -191,7 +191,7 @@ protIndex("TLN")
 
 
 
-Now we plot the results for gene number TLN1:
+Now we plot the results for protein TLN1:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
 #protPlotfun(protName="TLN1",
@@ -202,21 +202,21 @@ Now we plot the results for gene number TLN1:
 
 The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the peptides, which are represented by the blue lines; thicker blue lines indicate larger numbers of spectra for a particular peptide. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines. Also note that there is one peptide, plotted in solid blue, with a quite different profile from the other peptides. This is likely due to a peptide (specifically, MVAAAK) incorrectly assigned to this protein. This peptide was removed from the estimation of the average profile by an outlier rejection procedure. This outlier rejection procedure is discussed in another vignette.
 
-## Nearest genes in a data set
-We may find the genes with profiles nearest to a given gene using the function "nearestGenes". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the genes in a list of mean profiles, such as "geneProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
+## Nearest proteins in a data set
+We may find the proteins with profiles nearest to a given protein using the function "nearestProteins". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the proteins in a list of mean profiles, such as "protProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
 
 ```{r, echo=TRUE, eval=TRUE}
-distUse <- dist(geneProfileSummaryTMTms2[,2:10], method="euclidean")
+distUse <- dist(protProfileSummaryTMTms2[,2:10], method="euclidean")
 ```
-Then select the gene names:
+Then select the protein names:
 
 ```{r, echo=TRUE, eval=TRUE}
-genesUse <- geneProfileSummaryTMTms2[,1]
+protsUse <- protProfileSummaryTMTms2[,1]
 ```
-Finally, provide a gene name. Here, we first look for genes in our dataset that start with "TLN". We choose the gene "AADAC", and find the 10 nearest genes.
+Finally, provide a protein name. Here, we first look for proteins in our dataset that start with "TLN". We choose the protein "AADAC", and find the 10 nearest proteins.
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("TLN")
-nearestGenes("TLN1", n.nearest=10,  distGenes=distUse, geneNames=genesUse)
+nearestProteins("TLN1", n.nearest=10,  distProteins=distUse, protNames=protsUse)
 ```
 
 We now consider the Christofrou data, which has 20 channels (from two combined experiments). We remove GPT_MOUSE and CPSM_MOUSE (rows 2 and 18). Because of the large number of columns, the output text wraps around to display all of them.
