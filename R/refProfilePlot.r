@@ -1,22 +1,22 @@
 
 
-#' Plot profiles of reference genes
+#' Plot profiles of reference proteins
 #'
-#' This function plots profiles of reference genes and also the average profile for each compartment
+#' This function plots profiles of reference proteins and also the average profile for each compartment
 #'
 #' @param refLoc  the name of the reference subcellular compartment to plot
 #' @param refLocProteins List of reference proteins
-#' @param geneProfileSummary data frame of protein names and relative abundance levels.
+#' @param protProfileSummary data frame of protein names and relative abundance levels.
 #' @param markerLocR A matrix markerLocR giving the abundance level profiles of the subcellular locations
 #'
 
 
-refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryTMTms2,
-                           markerLocR=markerLocR, refGenePlot=NULL)  {
+refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, protProfileSummary=protProfileSummaryTMTms2,
+                           markerLocR=markerLocR, refProtPlot=NULL)  {
   n.channels <- ncol(markerLocR)
-  names(geneProfileSummary)[1] <- "geneName"
-  meanReferenceGenes <- merge(x=refLocProteins, y=geneProfileSummary,
-                            by.x="geneName", by.y="geneName", all.x=F, sort=F)
+  names(protProfileSummary)[1] <- "protName"
+  meanReferenceProts <- merge(x=refLocProteins, y=protProfileSummary,
+                            by.x="protName", by.y="protName", all.x=F, sort=F)
   markerLoc <- t(markerLocR)
   max.val <- max(markerLoc)
   #if (pdfout) pdf(file=paste("ClassificationMarkerProfilesTransformOutlierRej", dataUse, markersUse, ".pdf", sep=''), width=9, height=10)
@@ -52,10 +52,10 @@ refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfi
     #loc.i <- location.list[i]
     loc.i <- refLoc
     #assignLong.i <- assignmentLong.list[i]
-    #channels.i <- meanCovarGenesStringent[meanCovarGenesStringent$AssignStringent == assign.i, 2+1:n.chan]
-     channels.i <- meanReferenceGenes[meanReferenceGenes$referenceCompartment == loc.i,2+1:n.channels]
-     refgenesvec.i <- as.character(meanReferenceGenes[meanReferenceGenes$referenceCompartment == loc.i,1])
-     n.refgenes.i <- length(refgenesvec.i)
+    #channels.i <- meanCovarProtsStringent[meanCovarProtsStringent$AssignStringent == assign.i, 2+1:n.chan]
+     channels.i <- meanReferenceProts[meanReferenceProts$referenceCompartment == loc.i,2+1:n.channels]
+     refprotsvec.i <- as.character(meanReferenceProts[meanReferenceProts$referenceCompartment == loc.i,1])
+     n.refprots.i <- length(refprotsvec.i)
      #channels.i <- nczfMeans[nczfMeans$AssignStringent == assign.i, c(3:8,10)]
     mean.i <- as.numeric(markerLoc[, {loc.i == location.list}] )
     xvals <- 1:length(mean.i)
@@ -73,24 +73,24 @@ refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, geneProfi
 
       means.j <- as.numeric(channels.i[j,])
       #if (!log2prop) means.j <- 2^as.numeric(channels.i[j,]) - eps
-      if (is.null(refGenePlot)) {
+      if (is.null(refProtPlot)) {
         lines(as.numeric(means.j) ~ xvals, col="red")
         }
-      if (!is.null(refGenePlot)) {
-        if (refGenePlot == j) {
+      if (!is.null(refProtPlot)) {
+        if (refProtPlot == j) {
           lines(as.numeric(means.j) ~ xvals, col="red")
-          refgene.j <- refgenesvec.i[j]
+          refprot.j <- refprotsvec.i[j]
         }
       }
     }
 
     #lines(mean.i ~ xvals, lwd=1, lty=1, col="yellow")
     lines(mean.i ~ xvals, lwd=2, lty=2)
-    if (is.null(refGenePlot)) {
-      title(main=paste(loc.i,"profiles\n", as.character(n.refgenes.i), " reference genes"))
+    if (is.null(refProtPlot)) {
+      title(main=paste(loc.i,"profiles\n", as.character(n.refprots.i), " reference proteins"))
     }
-    if (!is.null(refGenePlot)) {
-      title(main=paste(loc.i,"profiles\n", "reference gene ",as.character(refgene.j)))
+    if (!is.null(refProtPlot)) {
+      title(main=paste(loc.i,"profiles\n", "reference protein ",as.character(refprot.j)))
     }
 
  # }
