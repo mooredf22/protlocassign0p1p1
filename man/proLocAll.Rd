@@ -2,10 +2,10 @@
 % Please edit documentation in R/cpaProgs.R
 \name{proLocAll}
 \alias{proLocAll}
-\title{Carry out constrained proportional assignment on all genes}
+\title{Carry out constrained proportional assignment on all proteinss}
 \usage{
 proLocAll(
-  geneProfileSummary,
+  protProfileSummary,
   markerLocR,
   n.channels = n.channels,
   log2Transf = F,
@@ -14,7 +14,7 @@ proLocAll(
 )
 }
 \arguments{
-\item{geneProfileSummary}{data frame of protein names and relative abundance levels.}
+\item{protProfileSummary}{data frame of protein names and relative abundance levels.}
 
 \item{markerLocR}{A matrix giving the abundance level profiles of the subcellular locations}
 
@@ -22,11 +22,11 @@ proLocAll(
 
 \item{maxit}{maximum number of iterations}
 
-\item{assignProbsStart}{A matrix of starting values, one for each gene. The first column must be geneName}
+\item{assignProbsStart}{A matrix of starting values, one for each protein. The first column must be protName}
 }
 \value{
 assignProbsOut  Data frame of proportionate assignments of each protein to compartments
 }
 \description{
-Carry out constrained proportional assignment on all genes
+Carry out constrained proportional assignment on all proteinss
 }

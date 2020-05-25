@@ -4,10 +4,10 @@
 \alias{cpaSetup}
 \title{Set up reference profiles for constrained proportional assignment}
 \usage{
-cpaSetup(geneProfileSummary, refLocProteins = refLocProteins, n.channels)
+cpaSetup(protProfileSummary, refLocProteins = refLocProteins, n.channels)
 }
 \arguments{
-\item{geneProfileSummary}{data frame of gene/protein identifiers (geneName) and their relative abundance in centrifugation fractions.}
+\item{protProfileSummary}{data frame of protein identifiers (protName) and their relative abundance in centrifugation fractions.}
 
 \item{refLocProteins}{List of reference proteins and their subcellular locations}
 

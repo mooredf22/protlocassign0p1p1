@@ -2,11 +2,11 @@
 % Please edit documentation in R/geneProfilePlot.R
 \name{protPlotfun}
 \alias{protPlotfun}
-\title{Plot profiles of reference genes}
+\title{Plot profiles of reference proteins}
 \usage{
 protPlotfun(
   protName,
-  geneProfileSummary = geneProfileSummaryUse,
+  protProfileSummary = protProfileSummaryUse,
   Nspectra = T,
   finalList = NULL,
   n.fractions = 9,
@@ -17,11 +17,11 @@ protPlotfun(
 )
 }
 \arguments{
-\item{protName}{Name of the protein (gene) to plot}
+\item{protName}{Name of the protein to plot}
 
-\item{geneProfileSummary}{data frame of protein names and their relative abundance levels..}
+\item{protProfileSummary}{data frame of protein names and their relative abundance levels..}
 
-\item{Nspectra}{indicator for if there are columns in geneProfileSummary for Nspectra
+\item{Nspectra}{indicator for if there are columns in protProfileSummary for Nspectra
 (number of spectra) and Nseq (number of peptides)}
 
 \item{finalList}{spectrum-level abundance levels by protein and peptide; Ehis is NULL
@@ -44,15 +44,15 @@ and optionally upper and lower 95 percent confidence limits}
 \item{predictedProp.mat}{A matrix of CPA predicted proportions, from proLocAll}
 
 \item{confint}{indicator for if there are standard errors (from bootstrapping) for the assigned proportions
-(in geneProfileSummary)}
+(in protProfileSummary)}
 
-\item{predictedPropL.mat}{Matrix of lower confidence limits, one row for each gene, and 9 columns
+\item{predictedPropL.mat}{Matrix of lower confidence limits, one row for each protein, and 9 columns
 of lower confidence interval limits}
 
-\item{predictedPropU.mat}{Matrix of upper confidence limits, one row for each gene, and 9 columns
+\item{predictedPropU.mat}{Matrix of upper confidence limits, one row for each protein, and 9 columns
 of upper confidence interval limits}
 }
 \description{
-This function plots the average profiles of any gene in the dataset,
+This function plots the average profiles of any protein in the dataset,
   the peptide profiles, and also the reference profile for each compartment
 }

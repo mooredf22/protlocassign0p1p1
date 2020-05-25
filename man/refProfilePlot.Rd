@@ -2,14 +2,14 @@
 % Please edit documentation in R/refProfilePlot.r
 \name{refProfilePlot}
 \alias{refProfilePlot}
-\title{Plot profiles of reference genes}
+\title{Plot profiles of reference proteins}
 \usage{
 refProfilePlot(
   refLoc,
   refLocProteins = refLocProteinsJadot,
-  geneProfileSummary = geneProfileSummaryTMTms2,
+  protProfileSummary = protProfileSummaryTMTms2,
   markerLocR = markerLocR,
-  refGenePlot = NULL
+  refProtPlot = NULL
 )
 }
 \arguments{
@@ -17,10 +17,10 @@ refProfilePlot(
 
 \item{refLocProteins}{List of reference proteins}
 
-\item{geneProfileSummary}{data frame of protein names and relative abundance levels.}
+\item{protProfileSummary}{data frame of protein names and relative abundance levels.}
 
 \item{markerLocR}{A matrix markerLocR giving the abundance level profiles of the subcellular locations}
 }
 \description{
-This function plots profiles of reference genes and also the average profile for each compartment
+This function plots profiles of reference proteins and also the average profile for each compartment
 }

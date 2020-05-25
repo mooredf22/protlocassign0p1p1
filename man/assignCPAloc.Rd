@@ -2,17 +2,17 @@
 % Please edit documentation in R/cpaProgs.R
 \name{assignCPAloc}
 \alias{assignCPAloc}
-\title{assign genes to a subcellular location using CPA estimates}
+\title{assign proteins to a subcellular location using CPA estimates}
 \usage{
 assignCPAloc(assignLocProps, cutoff = 0.8, Locations)
 }
 \arguments{
-\item{assignLocProps}{matrix of proportion estimates for each gene}
+\item{assignLocProps}{matrix of proportion estimates for each protein}
 
-\item{cutoff}{cutoff for assigning a gene to a location}
+\item{cutoff}{cutoff for assigning a protein to a location}
 
 \item{Locations}{list of subcellular locations}
 }
 \description{
-assign genes to a subcellular location using CPA estimates
+assign proteins to a subcellular location using CPA estimates
 }
