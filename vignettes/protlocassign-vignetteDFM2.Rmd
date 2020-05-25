@@ -231,7 +231,7 @@ Then select the protein names:
 protsUse <- protProfileSummaryTMTms2[,1]
 ```
 
-Finally, provide a protein name. Here, we first look for proteins in our dataset that start with "TLN". We choose the protein "AADAC", and find the 10 nearest proteins.
+Finally, provide a protein name. Here, we first look for proteins in our dataset that start with "TLN". We choose the protein "TLN1", and find the 10 nearest proteins.
 
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("TLN")
