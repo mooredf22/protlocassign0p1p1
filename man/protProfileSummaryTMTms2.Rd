@@ -1,5 +1,5 @@
-\name{geneProfileSummaryTMTms2}
-\alias{geneProfileSummaryTMTms2}
+\name{protProfileSummaryTMTms2}
+\alias{protProfileSummaryTMTms2}
 \docType{data}
 \title{Protein mean relative abundance levels from the TMT-MS2 data
 %%   ~~ data name/kind ... ~~
@@ -7,11 +7,11 @@
 \description{Each of the 7893 genes (proteins) has relative abundance levels in the channels N, M, L1, L2, P, S, Nyc1, Nyc2, and Nyc3, constrained to sum to 1. Details may be found in A. Tannous et al. (2020). These levels refer to the relative levels measured by the mass spectrometer, averaged across spectra and peptides for each gene. They are not adjusted for protein amounts derived from the original samples.
 %%  ~~ A concise (1-5 lines) description of the dataset. ~~
 }
-\usage{data("geneProfileSummaryTMTms2")}
+\usage{data("protProfileSummaryTMTms2")}
 \format{
   A data frame with 7893 observations on the following 12 variables.
   \describe{
-    \item{\code{geneName}}{a factor with levels for each of the 7893 genes }
+    \item{\code{protName}}{a factor with levels for each of the 7893 genes }
     \item{\code{N}}{a numeric vector}
     \item{\code{M}}{a numeric vector}
     \item{\code{L1}}{a numeric vector}
@@ -42,7 +42,7 @@ Tannous A, Boonen M, Zheng H, Zhao C, Germain C, Moore D, Sleat D, Jadot M, Lobe
 
 }
 \examples{
-head(geneProfileSummaryTMTms2)
+head(protProfileSummaryTMTms2)
 
 }
 \keyword{datasets}
