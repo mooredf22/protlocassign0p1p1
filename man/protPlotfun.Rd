@@ -11,7 +11,7 @@ protPlotfun(
   finalList = NULL,
   n.fractions = 9,
   n.compartments = 8,
-  matLocR = matLocRuse,
+  markerLocR = markerLocRuse,
   assignPropsMat = assignPropsUse,
   propCI = F
 )
@@ -31,7 +31,7 @@ if not available}
 
 \item{n.compartments}{number of compartments (8 in Jadot data)}
 
-\item{matLocR}{A matrix matLocR giving the abundance level profiles of the subcellular locations
+\item{markerLocR}{A matrix markerLocR giving the abundance level profiles of the subcellular locations
 n.compartments = 8 columns are subcellular locations, and n.fractions rows are the fraction names}
 
 \item{assignPropsMat}{A matrix of assignment proportions, from the constrained proportional assignment algorithm,

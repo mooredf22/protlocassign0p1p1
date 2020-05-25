@@ -12,7 +12,7 @@
 #'        if not available
 #' @param n.fractions  number of fractions per protein
 #' @param n.compartments number of compartments (8 in Jadot data)
-#' @param matLocR A matrix matLocR giving the abundance level profiles of the subcellular locations
+#' @param markerLocR A matrix markerLocR giving the abundance level profiles of the subcellular locations
 #'        n.compartments = 8 columns are subcellular locations, and n.fractions rows are the fraction names
 #' @param assignPropsMat A matrix of assignment proportions, from the constrained proportional assignment algorithm,
 #'        and optionally upper and lower 95 percent confidence limits
@@ -28,7 +28,7 @@
 
 protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspectra=T, finalList=NULL,
                         n.fractions=9, n.compartments=8,
-                        matLocR=matLocRuse, assignPropsMat=assignPropsUse, propCI=F) {
+                        markerLocR=markerLocRuse, assignPropsMat=assignPropsUse, propCI=F) {
   # protPlot is the number of the protein to plot
   # protProfileSummaryUse is a matrix with components:
   #    protName: name of protein
@@ -37,7 +37,7 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
   # If standard errors are not available, se is false, and seMat is NULL
   #  If standard errors are available, se is true, and seMat is the list of proteinss and n.fraction standard errors
   # If Nspectra and Nseq (number of peptides) are included, Nspectra=T
-  #  matLoc:  matrix with n.fractions rows and 8 columns.
+  #  markerLoc:  matrix with n.fractions rows and 8 columns.
   #      Column names are the subcellular fractions, Cytosol, ER, Golgi, etc.
   #      Row names are the names of the fractions: N, M, L1, L2, etc.
   #      Column and row names are required
@@ -74,13 +74,13 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
   protName <- as.character(protProfileSummary$protName)
   protNameUnique <- make.unique(protName)
   row.names(meanProteinLevels) <- protProfileSummary$protNameUnique
-  subCellNames <- rownames(matLocR)
-  subCellNames[8] <- "Plasma membrane"
-  subCellNames[4] <- "Lysosomes"
-  subCellNames[2] <- "Endoplasmic reticulum"
+  subCellNames <- rownames(markerLocR)
+  #subCellNames[8] <- "Plasma membrane"
+  #subCellNames[4] <- "Lysosomes"
+  #subCellNames[2] <- "Endoplasmic reticulum"
 
-  #matLoc <- t(matLocR)
-  fractions.list <- colnames(matLocR)  # column names
+  #markerLoc <- t(markerLocR)
+  fractions.list <- colnames(markerLocR)  # column names
 
   protName.i <- as.character(protProfileSummary$protName[protPlot])
 
@@ -169,7 +169,7 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
  #   text(x=2.5,y=0.3,protName.i, cex=2)
  # }
 
-  # max.y <- max(c(max(means.peptides.i), max(matLocR[i,])))
+  # max.y <- max(c(max(means.peptides.i), max(markerLocR[i,])))
   min.y <- 0
   par(mar=c(2,1.5,2,1.5))
   # The plots are in alphabetical order
@@ -195,14 +195,14 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
 
     assign.i <- names(meanProteinLevels)[i]  # channel i name
 
-    #assignLong.i <- names(matLoc)[i]
+    #assignLong.i <- names(markerLoc)[i]
     assignLong.i <- subCellNames[i]
-    #channels.i <- meanProteinLevels[{names(as.data.frame(matLocR)) == as.character(assign.i)},]
-    ##?? means.peptides.i <- meanProteinLevels[{names(as.data.frame(matLocR)) == as.character(assign.i)},]
-    #mean.i <- matLoc[,i]
-    mean.i <- matLocR[i,]
-    if (!is.null(finalList)) max.y <- max(c(max(means.peptides.i), max(matLocR[i,])))
-    if (is.null(finalList)) max.y <- max(matLocR[i,])
+    #channels.i <- meanProteinLevels[{names(as.data.frame(markerLocR)) == as.character(assign.i)},]
+    ##?? means.peptides.i <- meanProteinLevels[{names(as.data.frame(markerLocR)) == as.character(assign.i)},]
+    #mean.i <- markerLoc[,i]
+    mean.i <- markerLocR[i,]
+    if (!is.null(finalList)) max.y <- max(c(max(means.peptides.i), max(markerLocR[i,])))
+    if (is.null(finalList)) max.y <- max(markerLocR[i,])
     plot(mean.i ~ xvals,  axes="F", type="l",
          ylim=c(min.y, max.y))
     axis(1,at=xvals,labels=fractions.list)
@@ -263,8 +263,16 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
   y <- c(0,0.5)
   par(mar=c(0,0,0,0))
   plot(y ~ x, type="n", axes=F)
-  legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
+  if (!is.null(finalList)) {
+    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
          col=c("yellow", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"), lwd=c(2,2,1,2,3,4), lty=c(1,1,1,1,1,1))
-  legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
+    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
          col=c("black", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"), lwd=c(2,2,1,2,3,4), lty=c(2,1,1,1,1,1))
+  }
+  if (is.null(finalList)) {
+    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile"),
+           col=c("yellow", "red"), lwd=c(2,2), lty=c(1,1))
+    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile"),
+           col=c("black", "red"), lwd=c(2,2), lty=c(2,1))
+  }
 }

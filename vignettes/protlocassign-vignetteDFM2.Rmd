@@ -3,7 +3,15 @@ title: "Assignment of Proteins to Subcellular Locations Using protlocassign"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
 #output: rmarkdown::html_vignette
-output: word_document
+output: 
+   word_document:
+#  html_document:
+     #mathjax:  default
+     fig_caption:  true
+     toc: true
+     #section_numbering: true
+     #css: ggsci.css
+
 
 #output: 
 #  word_document:
@@ -11,16 +19,26 @@ output: word_document
 #output: pdf_document
 #fontsize: 10pt
 
-#vignette: >
-#  %\VignetteIndexEntry{protlocassign}
-#  %\VignetteEngine{knitr::rmarkdown}
+vignette: >
+  %\VignetteIndexEntry{protlocassign}
+  %\VignetteEngine{knitr::rmarkdown}
 #  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+  #collapse = TRUE,
+  comment = "",
+  fig.width = 4,
+  fig.height = 4,
+	message = FALSE,
+	warning = FALSE,
+	tidy.opts = list(
+		keep.blank.line = TRUE,
+		width.cutoff = 150
+		),
+	options(width = 150),
+	eval = TRUE
 )
 ```
 Determining the locations of proteins in the cell is an important but complex problem. The major biochemical approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribution of different proteins among the differential fractions. The location of proteins of interest are then inferred by comparing their distribution to those of known locations. This package takes data from centrifugation fractions for large numbers of proteins to determine their relative abundance among the fractions, and by extension to their relative abundance among subcelluar locations. 
@@ -67,7 +85,7 @@ library(protlocassign)
 dim(protProfileSummaryTMTms2)
 ```
 
-Now use the `str` function to summarize the contents of `protProfileSummaryTMTms2`:
+Now use the `str` function to summarize the contents of `protProfileSummaryTMTms2`. The command `options(digits=2)` is optional; it reduces the number of significant digits displayed.
 
 ```{r, echo=TRUE}
 options(digits=2)
@@ -79,6 +97,7 @@ Each row represents a column, and presents the variable name, type (character or
 Alternatively, you may also examine the first few rows by typing `head(protProfileSummaryTMTms2)`.
 
 The second data set we need has 39 reference proteins and two columns, the first for the protein name and the second for their respective subcellular compartments. These are from Jadot et al (2016) and may be viewed as follows:
+
 ```{r, echo=TRUE}
 dim(refLocProteinsJadot)
 refLocProteinsJadot
@@ -139,10 +158,10 @@ refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
                      markerLocR=markerLocRuse, refProtPlot=2)
 ```
 
-To show all five of the reference proteins, open a window 10 inches by 7 inches. Then set up a plot array with 3 rows and 2 columns, to allow plotting all five reference proteins on a page. Finally, plot them one-by-one. (The plots are not shown here.)
+To show all five of the reference proteins, open a window 10 inches by 7 inches. Then set up a plot array with 3 rows and 2 columns, to allow plotting all five reference proteins on a page. Finally, plot them one-by-one. (To fit them all on the same page, you may open a window by entering `windows(width=7, height=10)`.)
 
-```{r, echo=TRUE, eval=FALSE}
-windows(width=7, height=10)
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
+
 par(mfrow=c(3,2))
 for (j in 1:5) {
   refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
@@ -151,12 +170,12 @@ for (j in 1:5) {
   }
 ```
 
-To plot all of the reference profiles we may set up a plot window with four rows and two columns and then loop through the eight subcellular compartments. (Plots not shown here.)
+To plot all of the reference profiles we may set up a plot window with four rows and two columns and then loop through the eight subcellular compartments.
 
-```{r, echo=TRUE, eval=FALSE}
+```{r, echo=TRUE, eval=TRUE, fig.width = 7, fig.height = 10}
 loc.list <- rownames(markerLocRuse)
 n.loc <- length(loc.list)
-windows(width=7, height=10)
+#windows(width=7, height=10)
 par(mfrow=c(4,2))
 for (i in 1:n.loc) {
   refProfilePlot(refLoc=loc.list[i], refLocProteins=refLocProteinsJadot,
@@ -180,7 +199,6 @@ We can look at the profile of, for example, the protein "TLN1". We first find th
 
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("TLN1")
-#protPlotfun(protPlot=93, assignProbsOut=assignProbsOut)
 ```
 
 This function also accepts partial matching of the first few letters of a protein. For example, we can find the indices of the genes starting with "TLN":
@@ -193,14 +211,13 @@ protIndex("TLN")
 
 Now we plot the results for protein TLN1:
 
-```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
-#protPlotfun(protName="TLN1",
-# geneProfileSummary=geneProfileSummaryTMTms2, 
-#n.fractions=9, n.compartments=8,
-# Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
+```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=9}
+protPlotfun(protName="TLN1", protProfileSummary=protProfileSummaryTMTms2, 
+n.fractions=9, n.compartments=8,
+ Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
 ```                        
 
-The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the peptides, which are represented by the blue lines; thicker blue lines indicate larger numbers of spectra for a particular peptide. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines. Also note that there is one peptide, plotted in solid blue, with a quite different profile from the other peptides. This is likely due to a peptide (specifically, MVAAAK) incorrectly assigned to this protein. This peptide was removed from the estimation of the average profile by an outlier rejection procedure. This outlier rejection procedure is discussed in another vignette.
+The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines. 
 
 ## Nearest proteins in a data set
 We may find the proteins with profiles nearest to a given protein using the function "nearestProteins". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the proteins in a list of mean profiles, such as "protProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
@@ -213,72 +230,17 @@ Then select the protein names:
 ```{r, echo=TRUE, eval=TRUE}
 protsUse <- protProfileSummaryTMTms2[,1]
 ```
+
 Finally, provide a protein name. Here, we first look for proteins in our dataset that start with "TLN". We choose the protein "AADAC", and find the 10 nearest proteins.
+
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("TLN")
 nearestProts("TLN1", n.nearest=10,  distProts=distUse, protNames=protsUse)
 ```
 
-We now consider the Christofrou data, which has 20 channels (from two combined experiments). We remove GPT_MOUSE and CPSM_MOUSE (rows 2 and 18). Because of the large number of columns, the output text wraps around to display all of them.
 
-```{r, echo=TRUE, eval=TRUE}
-refLocProteinsJadotMouseMod <- refLocProteinsJadotMouse[-c(2,18),] 
-# remove row 2 and 18  (GPT_MOUSE and CPSM_MOUSE)
-markerLocRuse <- cpaSetup(geneProfileSummary=geneProfileSummaryChristoforou,
-                       refLocProteins=refLocProteinsJadotMouse, n.channels=20)
-markerLocRuse
-```
-
-For example, to plot the profile for cytosol, use this:
-
-```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-
-refProfilePlot(refLoc="Cyto", refLocProteins=refLocProteinsJadotMouse,
-                     geneProfileSummary=geneProfileSummaryChristoforou,
-                     markerLocR=markerLocRuse)
-```
-
-We can see that there is one protein labelled "Cyto" that appears different from the others, and may represent a data errror.
-
-
-
-As we did earlier, we may plot the profiles of all of the compartments for which at least one marker protein was found. (Plots not shown here.)
-
-```{r, echo=TRUE, eval=FALSE}
-loc.list <- rownames(markerLocRuse)
-n.loc <- length(loc.list)
-windows(width=7, height=10)
-par(mfrow=c(3,2))
-for (i in 1:n.loc) {
-  refProfilePlot(refLoc=loc.list[i], refLocProteins=refLocProteinsJadotMouse,
-                     geneProfileSummary=geneProfileSummaryChristoforou,
-                     markerLocR=markerLocRuse)
-  }
-```
-
-
-Next we estimate the CPA proportions for this experiment.
-
-```{r, echo=TRUE, eval=TRUE}
-assignPropsUse <- proLocAll(geneProfileSummary=geneProfileSummaryChristoforou,
-                                markerLocR=markerLocRuse, n.channels=20)
-
-str(assignPropsUse)
-```
-
-Now we can plot the CPA estimates from the Christoforou data.
-
-```{r, echo=TRUE, eval=TRUE}
-#protPlotfun(protName="TLN1_MOUSE", geneProfileSummary=geneProfileSummaryChristoforou,
-#n.fractions=20, n.compartments=6,
-#            Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
-```
-
-This data set yields estimates of 73 percent plasma membrane and 22 percent cytosol, which are comparable to the rates from Tannous et al discussed above (59 percent and 35 percent, respectively).
 
 ## References
-
-Christoforou A, Mulvey, CM, Breckels LM, Geladaki A, Hurrell T, Hayward PC, Naake T, Gatto L, Viner R, Arias AM, and Lilley KS (2016), "A draft map of the mouse pluripotent stem cell spatial proteome" Nature Communications 7, 8992. DOI: 10.1038/ncomms9992
 
 Jadot M, Boonen M, Thirion J, Wang N, Xing J, Zhao C, Tannous A, Qian M, Zheng H, Everett JK, Moore DF, Sleat DE, Lobel P (2016) Accounting for protein subcellular localization: a compartmental map of the rat liver proteome. Molecular and Cellular Proteomics 16, 194-212. doi:10.1074/mcp.M116.064527  PMCID: PMC5294208
 
