@@ -175,7 +175,6 @@ To plot all of the reference profiles we may set up a plot window with four rows
 ```{r, echo=TRUE, eval=TRUE, fig.width = 7, fig.height = 10}
 loc.list <- rownames(markerLocRuse)
 n.loc <- length(loc.list)
-#windows(width=7, height=10)
 par(mfrow=c(4,2))
 for (i in 1:n.loc) {
   refProfilePlot(refLoc=loc.list[i], refLocProteins=refLocProteinsJadot,
@@ -195,7 +194,7 @@ str(assignPropsUse)
 
 The first column contains the protein names, and the next 8 columns contain the allocation proportions of each protein to the eight compartments. The last two columns are the number of peptides and spectra, carried over from the input `protProfileSummary` profile data, which is not essential for the CPA analysis.
 
-We can look at the profile of, for example, the protein "TLN1". We first find the protein in the dataset, and also the row number of that protein:
+We can look at the profile of, for example, the protein "TLN1". We first ensure that the protein is in the dataset:
 
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("TLN1")
@@ -219,24 +218,52 @@ n.fractions=9, n.compartments=8,
 
 The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines. 
 
-## Nearest proteins in a data set
-We may find the proteins with profiles nearest to a given protein using the function "nearestProteins". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the proteins in a list of mean profiles, such as "protProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
+The `protPlotfun` function is designed to plot profiles of eight subcellular locations. If a data set has more than eight of these, it will be necessary to modify the code to accommodate the larger number.
 
-```{r, echo=TRUE, eval=TRUE}
-distUse <- dist(protProfileSummaryTMTms2[,2:10], method="euclidean")
+## Saving the CPA output
+### Data output
+
+We may save the results of the `proLocAll` procedure by first setting a directory.
+
 ```
-Then select the protein names:
+setwd("C:/temp/myProteinOutput")
+```
+The write out the data as a comma separated file, using `write.csv`:
 
-```{r, echo=TRUE, eval=TRUE}
-protsUse <- protProfileSummaryTMTms2[,1]
+```
+write.csv(assignPropsUse, file="assignPropsUse.txt", row.names=F)
 ```
 
-Finally, provide a protein name, such as `TLN1`, and find the 10 nearest proteins:
+This writes the CPA results (which we had previously put into the R dataset `assignPropsUse`), without row names, and in comma separated format. Ordinarily one would give the file a `.csv` extension so that Excel would automatically open it when clicking on the file name in Windows. Here we do not recommend that because of a naming issue with proteins. Specifically, some proteins (`MARCH9` for example) will be interpreted by Excel as dates, and switched to a date format (`9-Mar` in this case). To prevent that, save the comma-separated value file as a text file, with extension `.txt`. Then, in Windows, open up the Excel program and navigate within Excel to the `assignPropsUse.txt` file and open it. You will then be presented with an Excel import wizard where you specify that columns are separated by commas, and then select the first row (`protName`), and specify that this is a character column. This will prevent Excel from converting protein names to date format.
 
-```{r, echo=TRUE, eval=TRUE}
+### Plot output as pdf files
 
-nearestProts("TLN1", n.nearest=10,  distProts=distUse, protNames=protsUse)
+To save the plot of a protein (`TLN1` for example) as a pdf file, we first specify a pdf plot `window`, call the `protPlotfun` function as before, and then close the plotwindow using `dev.off()` to allow R to complete producing the file:
+
 ```
+pdf(file="myPlotPDFfile.pdf", width=7, height=10)
+protPlotfun(protName="TLN1", protProfileSummary=protProfileSummaryTMTms2, 
+    n.fractions=9, n.compartments=8,
+    Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
+dev.off()
+```   
+
+To output plots all of the protein profiles into a single pdf file, one can set up a loop as follows:
+
+
+```
+pdf(file="allPlotsPDFfile.pdf", width=7, height=10)
+n.prots <- nrow(assignPropsUse)
+for (i in 1:n.prots) {
+   protPlotfun(protName=assignPropsUse$protName[i],
+       protProfileSummary=protProfileSummaryTMTms2, n.fractions=9, n.compartments=8,
+       Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
+}
+dev.off()
+```   
+
+This will result in a single file, `allPlotsPDFfile.pdf` with 7893 pages, one for each protein.
+
 
 
 

@@ -84,12 +84,15 @@ proj.simplex <- function(y, c=1) {
 
 
 
-protIndex <- function(protName, protProfileSummary=protProfileSummaryTMTms2) {
-  # return index of a protein name
+protIndex <- function(protName, protProfileSummary=protProfileSummaryTMTms2,
+                       exactMatch=F) {
+  # return index of a protein name, or (if exactMatch=T) indices of proteins starting with
+  #   the string given in "protName"
   n.prot <- nrow(protProfileSummary)
 
-  prot.list <- as.character(protProfileSummary[,1])  # must be in column 1
-  inx <- grep(paste("^",protName, sep=""), prot.list, ignore.case=T)
+  prot.list <- toupper(as.character(protProfileSummary[,1]))  # must be in column 1
+  if (exactMatch) inx <- grep(paste("^", protName, "$", sep=""), prot.list, ignore.case=T)
+  if (!exactMatch) inx <- grep(paste("^",protName, sep=""), prot.list, ignore.case=T)
   if (length(inx) == 0) inx <- NA
   #if (protName %in% prot.list)  {inx <- (1:n.prot)[{prot.list == protName}]}
   #else if (protName %in% toupper(prot.list))  {inx <- (1:n.prot)[{toupper(prot.list) == protName}]}
@@ -189,7 +192,8 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
 
 
   if (showProgress) {
-    if ((i %% 500) == 0) print(paste(i, "proteins"))
+    if (i == 500) print(paste(i, "proteins"))
+    if ((i %% 1000) == 0) print(paste(i, "proteins"))
     }
 
 

@@ -50,7 +50,9 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
   on.exit(par(oldpar))
   protsOK <- {protProfileSummary$protName == assignPropsMat$protName}
 
-  temp <- protIndex(protName, protProfileSummary)
+  temp <- protIndex(protName, protProfileSummary, exactMatch=T)
+  # must be exact to avoid duplicate finds
+
   # this can be a vector, matrix, or vector, so handling is complicated
   #if (is.matrix(tempx)) temp <- tempx   # leave it alone
   # if temp is not a matrix, can then test for being NA with no error returned
