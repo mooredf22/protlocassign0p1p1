@@ -41,9 +41,9 @@ knitr::opts_chunk$set(
 	eval = TRUE
 )
 ```
-Determining the locations of proteins in the cell is an important but complex problem. The major biochemical approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribution of different proteins among the differential fractions. The location of proteins of interest are then inferred by comparing their distribution to those of known locations. This package takes data from centrifugation fractions for large numbers of proteins to determine their relative abundance among the fractions, and by extension to their relative abundance among subcelluar locations. 
+Determining the locations of proteins in the cell is an important but complex problem. The most frequently employed approach for this involves centrifugation-based methods to partially separate different organelles and other cellular compartments and then to determine the relative distribution of different proteins among the differential fractions. The location of proteins of interest are then inferred by comparing their distribution to reference proteins of known locations. This package takes data from centrifugation fractions for large numbers of proteins to determine their relative abundance among the fractions, and by extension to their relative abundance among subcellular locations. 
 
-This package implements a subcellular protein assignment procedure as "constrained proportional assignment", or CPA (Jadot et al, 2016). The first column of the input data consists of the field "protName". This is a unique identifier for each row, e.g., a protein name, protein group, gene name, accession number, or peptide sequence. Following this are multiple columns of the relative abundances of the proteins among the centrifugal fractions. The sum of the abundance levels is constrained to 1 but can be further transformed to improve the quality of the fit. Another key input to the program is a curated list of reference proteins, and their subcellular locations. The method first determines the profiles of abundance levels of proteins in a curated reference set. Then, for each protein, it finds either a profile matching a single compartment or a linear combination of compartment profiles that match the profile of that protein. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. The method can also be applied to classify individual peptides, gaining potential insight into subcellular location of protein isoforms. There is also a tool to compute nearest neighbor distances of proteins, allowing grouping of proteins with similar distributions.
+This package implements a subcellular protein assignment procedure as "constrained proportional assignment", or CPA (Jadot et al, 2016). The first column of the input data consists of the field "protName". This is a unique identifier for each row, e.g., a protein name, protein group, gene name, accession number, or peptide sequence. Following this are multiple columns of the relative abundances of the proteins among the centrifugal fractions. The sum of the abundance levels is constrained to 1 but can be further transformed to improve the quality of the fit. Another key input to the program is a curated list of reference proteins with defined subcellular locations. The method first determines the profiles of abundance levels of proteins in a curated reference set. Then, for each protein, it finds either a profile matching a single compartment or a linear combination of compartment profiles that match the profile of that protein. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. The method can also be applied to classify individual peptides, gaining potential insight into subcellular location of protein isoforms. This package also includes a tool to compute nearest neighbor distances of proteins, allowing grouping of proteins with similar distributions.
 
 
 
@@ -72,11 +72,11 @@ install.packages("BB")
 ```
 Once you have installed a package, you do not need to re-install it the next time you start up R.
 
-These are the only packages you need to run the programs that work with data that are presented as mean levels for a protein/gene. In another vignette there is a description of R functions that work with data at the spectral level; additional packages will be needed to process spectral-level data and produce protein-level data.
+These are the only packages required for data that are presented as mean levels for a protein/gene. In another vignette there is a description of R functions that work with data at the spectral level; additional packages will be needed to process spectral-level data and produce protein-level data.
 
 ## Working with data
 
-To use this package you will need two data sets. One consists of a column of protein names followed by a series of columns of relative protein levels derived from a subcellular fractionation experiment. (Optionally there may be two addtional columns representing the numbers of peptides and spectra that were used to compute mean protein abundance levels.) The other data set consists of a list of reference proteins in the first column and the name of the known subcellular compartment in the second column.
+To use this package you will need two data sets. One consists of a column of protein names followed by a series of columns of relative protein levels derived from a subcellular fractionation experiment. (Optionally there may be two additional columns representing the numbers of peptides and spectra that were used to compute mean protein abundance levels.) The other data set consists of a list of reference proteins in the first column and the name of the known subcellular compartment in the second column.
 
 Consider for example the TMT MS2 data from Tannous et al. (2020). To get started, load the package and look at the dimensions of the data set and then the last few rows:
 
@@ -92,7 +92,7 @@ options(digits=2)
 str(protProfileSummaryTMTms2)
 ```
 
-Each row represents a column, and presents the variable name, type (character or number) and the first few values of that variable. The first column is the protein name and the next nine columns represent its levels of the different fractions. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each protein.) 
+Each row represents a column, and presents the variable name, type (character or number) and the first few values of that variable. The first column is the protein name and the next nine columns represent its average levels of the different fractions, across spectra. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. (While we use a nested random effects model described in Jadot, 2016 to compute the means across spectra, other methods, including taking a straight average, may be appropriate for other applications.) 
 
 Alternatively, you may also examine the first few rows by typing `head(protProfileSummaryTMTms2)`.
 
@@ -103,7 +103,7 @@ dim(refLocProteinsJadot)
 refLocProteinsJadot
 ```
 
-The protlocassign package includes several other relative fraction data sets. In addition, you may read in your own data. Suppose for example that the data sets reside in a directory `"C:\temp\myproteindata"`. First set the working directory to point there:
+The protlocassign package includes several other relative fraction data sets. In addition, you may read in your own data. Suppose for example that the data sets reside in a directory `"C:\temp\myproteindata"`. First, set the working directory to point there:
 
 ```
 setwd("C:\\temp\\myproteindata")
@@ -149,7 +149,7 @@ refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
                      markerLocR=markerLocRuse)
 ```
 
-We see, in the plot title, that there are five reference proteins. To plot, say, the second one, enter this code, using the option `refProtPlot=2`:
+We see, in the plot title, that there are five reference proteins. To plot, for example, the second one, enter this code, using the option `refProtPlot=2`:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
