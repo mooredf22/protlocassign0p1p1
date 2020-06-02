@@ -58,7 +58,7 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
   # if temp is not a matrix, can then test for being NA with no error returned
   if (!is.matrix(temp)) {
     if (is.na(temp)[1]) {
-      cat(paste("protName not found \n"))  # first element is Na
+      cat(paste(protName, " not found \n"))  # first element is Na
       return(temp)
     }
   }

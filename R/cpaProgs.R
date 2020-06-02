@@ -91,7 +91,8 @@ protIndex <- function(protName, protProfileSummary=protProfileSummaryTMTms2,
   n.prot <- nrow(protProfileSummary)
 
   prot.list <- toupper(as.character(protProfileSummary[,1]))  # must be in column 1
-  if (exactMatch) inx <- grep(paste("^", protName, "$", sep=""), prot.list, ignore.case=T)
+  #if (exactMatch) inx <- grep(paste("^", protName, "$", sep=""), prot.list, ignore.case=T)
+  if (exactMatch) inx <- (1:n.prot)[protName == prot.list]
   if (!exactMatch) inx <- grep(paste("^",protName, sep=""), prot.list, ignore.case=T)
   if (length(inx) == 0) inx <- NA
   #if (protName %in% prot.list)  {inx <- (1:n.prot)[{prot.list == protName}]}
