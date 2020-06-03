@@ -103,7 +103,9 @@ dim(refLocProteinsJadot)
 refLocProteinsJadot
 ```
 
-The protlocassign package includes several other relative fraction data sets. In addition, you may read in your own data. Suppose for example that the data sets reside in a directory `"C:\temp\myproteindata"`. First, set the working directory to point there:
+The protlocassign package includes several other relative fraction data sets. 
+
+It is also possible to read in data stored as external files. Suppose for example that one is working with the Windows operating system and that the data sets reside in a directory `"C:\temp\myproteindata"`. First, set the working directory to point there:
 
 ```
 setwd("C:\\temp\\myproteindata")
@@ -123,6 +125,8 @@ protProfileSummaryMyProfiles <- read.csv(file="protProfileSummaryMyProfiles.csv"
                                          row.names=F
 refLocProteinsMyRefs <- read.csv(file="refLocProteinsMyRefs.csv", row.names=F)
 ```
+
+If one is working with either the linux or Mac OS, appropriate changes to these procedures will be needed to access files.
 
 ## Obtaining constrained proportionate assignments of proteins to compartments
 
