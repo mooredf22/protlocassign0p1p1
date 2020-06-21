@@ -2,12 +2,30 @@
 title: "Assignment of Proteins to Subcellular Locations Using protlocassign"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
+
 #output: rmarkdown::html_vignette
-output: word_document
+output:
+  word_document:
+  #  html_document:
+  #mathjax:  default
+  fig_caption:  true
+  toc: true
+#section_numbering: true
+#css: ggsci.css
+
+
+#output:
+#  word_document:
+#    reference_docx: word-styles-reference-03.docx
+#output: pdf_document
+#fontsize: 10pt
+
 vignette: >
+
   %\VignetteIndexEntry{protlocassign}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+#  %\VignetteEncoding{UTF-8}
+
 ---
 
 ```{r setup, include = FALSE}
@@ -16,99 +34,125 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-Determining the locations of proteins in the cell is an important but complex problem. Differential centrifugation of cellular components into multiple fractions is a useful tool for doing this. This package takes data from centrifugation fractions for large numbers of proteins to determine their relative abundance among the fractions, and by extension to their relative abundance among subcelluar locations. The input data consisist of a file with one column, `geneName`, of gene/protein identifers, and multiple columns of the relative abundances of the proteins among the centrifugal fracions, with the abundance levels constrained to sum to 1. The fractions typically comprise the N, M, L1, L2, P, and S fractions, and may be supplemented by one to three additional "Nyc" fractons. Another key input to the program is a curated list of reference genes and their subcellular locations.This list is used to classify addtional genes to subcelluar locations.
+## Data transformations
 
-This package implements a subcellular protein assignment procedure as "constrained proportional assignmet", or CPA (Jadot et al., 2016). This method first determines the profiles of abundance levels of genes in a curated reference set. Then, for each gene, it finds either a profile matching a single compartment or a linear combination of compartment profiles that match the profile of that gene. The relative weights of the linear combination in principle reflect the relative abundance of proteins for that gene among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences.
+In the tutorial we illustrated the principles of constrained proportional assignment based
+on amounts of protein in each of a number of channels, corresponding generally to the amounts
+of protein in differential fractions. In reality, though, the connection between relative levels
+in channels and the relative protein levels in the differential fracitions, and of that to the
+relative amounts of protein in subcellular locations within the cell is complex. This vignette
+describes how to use functions in the protlocassign package to transform relative amounts of
+protein in the fractions to amounts more useful for inferring relative proportions in subcellular
+comparments.
 
 
+## Loading the data
 
-## Tutorial on gene assignment
+As explained in the "Getting Started" vignette, you will need two data sets. One consists of a column of protein names followed by a series of columns of relative protein levels derived from a subcellular fractionation experiment. (Optionally there may be two additional columns representing the numbers of peptides and spectra that were used to compute mean protein abundance levels.) The other data set consists of a list of reference proteins in the first column and the name of the known subcellular compartment in the second column.
 
-Let us illustrate with an example. Tannous et al. (2020) presented abundance levels of proteins among seven fractions: N, M, L1, L2, P, and S, and three additional fractions, "Nyc1", Nyc2", and "Nyc3", from Nycodenz fractions. Eight subcellular compartments were considered: nucleus, mitochondria, lysosomes, peroxisomes, golgi apparatus, plasma membrane, and cytosol. The CPA method assigns each of a large number of genes to one or more of these compartments, based on profiles from a set of reference genes. To run the program, the `prolocate` library must be installed. Also, the `BB` library is required; it may be downloaded from CRAN by typing `install.packages("BB") `.
+Also explained previously, we Consider the TMT MS2 data from Tannous et al. (2020). 
+They
+presented abundance levels of proteins among seven fractions: N, M, L1, L2, P, and S,
+and three additional fractions, "Nyc1", Nyc2", and "Nyc3", from Nycodenz fractions.
+Eight subcellular compartments were considered: nucleus, mitochondria, lysosomes,
+peroxisomes, golgi apparatus, plasma membrane, and cytosol.
+The CPA method assigns each of a large number of genes to one or more of
+these compartments, based on profiles from a set of reference genes.
+To run the program, the `prolocate` library must be installed.
+Also, the `BB` library is required; it may be downloaded from CRAN by typing
+`install.packages("BB") `.
 
 
 ```{r, echo=TRUE}
 library(protlocassign)
-dim(geneProfileSummaryTMTms2)
+dim(protProfileSummaryTMTms2)
 options(digits=3)
-head(geneProfileSummaryTMTms2)
+head(protProfileSummaryTMTms2)
 ```
-The data set gives relative fraction levels for 7893 genes. The last two columns give the number of spectra and the number of peptides (sequences) for each gene. (The spectra were averaged using a nested random effects model described in Jadot, 2016, to produce the given average for each gene.)
+The data set gives relative fraction levels for 7893 genes.
+The last two columns give the number of spectra and the number of peptides
+(sequences) for each gene. (The spectra were averaged using a
+nested random effects model described in Jadot, 2016, to produce the given average
+for each protein.)
 
-The reference genes, which are from Jadot et al (2016), may be accessed as follows:
+The second data set we need has 39 reference proteins and two columns, the first for the protein name and the second for their respective subcellular compartments. These are from Jadot et al (2016) and may be viewed as follows:
+
 ```{r, echo=TRUE}
 dim(refLocProteinsJadot)
-refLocProteinsJadot[c(1,2,6,7,12,13,17,18,21,22,27,28,31,32,35,36),]
+refLocProteinsJadot
 ```
-There are 39 genes in this reference set; two for each compartment are shown here.
+There are 39 genes in this reference set.
 
-To obtain profiles for the reference genes, use the function `cpaSetup`: 
+To obtain profiles for the reference genes, use the function `cpaSetup`:
 
 ```{r, echo=TRUE, eval=TRUE}
-matLocRuse <- cpaSetup(geneProfileSummary=geneProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
-matLocRuse
+markerLocRuse <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
+markerLocRuse
 
-##referenceProfilePlot(refLocProteins = refLocProteinsJadot,
-##  geneProfileSummary = geneProfileSummaryJadotExptA, matLocR = matLocR, n.channels=7)
 ```
 
-To view them, use `referenceProfilePlot`:
-```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
-#par(mfrow=c(4,3))
-referenceProfilePlot(refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryTMTms2,
-                     matLocR=matLocRuse, n.channels=9)
-```
-Before finding the constrained proportional estimates, it is preferable to transform them to relative specific activities (RSA's), which are the amount of a given protein in a fraction divided by the amount of starting material of that protein (see Appendix section on adjusting protein levels). These adjustment factors are in the dataset "tmtMS2totProt", which is just a vector of length 9:
+It is possible to use these two data sets as is to find constrained proportional estimates; with data from other experiments, this may in fact be the only choice. However, in experiments such as Tannous et al. (2020), which use bookkeeping, it is preferable to
+transform them to relative specific activities (RSA's), which are the amount
+of a given protein in a fraction divided by the amount of starting material of
+that protein (see Appendix section on adjusting protein levels).
+These adjustment factors are in the dataset "tmtMS2totProt",
+which is just a vector of length 9:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 totProtUse <- tmtMS2totProt
 totProtUse
 ```
 
-The program "rsaDirect" adjusts the fraction levels measured from the machine to the amounts of protein in each fraction in the original sample. It is important to specify how many of the fractions are Nycodenz fractions (three in this case) so that the adjustment is just using the differential fracctions. We do this first with the reference profile levels in "matLocR":
+The program "rsaDirect" adjusts the fraction levels measured from the machine to the
+amounts of protein in each fraction in the original sample.
+It is important to specify how many of the fractions are Nycodenz fractions
+(three in this case) so that the adjustment is just using the differential fracctions.
+We do this first with the reference profile levels in "matLocR":
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocRuse, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
-row.names(matLocRrsa) <- row.names(matLocRuse)
-matLocRrsa
-#round(matLocRrsa, digits=4)
+markerLocRrsa <- rsaDirect(protProfileLevels=markerLocRuse, nDiffFractions=6,
+       nNycFractions=3, totProt=totProtUse)
+row.names(markerLocRrsa) <- row.names(markerLocRuse)
+
 ```
 
 We now do the same for the matrix of protein-level mean profiles:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-geneProfileLevelsUse <- geneProfileSummaryTMTms2[,2:(1 + 9)]
-geneProfileLevelsRSA <- rsaDirect(geneProfileLevels=geneProfileLevelsUse, 
+protProfileLevelsUse <- protProfileSummaryTMTms2[,2:(1 + 9)]
+protProfileLevelsRSA <- rsaDirect(protProfileLevels=protProfileLevelsUse,
                                    nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
-dim(geneProfileLevelsRSA)
-head(geneProfileLevelsRSA)
+dim(protProfileLevelsRSA)
+head(protProfileLevelsRSA)
 ```
 
-Now we put back the gene names in the first column, and Nspectra and Nseq in the last columns:
+Now we put back the protein names in the first column, and Nspectra and Nseq in the last columns:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-geneProfileSummaryRSA <- data.frame(geneProfileSummaryTMTms2[,1],geneProfileLevelsRSA, 
-                                    geneProfileSummaryTMTms2[,11:12])
-names(geneProfileSummaryRSA)[1] <- "geneName"
-dim(geneProfileSummaryRSA)
-head(geneProfileSummaryRSA)
+protProfileSummaryRSA <- data.frame(protProfileSummaryTMTms2[,1],protProfileLevelsRSA,
+                                    protProfileSummaryTMTms2[,11:12])
+names(protProfileSummaryRSA)[1] <- "protName"
+dim(protProfileSummaryRSA)
+head(protProfileSummaryRSA)
 ```
 
-Now we can plot the reference profiles on the RSA scale:
+Now we can plot the reference profile for any subcellular location on the RSA scale. For
+example, here is the plot for PM:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 #par(mfrow=c(4,3))
-referenceProfilePlot(refLocProteins=refLocProteinsJadot, geneProfileSummary=geneProfileSummaryRSA,
-                     matLocR=matLocRrsa, n.channels=9)
+refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
+                     protProfileSummary=protProfileSummaryRSA,
+                     markerLocR=markerLocRrsa)
 
 ```
 
 Now we can run the CPA routine on the RSA-transformed levels; this may take several minutes to complete. The last column is a convergence indicator, with 1 indicating successful convergence. We remove this last column to get a matrix of gene names, and columns indicating the estimated proportional assignments of each gene among the eight subcellular locations.
 
 ```{r, echo=TRUE, eval=TRUE}
-assignPropsOutTemp <- proLocAll(geneProfileSummary=geneProfileSummaryRSA, matLocR=matLocRrsa,
-                            n.channels=9)
+assignPropsOutTemp <- proLocAll(protProfileSummary=protProfileSummaryRSA,
+                                markerLocR=markerLocRrsa, n.channels=9)
 ncol.a <- ncol(assignPropsOutTemp)   # last column is a convergence indicator, which should be 1
 assignPropsUse <- data.frame(assignPropsOutTemp[,-ncol.a] ) # drop this last column
 head(assignPropsUse)
@@ -116,7 +160,7 @@ head(assignPropsUse)
 
 
 
-Next, load the original data, with spectra and peptides, and select the columns for gene name, peptide name, and the nine fractions ranging from N to Nyc.3:
+Next, load the original data, with spectra and peptides, and select the columns for protein name, peptide name, and the nine fractions ranging from N to Nyc.3:
 
 ```{r, echo=TRUE, eval=TRUE}
 #finalListUse <- subset(tmtMS2orig, select={c(gene:peptide,N:Nyc.3)}, subset={gene %in% genesInclude})
@@ -126,15 +170,15 @@ finalListUse <- subset(tmtMS2orig, select={c(gene:peptide,N:Nyc.3)})
 To convert to relative specific values, we convert this large dataframe in five smaller pieces, convert those pieces, and then reassemble:
 
 ```{r, echo=TRUE, eval=TRUE}
-finalListRSAuse1 <- rsaDirect(geneProfileLevels=finalListUse[1:30000,3:11], 
+finalListRSAuse1 <- rsaDirect(protProfileLevels=finalListUse[1:30000,3:11],
                                    nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
-finalListRSAuse2 <- rsaDirect(geneProfileLevels=finalListUse[30001:60000,3:11], 
+finalListRSAuse2 <- rsaDirect(protProfileLevels=finalListUse[30001:60000,3:11],
                                    nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
-finalListRSAuse3 <- rsaDirect(geneProfileLevels=finalListUse[60001:90000,3:11], 
+finalListRSAuse3 <- rsaDirect(protProfileLevels=finalListUse[60001:90000,3:11],
                                    nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
-finalListRSAuse4 <- rsaDirect(geneProfileLevels=finalListUse[90001:120000,3:11], 
+finalListRSAuse4 <- rsaDirect(protProfileLevels=finalListUse[90001:120000,3:11],
                                    nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
-finalListRSAuse5 <- rsaDirect(geneProfileLevels=finalListUse[120001:nrow(finalListUse),3:11], 
+finalListRSAuse5 <- rsaDirect(protProfileLevels=finalListUse[120001:nrow(finalListUse),3:11],
                                    nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
 finalListRSAuseT <- rbind(finalListRSAuse1, finalListRSAuse2, finalListRSAuse3, finalListRSAuse4, finalListRSAuse5)
 
@@ -142,6 +186,7 @@ finalListRSAuse <- data.frame(finalListUse[,1:2], finalListRSAuseT)
 
 ```
 We can look at the profile of, for example, the gene "AADAC" by first finding the gene number in the dataset:
+
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("AADAC")
 #protPlotfun(protPlot=93, assignProbsOut=assignProbsOut)
@@ -154,9 +199,9 @@ Now we plot the results for gene number AADAC, which has index number 93:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
 
-protPlotfun(protPlot=93, geneProfileSummary=geneProfileSummaryRSA, finalList=finalListRSAuse, n.fractions=9,
-                        Nspectra=T, matLocR=matLocRrsa, assignPropsMat=assignPropsUse)
-```                        
+protPlotfun(protName="AADAC", protProfileSummary=protProfileSummaryRSA, finalList=finalListRSAuse, n.fractions=9,
+                        Nspectra=T, markerLocR=markerLocRrsa, assignPropsMat=assignPropsUse)
+```
 
 The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the peptides, which are represented by the blue lines; thicker blue lines indicate larger numbers of spectra for a particular peptide. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 92\% residence proportion to endoplasmic reticulum. Visually, we see that the observed red profile closely matches the expected yellow-black profile for endoplasmic reticulum.
 
@@ -164,28 +209,28 @@ The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S,
 We may find the genes with profiles nearest to a given gene using the function "nearestGenes". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the genes in a list of mean profiles, such as "geneProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
 
 ```{r, echo=TRUE, eval=TRUE}
-distUse <- dist(geneProfileSummaryTMTms2[,2:10], method="euclidean")
+distUse <- dist(protProfileSummaryTMTms2[,2:10], method="euclidean")
 ```
 Then select the gene names:
 
 ```{r, echo=TRUE, eval=TRUE}
-genesUse <- geneProfileSummaryTMTms2[,1]
+protsUse <- protProfileSummaryTMTms2[,1]
 ```
 Finally, provide a gene name. Here, for the gene "AADAC", we find the 10 nearest genes.
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("AAD")
-nearestGenes("AADAC", n.nearest=10,  distGenes=distUse, geneNames=genesUse)
+nearestProts("AADAC", n.nearest=10,  distProts=distUse, protNames=protsUse)
 ```
 
 ## Working with spectral level data
-The spectral level data for tmtMS2 is in the dataset "tmtMS2orig". This dataset contains a list of 
+The spectral level data for tmtMS2 is in the dataset "tmtMS2orig". This dataset contains a list of
 spectra nested within peptides, which are in turn nested within proteins. Outliers may be identified as follows:
 
 ```
 protsCombineCnew <- OutlierIdentify(protClass=tmtMS2orig, refCol=4, nCol=9, save.data=F)
 ```
 
-The following function computes mean profiles using a random effects model with spectra nested within genes, 
+The following function computes mean profiles using a random effects model with spectra nested within genes,
 after removing outliers:
 
 ```
@@ -236,9 +281,9 @@ The first step is an outlier screen, for each protein, of the abundance levels f
 
 
 ## Constrained proportional assignment
-Once outlier spectra have been removed, the next step is to determine a mean profile for each protein. If a protein has at least 4 spectra and at least 3 different sequences (peptides), we ordinarily have enough data to fit a random effects model. This model computes, for each EF in each fraction of this protein, a weighted average and standard error of the measures, accounting for the fact that spectra are nested within sequences. (This computation is carried out using the “lmer” function in the “lme4” R package.) . The result is essentially the mean and standard error of the observations, with an adjustment for the nested structure of the data. This procedure prevents a sequence with a very large number of spectra from dominating the estimates of the mean and standard error.  Occasionally the “lmer” program will fail to converge for a particular abundance. If that happens or if the condition of having at least 4 spectra and 3 different sequences is not met, we compute the simple mean and standard error of the (log2 transformed) for that abundance level. If there are fewer than 3 spectra, we cannot compute a standard error, and thus only report the mean.  When this process has been completed, every protein has a mean profile $\underset{\sim}x = (x_1, x_2, ..., x_q)$  of abundance levels in the $q$ fractions N, M, L1, L2, P, S, and Nyc2.  For proteins with at least 2 peptides and three spectra, each component of the profile has an estimate of its standard deviation. 
+Once outlier spectra have been removed, the next step is to determine a mean profile for each protein. If a protein has at least 4 spectra and at least 3 different sequences (peptides), we ordinarily have enough data to fit a random effects model. This model computes, for each EF in each fraction of this protein, a weighted average and standard error of the measures, accounting for the fact that spectra are nested within sequences. (This computation is carried out using the “lmer” function in the “lme4” R package.) . The result is essentially the mean and standard error of the observations, with an adjustment for the nested structure of the data. This procedure prevents a sequence with a very large number of spectra from dominating the estimates of the mean and standard error.  Occasionally the “lmer” program will fail to converge for a particular abundance. If that happens or if the condition of having at least 4 spectra and 3 different sequences is not met, we compute the simple mean and standard error of the (log2 transformed) for that abundance level. If there are fewer than 3 spectra, we cannot compute a standard error, and thus only report the mean.  When this process has been completed, every protein has a mean profile $\underset{\sim}x = (x_1, x_2, ..., x_q)$  of abundance levels in the $q$ fractions N, M, L1, L2, P, S, and Nyc2.  For proteins with at least 2 peptides and three spectra, each component of the profile has an estimate of its standard deviation.
 
-Next, the profiles of the reference proteins are selected. For each of the eight compartments (Cytosol, ER, Golgi, Lysosome, Mitochondria, Nucleus, Peroxisome, and PM), the reference protein relative abundance levels are averaged to form eight compartment profiles $\underset{\sim}s_1, \underset{\sim}s_2, ..., \underset{\sim}s_8$, where each vector $\underset{\sim}s_j$ is a $q \times 1$ vector of mean levels of the $q=7$ or $q=9$ channels. 
+Next, the profiles of the reference proteins are selected. For each of the eight compartments (Cytosol, ER, Golgi, Lysosome, Mitochondria, Nucleus, Peroxisome, and PM), the reference protein relative abundance levels are averaged to form eight compartment profiles $\underset{\sim}s_1, \underset{\sim}s_2, ..., \underset{\sim}s_8$, where each vector $\underset{\sim}s_j$ is a $q \times 1$ vector of mean levels of the $q=7$ or $q=9$ channels.
 
 Finally, for each protein, we find estimated proportions $\hat{p}_1, \hat{p}_2, ..., \hat{p}_8$ so that
 $$\underset{\sim}y = \hat{p}_1 \underset{\sim}s_1 + ...+ \hat{p}_8 \underset{\sim}s_8$$
@@ -254,7 +299,7 @@ $$ \sum_{j=1}^{8} \hat{p}_j = 1 $$
 where "close" is defined by minimizing the sum of squares of the differences
 
 $$ Q=\sum_{i=1}^{q}(y_i - x_i)^2 $$
-Thus, we may view the proportions $\hat{p}_j$ as proportional allocations of the eight standard profiles to form $\underset{\sim}y$, which is as close as possible to the observed $\underset{\sim}x$ for this particular protein. This constrained optimization is carried out using the “spg” function in the R package “BB” to compute assignment probabilities for each profile for each organelle. 
+Thus, we may view the proportions $\hat{p}_j$ as proportional allocations of the eight standard profiles to form $\underset{\sim}y$, which is as close as possible to the observed $\underset{\sim}x$ for this particular protein. This constrained optimization is carried out using the “spg” function in the R package “BB” to compute assignment probabilities for each profile for each organelle.
 
 ## Adjustment of protein abundance levels
 
@@ -351,7 +396,7 @@ round(matLocR, digits=4)
 
 If we just need to obtain the RSA transformed data directly, just do this:
 ```{r, echo=TRUE, eval=TRUE}
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3, 
+matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3,
         totProt=totProtUse)
 
 round(matLocRrsa, digits=4)
@@ -373,7 +418,7 @@ Then we can test the CPA algorithm by first converting this mixture data to RSA'
 ```{r, echo=TRUE, eval=TRUE}
 
 mixCytoLysoRSA <- RSAtransform(relAmtProtFrac=mixCytoLyso, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)$rsa
-  
+
 mixCytoLysoRelAmt <- data.frame(rownames(mixCytoLysoRSA), mixCytoLysoRSA)
 names(mixCytoLysoRelAmt)[1] <- "geneName"
 round(mixCytoLysoRelAmt[,-1], digits=4)

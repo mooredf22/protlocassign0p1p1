@@ -17,15 +17,5 @@ RoxygenNote: 7.1.0
 Imports:
     lme4,
     BB
-Suggests: 
-    knitr,
-    rmarkdown,
-    tidyverse,
-    outliers,
-    dplyr,
-    tidyr,
-    purr,
-    tibble,
-    broom
 VignetteBuilder: knitr
 URL: http//github.com/mooredf22/protlocassign
