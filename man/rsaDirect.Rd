@@ -2,10 +2,10 @@
 % Please edit documentation in R/RSAabundanceTransform.R
 \name{rsaDirect}
 \alias{rsaDirect}
-\title{Directly compute relative specific activity from geneProfileSummary (or from matLocR)}
+\title{Directly compute relative specific activity from protProfileSummary (or from markerLocR)}
 \usage{
 rsaDirect(
-  geneProfileLevels,
+  protProfileLevels,
   nDiffFractions = 6,
   nNycFractions = 3,
   totProt = c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818,
@@ -14,7 +14,7 @@ rsaDirect(
 )
 }
 \arguments{
-\item{geneProfileLevels}{A matrix (with no gene names) giving the abundance level profiles of the subcellular locations, from 'cpaSetup', or many gene profiles}
+\item{protProfileLevels}{A matrix (with no prot names) giving the abundance level profiles of the subcellular locations, from 'cpaSetup', or many protein profiles}
 
 \item{nDiffFractions}{Number of differential fractions, typically 6, for N, M, L1, L2, P, and S}
 
@@ -23,8 +23,8 @@ rsaDirect(
 \item{totProt}{Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's}
 }
 \value{
-geneProfileRSA: relative specific activity
+protProfileRSA: relative specific activity
 }
 \description{
-Directly compute relative specific activity from geneProfileSummary (or from matLocR)
+Directly compute relative specific activity from protProfileSummary (or from markerLocR)
 }
