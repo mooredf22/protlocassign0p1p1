@@ -222,54 +222,7 @@ protIndex("AAD")
 nearestProts("AADAC", n.nearest=10,  distProts=distUse, protNames=protsUse)
 ```
 
-## Working with spectral level data
-The spectral level data for tmtMS2 is in the dataset "tmtMS2orig". This dataset contains a list of
-spectra nested within peptides, which are in turn nested within proteins. Outliers may be identified as follows:
 
-```
-protsCombineCnew <- OutlierIdentify(protClass=tmtMS2orig, refCol=4, nCol=9, save.data=F)
-```
-
-The following function computes mean profiles using a random effects model with spectra nested within genes,
-after removing outliers:
-
-```
-gProfSummaryTMTms2 <- geneProfileEstimate(protsCombineCnew = protsCombineCnew, outlier="boxplot",
-                                        refCol=4, nCol=9, eps=0.029885209, dataUse="tmtMS2", save.data=F)
-head(gProfSummaryTMTms2)
-```
-
-
-
-
-## Christoforou example
-Christoforou (2015) provided a set of profiles of 20 channels (from two separate runs) for over 5000 genes. Here are the constrained proportional assignments as computed by "proLocAll":
-
-
-```{r, echo=TRUE, eval=TRUE}
-geneProfileSummary=geneProfileSummaryChristoforou
-refLocProteins=refLocProteinsChristoforou
-
-```
-Here are the the adjusted mean profiles. Here we only show the first four of the 20 columns.
-```{r, echo=TRUE, eval=TRUE}
-matLocRuse <- cpaSetup(geneProfileSummary=geneProfileSummaryChristoforou, refLocProteins=refLocProteinsChristoforou,
-                       n.channels=20)
-matLocRuse[,1:4]
-```
-
-Next we plot the reference profiles and compute the matrix of assigned proportions.
-
-```{r, echo=TRUE, eval=TRUE}
-referenceProfilePlot(refLocProteins=refLocProteinsChristoforou, geneProfileSummary=geneProfileSummaryChristoforou,
-                     matLocR=matLocRuse, n.channels=20)
-
-assignPropsOutTemp <- proLocAll(geneProfileSummary=geneProfileSummaryChristoforou, matLocR=matLocRuse,
-                                n.channels=20)
-ncol.a <- ncol(assignPropsOutTemp)   # last column is a convergence indicator, which should be 1
-assignPropsUse <- data.frame(assignPropsOutTemp[,-ncol.a] ) # drop this last column
-head(assignPropsUse)
-```
 
 # Appendix
 ## Outlier rejection and computation of mean profiles
