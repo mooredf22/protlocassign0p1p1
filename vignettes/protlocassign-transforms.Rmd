@@ -56,8 +56,8 @@ presented abundance levels of proteins among seven fractions: N, M, L1, L2, P, a
 and three additional fractions, "Nyc1", Nyc2", and "Nyc3", from Nycodenz fractions.
 Eight subcellular compartments were considered: nucleus, mitochondria, lysosomes,
 peroxisomes, golgi apparatus, plasma membrane, and cytosol.
-The CPA method assigns each of a large number of genes to one or more of
-these compartments, based on profiles from a set of reference genes.
+The CPA method assigns each of a large number of proteins to one or more of
+these compartments, based on profiles from a set of reference proteins.
 To run the program, the `prolocate` library must be installed.
 Also, the `BB` library is required; it may be downloaded from CRAN by typing
 `install.packages("BB") `.
@@ -69,9 +69,9 @@ dim(protProfileSummaryTMTms2)
 options(digits=3)
 head(protProfileSummaryTMTms2)
 ```
-The data set gives relative fraction levels for 7893 genes.
+The data set gives relative fraction levels for 7893 proteins.
 The last two columns give the number of spectra and the number of peptides
-(sequences) for each gene. (The spectra were averaged using a
+(sequences) for each protein. (The spectra were averaged using a
 nested random effects model described in Jadot, 2016, to produce the given average
 for each protein.)
 
@@ -81,9 +81,9 @@ The second data set we need has 39 reference proteins and two columns, the first
 dim(refLocProteinsJadot)
 refLocProteinsJadot
 ```
-There are 39 genes in this reference set.
+There are 39 proteins in this reference set.
 
-To obtain profiles for the reference genes, use the function `cpaSetup`:
+To obtain profiles for the reference proteins, use the function `cpaSetup`:
 
 ```{r, echo=TRUE, eval=TRUE}
 markerLocRuse <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
@@ -108,7 +108,7 @@ The program "rsaDirect" adjusts the fraction levels measured from the machine to
 amounts of protein in each fraction in the original sample.
 It is important to specify how many of the fractions are Nycodenz fractions
 (three in this case) so that the adjustment is just using the differential fracctions.
-We do this first with the reference profile levels in "matLocR":
+We do this first with the reference profile levels in "markerLocR":
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 markerLocRrsa <- rsaDirect(protProfileLevels=markerLocRuse, nDiffFractions=6,
@@ -148,7 +148,7 @@ refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
 
 ```
 
-Now we can run the CPA routine on the RSA-transformed levels; this may take several minutes to complete. The last column is a convergence indicator, with 1 indicating successful convergence. We remove this last column to get a matrix of gene names, and columns indicating the estimated proportional assignments of each gene among the eight subcellular locations.
+Now we can run the CPA routine on the RSA-transformed levels; this may take several minutes to complete. The last column is a convergence indicator, with 1 indicating successful convergence. We remove this last column to get a matrix of protein names, and columns indicating the estimated proportional assignments of each protein among the eight subcellular locations.
 
 ```{r, echo=TRUE, eval=TRUE}
 assignPropsOutTemp <- proLocAll(protProfileSummary=protProfileSummaryRSA,
@@ -163,8 +163,8 @@ head(assignPropsUse)
 Next, load the original data, with spectra and peptides, and select the columns for protein name, peptide name, and the nine fractions ranging from N to Nyc.3:
 
 ```{r, echo=TRUE, eval=TRUE}
-#finalListUse <- subset(tmtMS2orig, select={c(gene:peptide,N:Nyc.3)}, subset={gene %in% genesInclude})
-finalListUse <- subset(tmtMS2orig, select={c(gene:peptide,N:Nyc.3)})
+#finalListUse <- subset(tmtMS2orig, select={c(prot:peptide,N:Nyc.3)}, subset={prot %in% protsInclude})
+finalListUse <- subset(tmtMS2orig, select={c(prot:peptide,N:Nyc.3)})
 ```
 
 To convert to relative specific values, we convert this large dataframe in five smaller pieces, convert those pieces, and then reassemble:
@@ -185,17 +185,17 @@ finalListRSAuseT <- rbind(finalListRSAuse1, finalListRSAuse2, finalListRSAuse3, 
 finalListRSAuse <- data.frame(finalListUse[,1:2], finalListRSAuseT)
 
 ```
-We can look at the profile of, for example, the gene "AADAC" by first finding the gene number in the dataset:
+We can look at the profile of, for example, the protein "AADAC" by first finding the protein number in the dataset:
 
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("AADAC")
 #protPlotfun(protPlot=93, assignProbsOut=assignProbsOut)
 ```
-This function also accepts partial matching of the first few letters of a gene. For example, we can find the indices of the genes starting with "AAD""
+This function also accepts partial matching of the first few letters of a protein. For example, we can find the indices of the proteinss starting with "AAD""
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("AAD")
 ```
-Now we plot the results for gene number AADAC, which has index number 93:
+Now we plot the results for protein AADAC:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
 
@@ -205,18 +205,19 @@ protPlotfun(protName="AADAC", protProfileSummary=protProfileSummaryRSA, finalLis
 
 The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the peptides, which are represented by the blue lines; thicker blue lines indicate larger numbers of spectra for a particular peptide. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 92\% residence proportion to endoplasmic reticulum. Visually, we see that the observed red profile closely matches the expected yellow-black profile for endoplasmic reticulum.
 
-## Nearest genes in a data set
-We may find the genes with profiles nearest to a given gene using the function "nearestGenes". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the genes in a list of mean profiles, such as "geneProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
+## Nearest proteins in a data set
+We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the proteins in a list of mean profiles, such as "protProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
 
 ```{r, echo=TRUE, eval=TRUE}
 distUse <- dist(protProfileSummaryTMTms2[,2:10], method="euclidean")
 ```
-Then select the gene names:
+Then select the protein names:
 
 ```{r, echo=TRUE, eval=TRUE}
 protsUse <- protProfileSummaryTMTms2[,1]
 ```
-Finally, provide a gene name. Here, for the gene "AADAC", we find the 10 nearest genes.
+Finally, provide a protein name. Here, for the protein "AADAC", we find the 10 nearest proteins.
+
 ```{r, echo=TRUE, eval=TRUE}
 protIndex("AAD")
 nearestProts("AADAC", n.nearest=10,  distProts=distUse, protNames=protsUse)
@@ -256,27 +257,25 @@ Thus, we may view the proportions $\hat{p}_j$ as proportional allocations of the
 
 ## Adjustment of protein abundance levels
 
-The input data, geneProfileSummary, consists of a list of gene names (first column) and the relative abundance of the corresponding proteins in the next columns. Typically, there will be six differential fraction columns (N, M, L1, L2, P, and S) and one to three additional Nycodenz fractions (which have been extracted from the L1 differential fraction). These quantities represent the relative amounts of a protein in each fraction. The amounts of protein extracted from each fraction, totProtein, differ dramatically from one fraction to another. Notably, the L1 and L2 fractions, which are heavily enriched in lysosomal and peroxixomal proteins, contain much smaller amounts of protein than the other differential fractions. Also, the samples used for the Nycodenz fractionization are taken from the L1 fraction, so they also represent very small proportions of the total sample. For technical reasons, when samples of material are prepared for analysis, equal amounts are selected for each channel, regardless of the amount of protein in the fractions. As a result, when the data are analyzed, adjustments need to be made in order to obtain meaningful comparisons.
+The input data, protProfileSummary, consists of a list of protein names (first column) and the relative abundance of the corresponding proteins in the next columns. Typically, there will be six differential fraction columns (N, M, L1, L2, P, and S) and one to three additional Nycodenz fractions (which have been extracted from the L1 differential fraction). These quantities represent the relative amounts of a protein in each fraction. The amounts of protein extracted from each fraction, totProtein, differ dramatically from one fraction to another. Notably, the L1 and L2 fractions, which are heavily enriched in lysosomal and peroxixomal proteins, contain much smaller amounts of protein than the other differential fractions. Also, the samples used for the Nycodenz fractionization are taken from the L1 fraction, so they also represent very small proportions of the total sample. For technical reasons, when samples of material are prepared for analysis, equal amounts are selected for each channel, regardless of the amount of protein in the fractions. As a result, when the data are analyzed, adjustments need to be made in order to obtain meaningful comparisons.
 
 The first transformation involves finding the amount of a given protein in a fraction divided by the amount of protein in the starting material. To see how this works, let us consider the Jadot reference protein profiles
 
 ```{r, echo=TRUE, eval=TRUE}
-matLocR <- cpaSetup(geneProfileSummary=geneProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
-round(matLocR, digits=4)
+markerLocR <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
+round(markerLocR, digits=4)
 
-##referenceProfilePlot(refLocProteins = refLocProteinsJadot,
-##  geneProfileSummary = geneProfileSummaryJadotExptA, matLocR = matLocR, n.channels=7)
 ```
 
 Here, each row represents the profile for a protein resident solely in a particular compartment. The amount of starting material, tmtMS2totProt, in each fraction is as follows:
 
 ```{r, echo=TRUE, eval=TRUE}
-#totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
+
 totProtUse <- tmtMS2totProt
 totProtUse
 
 totProtdf <- data.frame(t(matrix(totProtUse)))
-names(totProtdf) <- colnames(matLocR)
+names(totProtdf) <- colnames(markerLocR)
 totProtdf
 ```
 The total amount of starting material is the sum of the amounts given in the first six (differential) fractions (N, M, L1, L2, P, and S).
@@ -288,9 +287,8 @@ sum(totProtUse[1:6])
 To compute the amount of protein in each fraction, we multiply each column by the amount of starting material in each fraction. The function abundanceTransform does this:
 
 ```{r, echo=TRUE, eval=TRUE}
-#totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
 
-protAbund <- abundanceTransform(matLocR,6,3, totProt=totProtUse)
+protAbund <- abundanceTransform(markerLocR,6,3, totProt=totProtUse)
 round(protAbund$amtProtFrac, digits=4)
 round(protAbund$relAmtProtFrac, digits=4)
 ```
@@ -299,7 +297,7 @@ The first component of the result, amtProtFrac, is the amount of protein in each
 is the amount of given protein in fraction / amount of given protein in starting material. For example, for a cytosolic protein, the amount of protein in each fraction is given by
 
 ```{r, echo=TRUE, eval=TRUE}
-matLocR[,1]*totProtUse[1]
+markerLocR[,1]*totProtUse[1]
 protAbund$amtProtFrac[1,]
 ```
 This is the first column of amtProtFrac.
@@ -341,18 +339,18 @@ protAbund$relAmtProtFrac[,1]/propFrac[1]
 rsaResult$rsa[,1]
 ```
 
-Finally, if we normalize the rsa matrix so that rows sum to one, we get original input data, matLocR
+Finally, if we normalize the rsa matrix so that rows sum to one, we get original input data, markerLocR
 ```{r, echo=TRUE, eval=TRUE}
 round(rsaResult$rsaFractions, digits=4)
-round(matLocR, digits=4)
+round(markerLocR, digits=4)
 ```
 
 If we just need to obtain the RSA transformed data directly, just do this:
 ```{r, echo=TRUE, eval=TRUE}
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3,
+markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, nDiffFractions=6, nNycFractions=3,
         totProt=totProtUse)
 
-round(matLocRrsa, digits=4)
+round(markerLocRrsa, digits=4)
 ```
 
 ## Simulating proteins resident in multiple subcellular locations
@@ -361,7 +359,7 @@ We may simulate data from proteins with multiple residences using the "proteinMi
 ```{r, echo=TRUE, eval=TRUE}
 #totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
 
-protAbund <- abundanceTransform(matLocR, nDiffFractions=6, nNycFractions=3 , totProt=totProtUse)
+protAbund <- abundanceTransform(markerLocR, nDiffFractions=6, nNycFractions=3 , totProt=totProtUse)
 relAmtProtFrac <- protAbund$relAmtProtFrac
 mixCytoLyso <- proteinMix(relAmtProtFrac, 1, 4)
 round(mixCytoLyso, digits=4)
@@ -373,17 +371,17 @@ Then we can test the CPA algorithm by first converting this mixture data to RSA'
 mixCytoLysoRSA <- RSAtransform(relAmtProtFrac=mixCytoLyso, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)$rsa
 
 mixCytoLysoRelAmt <- data.frame(rownames(mixCytoLysoRSA), mixCytoLysoRSA)
-names(mixCytoLysoRelAmt)[1] <- "geneName"
+names(mixCytoLysoRelAmt)[1] <- "protName"
 round(mixCytoLysoRelAmt[,-1], digits=4)
 
-#matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, totProt=totProt)
-matLocRrsa <- rsaDirect(geneProfileLevels=matLocR, nDiffFractions=6, nNycFractions=3, totProt=totProtUse, maxRSA=25)
-rownames(matLocRrsa) <- rownames(matLocR)
+#markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, totProt=totProt)
+markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, nDiffFractions=6, nNycFractions=3, totProt=totProtUse, maxRSA=25)
+rownames(markerLocRrsa) <- rownames(markerLocR)
 ```
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data:
 
 ```{r, echo=TRUE, eval=TRUE}
-mixCytoLysoPropT <- proLocAll(geneProfileSummary=mixCytoLysoRelAmt, matLocR=matLocRrsa,
+mixCytoLysoPropT <- proLocAll(protProfileSummary=mixCytoLysoRelAmt, markerLocR=markerLocRrsa,
                             n.channels=9)
 mixCytoLysoProp <- mixCytoLysoPropT[,-c(1,10)]
 row.names(mixCytoLysoProp) <- mixCytoLysoPropT[,1]
