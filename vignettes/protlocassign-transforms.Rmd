@@ -1,5 +1,5 @@
 ---
-title: "Assignment of Proteins to Subcellular Locations Using protlocassign"
+title: "Data Transformations Using protlocassign"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
 
