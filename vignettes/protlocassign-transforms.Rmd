@@ -2,30 +2,23 @@
 title: "Data Transformations Using protlocassign"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
-
 #output: rmarkdown::html_vignette
 output:
-  word_document:
-  #  html_document:
   #mathjax:  default
+  #  html_document:
+  word_document:
   fig_caption:  true
   toc: true
 #section_numbering: true
 #css: ggsci.css
-
-
 #output:
 #  word_document:
 #    reference_docx: word-styles-reference-03.docx
 #output: pdf_document
 #fontsize: 10pt
-
 vignette: >
-
   %\VignetteIndexEntry{protlocassign}
   %\VignetteEngine{knitr::rmarkdown}
-#  %\VignetteEncoding{UTF-8}
-
 ---
 
 ```{r setup, include = FALSE}
@@ -257,9 +250,13 @@ Thus, we may view the proportions $\hat{p}_j$ as proportional allocations of the
 
 ## Adjustment of protein abundance levels
 
-The input data, protProfileSummary, consists of a list of protein names (first column) and the relative abundance of the corresponding proteins in the next columns. Typically, there will be six differential fraction columns (N, M, L1, L2, P, and S) and one to three additional Nycodenz fractions (which have been extracted from the L1 differential fraction). These quantities represent the relative amounts of a protein in each fraction. The amounts of protein extracted from each fraction, totProtein, differ dramatically from one fraction to another. Notably, the L1 and L2 fractions, which are heavily enriched in lysosomal and peroxixomal proteins, contain much smaller amounts of protein than the other differential fractions. Also, the samples used for the Nycodenz fractionization are taken from the L1 fraction, so they also represent very small proportions of the total sample. For technical reasons, when samples of material are prepared for analysis, equal amounts are selected for each channel, regardless of the amount of protein in the fractions. As a result, when the data are analyzed, adjustments need to be made in order to obtain meaningful comparisons.
+The input data, protProfileSummary, consists of a list of protein names (first column) and the relative abundance (technically, the "specefic amount", which reflects the signal in arbitrary units per unit total protein) of the corresponding proteins in the next columns. Typically, there will be six differential fraction columns (N, M, L1, L2, P, and S) and one to three additional Nycodenz fractions (which have been extracted from the L1 differential fraction). These quantities represent the specific amounts of a protein in each fraction. The amounts (denoted $t_l$) of protein extracted from each fraction, (R variable "totProtein"), differ dramatically from one fraction to another. Notably, the L1 and L2 fractions, which are heavily enriched in lysosomal and peroxixomal proteins, contain much smaller amounts of protein than the other differential fractions. Also, the samples used for the Nycodenz fractionization are taken from the L1 fraction, so they also represent very small proportions of the total sample. For technical reasons, when samples of material are prepared for analysis, equal amounts are select_ed for each channel, regardless of the amount of protein in the fractions. As a result, when the data are analyzed, adjustments need to be made in order to obtain meaningful comparisons. In the introductory vignette we actually used a normalized specific amount $\overset{\sim} s_l$ (generally the amount of signal in that fraction), calculated as follows:
 
-The first transformation involves finding the amount of a given protein in a fraction divided by the amount of protein in the starting material. To see how this works, let us consider the Jadot reference protein profiles
+$$\overset{\sim} s_l = {\frac{s_l} {\sum s_i}}$$ 
+
+In some experiments, where bookkeeping is not practicable, these are the only values available for using the CPA procedure. However, with appropriate bookkeeping, the amounts of total protein, $t_l$, are available. We can use these to calculate the amount of protein in fraction $l$ derived from a set amount of starting material as $a_l = s_l t_l$.
+
+  To see how this works in protlocassign, let us consider the Jadot reference protein profiles
 
 ```{r, echo=TRUE, eval=TRUE}
 markerLocR <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
@@ -267,7 +264,7 @@ round(markerLocR, digits=4)
 
 ```
 
-Here, each row represents the profile for a protein resident solely in a particular compartment. The amount of starting material, tmtMS2totProt, in each fraction is as follows:
+Here, each row represents the profile $\overset{\sim} s_l$ for a protein resident solely in a particular compartment. The amount of starting material, tmtMS2totProt, ($t_l$) in each fraction is as follows:
 
 ```{r, echo=TRUE, eval=TRUE}
 
@@ -278,10 +275,13 @@ totProtdf <- data.frame(t(matrix(totProtUse)))
 names(totProtdf) <- colnames(markerLocR)
 totProtdf
 ```
-The total amount of starting material is the sum of the amounts given in the first six (differential) fractions (N, M, L1, L2, P, and S).
+
+The total amount of starting material $t_h$ is the sum of the amounts given in the first six (differential) fractions (N, M, L1, L2, P, and S).
+
 ```{r, echo=TRUE, eval=TRUE}
 sum(totProtUse[1:6])
 ```
+
 (The last three "Nyc" columns were derived from L1.)
 
 To compute the amount of protein in each fraction, we multiply each column by the amount of starting material in each fraction. The function abundanceTransform does this:
@@ -318,9 +318,9 @@ This is the first row of relAmtProtFrac.
 
 The values in relAmtProtFrac represent the amount of protein per fraction, normalized to same amount of protein in the starting material (before mixing). In theory, these values correspond approximately to the relative amounts of protein in compartments within a cell.
 
-Finally, we compute the relative specific activity (RSA):
+Finally, we compute $r_l = \overset{\sim} a_l / t_l$, the relative specific amounts (RSA) as follows:
 
-To get this, we first find Difp, the total protein in the six differential fractions (nDiffFractions = 6), and then the proportions propFrac of protein in the differential fractions:
+We first find $t_h$ (Difp), the total protein in the six differential fractions (nDiffFractions = 6), and then the proportions propFrac of protein in the differential fractions:
 ```{r, echo=TRUE, eval=TRUE}
 rsaResult <- RSAtransform(protAbund$relAmtProtFrac, totProt=totProtUse)
 round(rsaResult$rsa, digits=4)
@@ -392,10 +392,9 @@ The estimated proportions correspond closely to the the proportions used in the 
 
 ## References
 
-Christoforou A, Mulvey, CM, Breckels LM, Geladaki A, Hurrell T, Hayward PC, Naake T, Gatto L, Viner R, Arias AM, and Lilley KS (2016), "A draft map of the mouse pluripotent stem cell spatial proteome" Nature Communications 7, 8992. DOI: 10.1038/ncomms9992
 
 Jadot M, Boonen M, Thirion J, Wang N, Xing J, Zhao C, Tannous A, Qian M, Zheng H, Everett JK, Moore DF, Sleat DE, Lobel P (2016) Accounting for protein subcellular localization: a compartmental map of the rat liver proteome. Molecular and Cellular Proteomics 16, 194-212. doi:10.1074/mcp.M116.064527  PMCID: PMC5294208
 
-Tannous A, Boonen M, Zheng H, Zhao C, Germain C, Moore D, Sleat D, Jadot M, Lobel P. Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. Journal of Proteome Research 2020, in press
+Tannous A, Boonen M, Zheng H, Zhao C, Germain C, Moore D, Sleat D, Jadot M, Lobel P. Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. Journal of Proteome Research 2020.
 
 
