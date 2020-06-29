@@ -73,7 +73,7 @@ Also, the `BB` library is required; it may be downloaded from CRAN by typing
 library(protlocassign)
 dim(protProfileSummaryTMTms2)
 options(digits=3)
-head(protProfileSummaryTMTms2)
+str(protProfileSummaryTMTms2)
 ```
 The data set gives relative fraction levels for 7893 proteins.
 The last two columns give the number of spectra and the number of peptides
@@ -394,7 +394,7 @@ names(mixCytoLysoRelAmt)[1] <- "protName"
 round(mixCytoLysoRelAmt[,-1], digits=4)
 
 #markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, totProt=totProt)
-markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, nDiffFractions=6, nNycFractions=3, totProt=totProtUse, maxRSA=25)
+markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
 rownames(markerLocRrsa) <- rownames(markerLocR)
 ```
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data:
@@ -404,7 +404,7 @@ mixCytoLysoPropT <- proLocAll(protProfileSummary=mixCytoLysoRelAmt, markerLocR=m
                             n.channels=9)
 mixCytoLysoProp <- mixCytoLysoPropT[,-c(1,10)]
 row.names(mixCytoLysoProp) <- mixCytoLysoPropT[,1]
-round(mixCytoLysoProp, digits=4)
+round(mixCytoLysoProp, digits=3)
 
 ```
 The estimated proportions correspond closely to the the proportions used in the simulation.
