@@ -116,7 +116,7 @@ protIndex <- function(protName, protProfileSummary=protProfileSummaryTMTms2,
 
 
 protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showProgress=T,
-                          log2Transf=F, maxit, assignProbsStart) {
+                          log2Transf=F, maxit, assignProbsStart, maxR=NULL) {
   # maxit and assignPRobsStart must be specified
   # assignProbsStart must be NULL or have a column "protName" and assignment probabilities to use as starting values
   # use the spg function (in package BB) to assign proportionate assignments to compartments
@@ -128,6 +128,13 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
     if (sum(as.numeric(testEq)) != nrow(protProfileSummary)) {
       cat("Error in protLocAssign: protName not identical in protProfileSummary and assignProbsStart\n")
     }
+  }
+  # check for excessively large component of markderLocR, if maxR is not NULL
+  # If maxR is not NULL, truncate at maxR
+  if (!is.null(maxR)) {
+    markerLocRemp <- markerLocR
+    ind.too.big <- {markerLocRtemp > maxR}
+    markerLocR[ind.too.big] <- maxR
   }
   n.compartments <- nrow(markerLocR)
   allPeptideProfilesMat <- protProfileSummary[,1 + 1:n.channels]     # just the data
@@ -225,8 +232,10 @@ ans <- spg(rep(1/n.locs, n.locs), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(m
 #' @param n.channels Number of channels of abundance levels
 #' @param maxit maximum number of iterations
 #' @param assignProbsStart A matrix of starting values, one for each protein. The first column must be protName
+#' @param maxR  A value to truncate values of markerLocR; if NULL (default), ignore
 #' @return assignProbsOut  Data frame of proportionate assignments of each protein to compartments
-proLocAll <- function(protProfileSummary, markerLocR, n.channels=n.channels, log2Transf=F, maxit=10000, assignProbsStart=NULL) {
+proLocAll <- function(protProfileSummary, markerLocR, n.channels=n.channels, log2Transf=F, maxit=10000,
+                        assignProbsStart=NULL, maxR=NULL) {
   #markerLocR <- cpaSetup(protProfileSummary, refLocProteins, n.channels=n.channels)
   n.prot <- nrow(protProfileSummary)
   indList <- 1:n.prot
@@ -234,7 +243,8 @@ proLocAll <- function(protProfileSummary, markerLocR, n.channels=n.channels, log
 
    result <- sapply(indList, protLocAssign,
                 protProfileSummary=protProfileSummary, markerLocR=markerLocR, n.channels=n.channels, showProgress=T,
-                simplify=T, log2Transf=log2Transf, maxit=maxit, assignProbsStart=assignProbsStart)
+                simplify=T, log2Transf=log2Transf, maxit=maxit, assignProbsStart=assignProbsStart,
+                maxR=maxR)
 
   assignProbs <- data.frame(t(result))
 

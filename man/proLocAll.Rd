@@ -10,7 +10,8 @@ proLocAll(
   n.channels = n.channels,
   log2Transf = F,
   maxit = 10000,
-  assignProbsStart = NULL
+  assignProbsStart = NULL,
+  maxR = NULL
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ proLocAll(
 \item{maxit}{maximum number of iterations}
 
 \item{assignProbsStart}{A matrix of starting values, one for each protein. The first column must be protName}
+
+\item{maxR}{A value to truncate values of markerLocR; if NULL (default), ignore}
 }
 \value{
 assignProbsOut  Data frame of proportionate assignments of each protein to compartments

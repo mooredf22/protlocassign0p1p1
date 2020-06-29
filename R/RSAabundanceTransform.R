@@ -121,8 +121,7 @@ proteinMix <- function(relAmtProtFrac, Loc1, Loc2, increment=0.10) {
 #' @return protProfileRSA: relative specific activity
 
 rsaDirect <- function(protProfileLevels, nDiffFractions=6, nNycFractions=3,
-                      totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587),
-                      maxRSA=22) {
+                      totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)) {
 
   missing.rows <- protProfileLevels[!complete.cases(protProfileLevels),]
   if ({nrow(missing.rows) > 0} | {is.null(missing.rows)}) {
@@ -139,12 +138,10 @@ rsaDirect <- function(protProfileLevels, nDiffFractions=6, nNycFractions=3,
 
   Difp <- sum(totProt[1:nDiffFractions])   # total protein in the differential fractions
   TT <- as.matrix(protProfileLevels[,1:nDiffFractions]) %*% totProt[1:nDiffFractions]
-  protProfileRSA <- diag(as.numeric(1/TT)) %*% as.matrix(protProfileLevels) * Difp
-
+  #protProfileRSA <- diag(as.numeric(1/TT)) %*% as.matrix(protProfileLevels) * Difp
+  protProfileRSA <- sweep(protProfileLevels, 1, 1/TT, "*")
   # truncate any large values at 15, for numerical stability
-  protProfileRSAtemp <- protProfileRSA
-  ind.too.big <- {protProfileRSAtemp > maxRSA}
-  protProfileRSA[ind.too.big] <- maxRSA
+
   protProfileRSA
  }
 
