@@ -1,5 +1,5 @@
 ---
-title: "Assignment of Proteins to Subcellular Locations Using protlocassign"
+title: "Vignette 1: Tutorial on assignment of Proteins to Subcellular Locations Using protlocassign"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
 #output: rmarkdown::html_vignette
