@@ -173,7 +173,7 @@ Next, load the original data, with spectra and peptides, and select the columns 
 finalListUse <- subset(tmtMS2orig, select={c(prot:peptide,N:Nyc.3)})
 ```
 
-To convert to relative specific values, we convert this large dataframe in five smaller pieces, convert those pieces, and then reassemble:
+To convert to relative specific values, we call "rsaDirect":
 
 ```{r, echo=TRUE, eval=TRUE}
 
@@ -411,6 +411,7 @@ The estimated proportions correspond closely to the the proportions used in the 
 
 Jadot M, Boonen M, Thirion J, Wang N, Xing J, Zhao C, Tannous A, Qian M, Zheng H, Everett JK, Moore DF, Sleat DE, Lobel P (2016) Accounting for protein subcellular localization: a compartmental map of the rat liver proteome. Molecular and Cellular Proteomics 16, 194-212. doi:10.1074/mcp.M116.064527  PMCID: PMC5294208
 
-Tannous A, Boonen M, Zheng H, Zhao C, Germain C, Moore D, Sleat D, Jadot M, Lobel P. Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. Journal of Proteome Research 2020.
+Tannous A, Boonen M, Zheng H, Zhao C, Germain C, Moore D, Sleat D, Jadot M, Lobel P. Comparative Analysis of Quantitative Mass Spectrometric Methods for Subcellular Proteomics. Journal of Proteome Research 19, 1718-1730.
+doi.org/10.1021/acs.jproteome.9b00862
 
 
