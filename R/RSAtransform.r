@@ -30,7 +30,7 @@
 relAmtTransform <- function(SS, nDiffFractions=6, nNycFractions=3,
                                totProt=NULL) {
   if ((nDiffFractions + nNycFractions) != ncol(SS)) {
-    cat("Error from RSAtransform\nTotal number of fractions must be the number of columns of SS\n")
+    cat("Error from relAmtTransform\nTotal number of fractions must be the number of columns of SS\n")
     return()
   }
   diffFractions <- SS[,1:nDiffFractions]
@@ -74,13 +74,13 @@ relAmtTransform <- function(SS, nDiffFractions=6, nNycFractions=3,
 
 
 
-#' Compute relative specific activity and RSA fractions from rlatve amounts in protein fractions
+#' Compute relative specific amount from relative amounts in protein fractions
 #' @param Acup amount of given protein in fraction / amount of that given protein in starting material
 #' @param nDiffFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
 #' @param nNycFractions Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none
 #' @param totProt Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's
 #' @return rsa: relative specific amount
-RSAtransform <- function(Acup, nDiffFractions=6, nNycFractions=3,
+RSAfromAcup <- function(Acup, nDiffFractions=6, nNycFractions=3,
                          totProt=NULL) {
 # # # # # # # #
 # rename variabiles
@@ -97,14 +97,12 @@ RSAtransform <- function(Acup, nDiffFractions=6, nNycFractions=3,
   names(rsa) <- colnames(Acup)
 
   # The following, which standardizes rsa rows to sum to one, returns the original markerLocR !!
-  rsaFractions <- t(apply(rsa,1, function(x) x/sum(x)))  # this is deprecated; no need
+  SSfromRSA <- t(apply(rsa,1, function(x) x/sum(x)))  # this is deprecated; no need
 
   rsa
 }
 
-#RSAtransform(relAmtProtFrac)
 
-#RSAtransform(mixCytoLyso)
 
 #' compute a mixture of proteins in two compartments
 #' @param relAmtProtFrac amount of given protein in fraction / amount of given protein in starting material
@@ -137,8 +135,6 @@ proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
   mixAmount
   }
 
-#mixCytoLyso <- proteinMix(relAmtProtFrac, 1, 4)
-#RSAtransform(mixCytoLyso)$rsaFractions
 
 #' Directly compute relative specific activity from protProfileSummary (or from markerLocR)
 #'
@@ -167,7 +163,7 @@ RSAfromS <- function(SS=protProfileLevels, nDiffFractions=6, nNycFractions=3,
 
   protAbund <- relAmtTransform(SS,nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
   Acup <- protAbund$Acup
-  rsa <- RSAtransform(Acup, totProt=totProtUse)
+  rsa <- RSAfromAcup(Acup, totProt=totProtUse)
 
   #Difp <- sum(totProt[1:nDiffFractions])   # total protein in the differential fractions
   #TT <- as.matrix(protProfileLevels[,1:nDiffFractions]) %*% totProt[1:nDiffFractions]
@@ -178,4 +174,4 @@ RSAfromS <- function(SS=protProfileLevels, nDiffFractions=6, nNycFractions=3,
   rsa
  }
 
-# markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0684596))
+
