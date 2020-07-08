@@ -117,7 +117,7 @@ It is important to specify how many of the fractions are Nycodenz fractions
 We do this first with the reference profile levels in "markerLocR":
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-markerLocRrsa <- rsaDirect(protProfileLevels=markerLocRuse, nDiffFractions=6,
+markerLocRrsa <- rsaDirect(SS=markerLocRuse, nDiffFractions=6,
        nNycFractions=3, totProt=totProtUse)
 row.names(markerLocRrsa) <- row.names(markerLocRuse)
 
@@ -127,7 +127,7 @@ We now do the same for the matrix of protein-level mean profiles:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 protProfileLevelsUse <- protProfileSummaryTMTms2[,2:(1 + 9)]
-protProfileLevelsRSA <- rsaDirect(protProfileLevels=protProfileLevelsUse,
+protProfileLevelsRSA <- rsaDirect(SS=protProfileLevelsUse,
                                    nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
 dim(protProfileLevelsRSA)
 str(protProfileLevelsRSA)
@@ -166,42 +166,7 @@ str(assignPropsUse)
 
 
 
-Next, load the original data, with spectra and peptides, and select the columns for protein name, peptide name, and the nine fractions ranging from N to Nyc.3:
 
-```{r, echo=TRUE, eval=TRUE}
-#finalListUse <- subset(tmtMS2orig, select={c(prot:peptide,N:Nyc.3)}, subset={prot %in% protsInclude})
-finalListUse <- subset(tmtMS2orig, select={c(prot:peptide,N:Nyc.3)})
-```
-
-To convert to relative specific values, we call "rsaDirect":
-
-```{r, echo=TRUE, eval=TRUE}
-
-
-finalListRSAuseT <- rsaDirect(protProfileLevels=finalListUse[,3:11],
-                                   nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
-finalListRSAuse <- data.frame(finalListUse[,1:2], finalListRSAuseT)
-
-```
-We can look at the profile of, for example, the protein "AADAC" by first finding the protein number in the dataset:
-
-```{r, echo=TRUE, eval=TRUE}
-protIndex("AADAC")
-#protPlotfun(protPlot=93, assignProbsOut=assignProbsOut)
-```
-This function also accepts partial matching of the first few letters of a protein. For example, we can find the indices of the proteinss starting with "AAD""
-```{r, echo=TRUE, eval=TRUE}
-protIndex("AAD")
-```
-Now we plot the results for protein AADAC:
-
-```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
-
-protPlotfun(protName="AADAC", protProfileSummary=protProfileSummaryRSA, finalList=finalListRSAuse, n.fractions=9,
-                        Nspectra=T, markerLocR=markerLocRrsa, assignPropsMat=assignPropsUse)
-```
-
-The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the peptides, which are represented by the blue lines; thicker blue lines indicate larger numbers of spectra for a particular peptide. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 92\% residence proportion to endoplasmic reticulum. Visually, we see that the observed red profile closely matches the expected yellow-black profile for endoplasmic reticulum.
 
 ## Nearest proteins in a data set
 We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the proteins in a list of mean profiles, such as "protProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
@@ -328,10 +293,13 @@ $$\mathbf{\overset{\scriptscriptstyle\smile}{A}}=\mathbf{A}\cdot \text{diag}(1/{
 
 or simply as $\mathbf{\overset{\scriptscriptstyle\smile}{A}}=\left( {{{\overset{\scriptscriptstyle\smile}{a}}}_{\alpha ,l}} \right)$. The function abundanceTransform compoutes this:
 
+
+
 ```{r, echo=TRUE, eval=TRUE}
 
-protAbund <- abundanceTransform(markerLocR,6,3, totProt=totProtUse)
-round(protAbund$relAmtProtFrac, digits=4)
+protAbund <- relAmtTransform(markerLocR,6,3, totProt=totProtUse)
+Acup <- protAbund$Acup
+round(Acup, digits=4)
 ```
 
 The values in "relAmtProtFrac" represent the amount of protein per fraction, normalized to same amount of protein in the starting material (before mixing). In theory, these values correspond approximately to the relative amounts of protein in compartments within a cell.
@@ -346,21 +314,21 @@ $${{r}_{\alpha ,l}}=\frac{{{{\overset{\scriptscriptstyle\smile}{a}}}_{\alpha ,l}
 In matrix form, this is $\mathbf{R}=\left( {{r}_{\alpha ,l}} \right)$.
 
 In "protlocassign", we get the RSA matrix from "relAmtProtFrac" and "totProt" as follows:
+
+
 ```{r, echo=TRUE, eval=TRUE}
-rsaResult <- RSAtransform(protAbund$relAmtProtFrac, totProt=totProtUse)
-round(rsaResult$rsa, digits=4)
+rsa <- RSAtransform(Acup, totProt=totProtUse)
+round(rsa, digits=4)
 ```
 
-
-Finally, if we normalize the rsa matrix so that rows sum to one, we get original input data, markerLocR
+Finally, if we normalize the rsa matrix so that rows sum to one (via the "apply" function), we get original input data, markerLocR
 ```{r, echo=TRUE, eval=TRUE}
-round(rsaResult$rsaFractions, digits=4)
-round(markerLocR, digits=4)
+round(t(apply(rsa,1, function(x) x/sum(x))), digits=4)
 ```
 
 If we just need to obtain the RSA transformed data directly, just do this:
 ```{r, echo=TRUE, eval=TRUE}
-markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, nDiffFractions=6, nNycFractions=3,
+markerLocRrsa <- rsaDirect(SS=markerLocR, nDiffFractions=6, nNycFractions=3,
         totProt=totProtUse)
 
 round(markerLocRrsa, digits=4)
@@ -372,23 +340,23 @@ We may simulate data from proteins with multiple residences using the "proteinMi
 ```{r, echo=TRUE, eval=TRUE}
 #totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
 
-protAbund <- abundanceTransform(markerLocR, nDiffFractions=6, nNycFractions=3 , totProt=totProtUse)
-relAmtProtFrac <- protAbund$relAmtProtFrac
-mixCytoLyso <- proteinMix(relAmtProtFrac, 1, 4)
+protAbund <- relAmtTransform(markerLocR, nDiffFractions=6, nNycFractions=3 , totProt=totProtUse)
+Acup <- protAbund$Acup
+mixCytoLyso <- proteinMix(Acup, 1, 4)
 round(mixCytoLyso, digits=4)
 ```
 
 Then we can test the CPA algorithm by first converting this mixture data to RSA's:
 ```{r, echo=TRUE, eval=TRUE}
 
-mixCytoLysoRSA <- RSAtransform(relAmtProtFrac=mixCytoLyso, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)$rsa
+mixCytoLysoRSA <- RSAtransform(Acup=mixCytoLyso, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
 
 mixCytoLysoRelAmt <- data.frame(rownames(mixCytoLysoRSA), mixCytoLysoRSA)
 names(mixCytoLysoRelAmt)[1] <- "protName"
 round(mixCytoLysoRelAmt[,-1], digits=4)
 
 #markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, totProt=totProt)
-markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
+markerLocRrsa <- rsaDirect(SS=markerLocR, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
 rownames(markerLocRrsa) <- rownames(markerLocR)
 ```
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data:
