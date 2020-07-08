@@ -42,52 +42,20 @@ knitr::opts_chunk$set(
 
 ## Data transformations
 
-In the tutorial we illustrated the principles of constrained proportional assignment based
-on amounts of protein in each of a number of channels, corresponding generally to the amounts
-of protein in differential fractions. In reality, though, the connection between relative levels
-in channels and the relative protein levels in the differential fracitions, and of that to the
-relative amounts of protein in subcellular locations within the cell is complex. This vignette
-describes how to use functions in the protlocassign package to transform relative amounts of
-protein in the fractions to amounts more useful for inferring relative proportions in subcellular
-comparments.
+In Vignette 1 (“Getting Started”) we illustrated the principles of constrained proportional assignment using protein profiles that represent normalized mass spectrometry data from a set of subcellular fractions.  This vignette describes how to use functions in the protlocassign package to transform such profiles in a manner that is more useful for inferring proportional residence in subcellular compartments.
 
 
 ## Loading the data
 
-As explained in the "Getting Started" vignette, you will need two data sets. One consists of a column of protein names followed by a series of columns of relative protein levels derived from a subcellular fractionation experiment. (Optionally there may be two additional columns representing the numbers of peptides and spectra that were used to compute mean protein abundance levels.) The other data set consists of a list of reference proteins in the first column and the name of the known subcellular compartment in the second column.
+As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `protProfileSummaryTMTms2`, consists of a column of protein names followed by nine columns of normalized relative specific amounts derived from a subcellular fractionation experiment. The other, `refLocProteinsJadot`, consists of a list of reference proteins that serve as markers for different subcellular compartments in the first column and the name of the subcellular compartment in the second column.  As before, to run the program, the `protlocassign` library must be installed. 
 
-Also explained previously, we Consider the TMT MS2 data from Tannous et al. (2020). 
-They
-presented abundance levels of proteins among seven fractions: N, M, L1, L2, P, and S,
-and three additional fractions, "Nyc1", Nyc2", and "Nyc3", from Nycodenz fractions.
-Eight subcellular compartments were considered: nucleus, mitochondria, lysosomes,
-peroxisomes, golgi apparatus, plasma membrane, and cytosol.
-The CPA method assigns each of a large number of proteins to one or more of
-these compartments, based on profiles from a set of reference proteins.
-To run the program, the `prolocate` library must be installed.
-Also, the `BB` library is required; it may be downloaded from CRAN by typing
-`install.packages("BB") `.
 
 
 ```{r, echo=TRUE}
 library(protlocassign)
-dim(protProfileSummaryTMTms2)
-options(digits=3)
-str(protProfileSummaryTMTms2)
 ```
-The data set gives relative fraction levels for 7893 proteins.
-The last two columns give the number of spectra and the number of peptides
-(sequences) for each protein. (The spectra were averaged using a
-nested random effects model described in Jadot, 2016, to produce the given average
-for each protein.)
 
-The second data set we need has 39 reference proteins and two columns, the first for the protein name and the second for their respective subcellular compartments. These are from Jadot et al (2016) and may be viewed as follows:
-
-```{r, echo=TRUE}
-dim(refLocProteinsJadot)
-refLocProteinsJadot
-```
-There are 39 proteins in this reference set.
+In Vignette 1, we use `protProfileSummaryTMTms2` and an untransformed average of reference proteins for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as relative specific amounts (RSAs).  As explained in the main text and elaborated in the Appendix, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `tmtMS2totProt` which is preloaded in `protlocassign`.  Note that the order of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `tmtMS2totProt`) must correspond to those in the data set containing individual protein profiles (e.g., `protProfileSummaryTMTms2`).
 
 To obtain profiles for the reference proteins, use the function `cpaSetup`:
 
