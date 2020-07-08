@@ -1,8 +1,10 @@
 
 
-#' Set up RSA (relative specific activity) profiles for constrained proportional assignment
+#' Set up RSA (relative specific amount) profiles for constrained proportional assignment
 #'
-#' @param SS A matrix giving the specific amount profiles, from 'cpaSetup', or many protein profiles
+#' @param SS A matrix giving the specific amount or normalized specific amount
+#'           profiles, either marker profiles from 'cpaSetup' (which requires
+#'           normalized specific amounts as input), or a list of many protein profiles
 #' @param nDiffFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
 #' @param nNycFractions Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none
 #' @param totProt Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's
@@ -23,7 +25,7 @@
                 # normalize specific amounts in each fraction
                 # to the amount in starting material
     # these are of interest for simulations
-# relAmtProtFrac ->
+#
 
 relAmtTransform <- function(SS, nDiffFractions=6, nNycFractions=3,
                                totProt=NULL) {
@@ -70,20 +72,14 @@ relAmtTransform <- function(SS, nDiffFractions=6, nNycFractions=3,
   result
 }
 
-#tempRel <- abundanceTransform(markerLocR)
-#relAmtProtFrac <- tempRel$relAmtProtFrac
 
-#mixCytoLyso10 <- 0.1*relAmtProtFrac[1,] + 0.9*relAmtProtFrac[4,]
-#mixCytoLyso50 <- 0.5*relAmtProtFrac[1,] + 0.5*relAmtProtFrac[4,]
-#mixCytoLyso90 <- 0.9*relAmtProtFrac[1,] + 0.1*relAmtProtFrac[4,]
-#mixCytoLyso <- rbind(mixCytoLyso10, mixCytoLyso50, mixCytoLyso90)
 
 #' Compute relative specific activity and RSA fractions from rlatve amounts in protein fractions
-#' @param Acup amount of given protein in fraction / amount of given protein in starting material
+#' @param Acup amount of given protein in fraction / amount of that given protein in starting material
 #' @param nDiffFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
 #' @param nNycFractions Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none
 #' @param totProt Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's
-#' @return rsa: relative specific activity
+#' @return rsa: relative specific amount
 RSAtransform <- function(Acup, nDiffFractions=6, nNycFractions=3,
                          totProt=NULL) {
 # # # # # # # #
@@ -93,7 +89,7 @@ RSAtransform <- function(Acup, nDiffFractions=6, nNycFractions=3,
 # Difp -> t.h
 # propFrac -> t.cup
 
-  # relative specific activity (RSA)   # these are in heatmap in Excel spreadsheet
+  # relative specific amount (RSA)   # these are in heatmap in Excel spreadsheet
   t.h <- sum(totProt[1:nDiffFractions])   # total protein in the differential fractions
   t.cup <- totProt/t.h  # proportion of protein in the differential fractions (9 component vector)
   #rsa <- data.frame(as.matrix(relAmtProtFrac) %*% diag(1/propFrac))
@@ -153,7 +149,7 @@ proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
 #'
 #' @return protProfileRSA: relative specific activity
 
-rsaDirect <- function(SS=protProfileLevels, nDiffFractions=6, nNycFractions=3,
+RSAfromS <- function(SS=protProfileLevels, nDiffFractions=6, nNycFractions=3,
                       totProt=NULL) {
 
   missing.rows <- SS[!complete.cases(SS),]
