@@ -2,12 +2,14 @@
 % Please edit documentation in R/RSAtransform.r
 \name{relAmtTransform}
 \alias{relAmtTransform}
-\title{Set up RSA (relative specific activity) profiles for constrained proportional assignment}
+\title{Set up RSA (relative specific amount) profiles for constrained proportional assignment}
 \usage{
 relAmtTransform(SS, nDiffFractions = 6, nNycFractions = 3, totProt = NULL)
 }
 \arguments{
-\item{SS}{A matrix giving the specific amount profiles, from 'cpaSetup', or many protein profiles}
+\item{SS}{A matrix giving the specific amount or normalized specific amount
+profiles, either marker profiles from 'cpaSetup' (which requires
+normalized specific amounts as input), or a list of many protein profiles}
 
 \item{nDiffFractions}{Number of differential fractions, typically 6, for N, M, L1, L2, P, and S}
 
@@ -21,5 +23,5 @@ amtProtFrac: amount of protein in a given fraction
 relAmtProtFrac amount of given protein in fraction / amount of given protein in starting material
 }
 \description{
-Set up RSA (relative specific activity) profiles for constrained proportional assignment
+Set up RSA (relative specific amount) profiles for constrained proportional assignment
 }

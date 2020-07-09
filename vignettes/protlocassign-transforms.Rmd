@@ -57,45 +57,17 @@ library(protlocassign)
 
 In Vignette 1, we use `protProfileSummaryTMTms2` and an untransformed average of reference proteins for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as relative specific amounts (RSAs).  As explained in the main text and elaborated in the Appendix, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `tmtMS2totProt` which is preloaded in `protlocassign`.  Note that the order of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `tmtMS2totProt`) must correspond to those in the data set containing individual protein profiles (e.g., `protProfileSummaryTMTms2`).
 
-To obtain profiles for the reference proteins, use the function `cpaSetup`:
-
-```{r, echo=TRUE, eval=TRUE}
-markerLocRuse <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
-markerLocRuse
-
-```
-
-
-It is possible to use these two data sets as is to find constrained proportional estimates; with data from other experiments, this may in fact be the only choice. However, in experiments such as Tannous et al. (2020), which use bookkeeping, it is preferable to
-transform them to relative specific activities (RSA's), which are the amount
-of a given protein in a fraction divided by the amount of starting material of
-that protein (see Appendix section on adjusting protein levels).
-These adjustment factors are in the dataset "tmtMS2totProt",
-which is just a vector of length 9:
-
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 totProtUse <- tmtMS2totProt
 totProtUse
 ```
 
-The program "rsaDirect" adjusts the fraction levels measured from the machine to the
-amounts of protein in each fraction in the original sample.
-It is important to specify how many of the fractions are Nycodenz fractions
-(three in this case) so that the adjustment is just using the differential fracctions.
-We do this first with the reference profile levels in "markerLocR":
+The function `RSAfromS` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material.  
 
-```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-markerLocRrsa <- rsaDirect(SS=markerLocRuse, nDiffFractions=6,
-       nNycFractions=3, totProt=totProtUse)
-row.names(markerLocRrsa) <- row.names(markerLocRuse)
-
-```
-
-We now do the same for the matrix of protein-level mean profiles:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 protProfileLevelsUse <- protProfileSummaryTMTms2[,2:(1 + 9)]
-protProfileLevelsRSA <- rsaDirect(SS=protProfileLevelsUse,
+protProfileLevelsRSA <- RSAfromS(SS=protProfileLevelsUse,
                                    nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
 dim(protProfileLevelsRSA)
 str(protProfileLevelsRSA)
@@ -111,11 +83,31 @@ dim(protProfileSummaryRSA)
 str(protProfileSummaryRSA)
 ```
 
-Now we can plot the reference profile for any subcellular location on the RSA scale. For
-example, here is the plot for PM:
+We also need to transform the profiles of the markers for each compartment.  As done in Vignette 1, we use the function `cpaSetup` to average the profiles (which must be normalized specific amounts).  We then use `RSAfromS` to transform these reference profiles.
+
+
+
+To obtain profiles for the reference proteins, use the function `cpaSetup`:
+
+```{r, echo=TRUE, eval=TRUE}
+markerLocRuse <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
+markerLocRuse
+
+```
+
+We then use `RSAfromS` to transform these reference profiles.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-#par(mfrow=c(4,3))
+markerLocRrsa <- RSAfromS(SS=markerLocRuse, nDiffFractions=6,
+       nNycFractions=3, totProt=totProtUse)
+row.names(markerLocRrsa) <- row.names(markerLocRuse)
+
+```
+
+Now we can plot the reference profile for any subcellular location on the RSA scale. For example, here is the plot for PM:
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
                      protProfileSummary=protProfileSummaryRSA,
                      markerLocR=markerLocRrsa)
@@ -132,27 +124,19 @@ assignPropsUse <- data.frame(assignPropsOutTemp[,-ncol.a] ) # drop this last col
 str(assignPropsUse)
 ```
 
+                   
+
+The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines. 
+
+The `protPlotfun` function is designed to plot profiles of eight subcellular locations. If a data set has more than eight of these, it will be necessary to modify the code to accommodate the larger number.
 
 
 
 
-## Nearest proteins in a data set
-We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the proteins in a list of mean profiles, such as "protProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
 
-```{r, echo=TRUE, eval=TRUE}
-distUse <- dist(protProfileSummaryTMTms2[,2:10], method="euclidean")
-```
-Then select the protein names:
 
-```{r, echo=TRUE, eval=TRUE}
-protsUse <- protProfileSummaryTMTms2[,1]
-```
-Finally, provide a protein name. Here, for the protein "AADAC", we find the 10 nearest proteins.
 
-```{r, echo=TRUE, eval=TRUE}
-protIndex("AAD")
-nearestProts("AADAC", n.nearest=10,  distProts=distUse, protNames=protsUse)
-```
+
 
 
 
@@ -250,6 +234,15 @@ Alternatively, if a complete set of fractions that entirely represent the homoge
 
 $${{\overset{\scriptscriptstyle\smile}{a}}_{\alpha ,l}}=\frac{{{s}_{\alpha ,l}}{{t}_{l}}}{{{s}_{\alpha ,h}}{{t}_{h}}}=\frac{{{s}_{\alpha ,l}}{{t}_{l}}}{\sum\nolimits_{i=1}^{6}{{{s}_{\alpha ,i}}{{t}_{i}}}}=\frac{{{{\tilde{s}}}_{\alpha ,l}}{{t}_{l}}}{\sum\nolimits_{i=1}^{6}{{{{\tilde{s}}}_{\alpha ,i}}{{t}_{i}}}}$$
 In matrix form, we may write this as 
+${\bf{\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over 
+ A} }} = {\bf{A}} \cdot {\rm{diag}}(1/{a_{\alpha ,h}}) = \left[ {\matrix{
+   {{s_{11}}{t_1}/{a_{1,h}}} & {{s_{12}}{t_2}/{a_{1,h}}} &  \cdots  & {{s_{19}}{t_9}/{a_{1,h}}}  \cr 
+   {{s_{21}}{t_1}/{a_{2,h}}} & {{s_{22}}{t_2}/{a_{2,h}}} &  \cdots  & {{s_{29}}{t_9}/{a_{2,h}}}  \cr 
+    \vdots  &  \vdots  & {} &  \vdots   \cr 
+   {{s_{n1}}{t_1}/{a_{n,h}}} & {{s_{n2}}{t_2}/{a_{n,h}}} &  \cdots  & {{s_{n9}}{t_9}/{a_{n,h}}}  \cr 
+
+ } } \right]$
+
 
 $$\mathbf{\overset{\scriptscriptstyle\smile}{A}}=\mathbf{A}\cdot \text{diag}(1/{{a}_{\alpha ,h}})=\left[ \begin{matrix}
    {{s}_{11}}{{t}_{1}}/{{a}_{1,h}} & {{s}_{12}}{{t}_{2}}/{{a}_{1,h}} & \cdots  & {{s}_{19}}{{t}_{9}}/{{a}_{1,h}}  \\
@@ -272,20 +265,24 @@ round(Acup, digits=4)
 
 The values in "relAmtProtFrac" represent the amount of protein per fraction, normalized to same amount of protein in the starting material (before mixing). In theory, these values correspond approximately to the relative amounts of protein in compartments within a cell.
 
-#Relative Specific Amounts
+##Relative Specific Amounts
 
 When examining the distribution of a given protein in different fractions, it is particularly useful to consider its abundance relative to that of total protein.  We refer to this as a Relative Specific Amount (RSA or $r$), which can be calculated as $r_l = \overset{\sim} a_l / t_l$. This describes the fold-enrichment ($r>1$) or depletion ($r<1$) of a protein during the fractionation process, and is analogous to the relative specific activity term used in classical analytical subcellular fractionation.
 
 Then the Relative Specific Amount (RSA) values represent the degree of enrichment or depletion of a protein in a given fraction compared to the amount in the starting material. For a protein $\alpha$ the RSA in fraction $l$ is given by
 
-$${{r}_{\alpha ,l}}=\frac{{{{\overset{\scriptscriptstyle\smile}{a}}}_{\alpha ,l}}}{{{{\overset{\scriptscriptstyle\smile}{t}}}_{l}}}=\frac{{{s}_{\alpha ,l}}\cdot \sum\nolimits_{j}^{k}{{{t}_{i}}}}{\sum\nolimits_{j}^{k}{{{s}_{\alpha ,l}}{{t}_{i}}}}$$
+
+
+
+${{r}_{\alpha ,l}}=\frac{{{{\overset{\scriptscriptstyle\smile}{a}}}_{\alpha ,l}}}{{{{\overset{\scriptscriptstyle\smile}{t}}}_{l}}}=\frac{{{s}_{\alpha ,l}}\cdot \sum\nolimits_{j}^{k}{{{t}_{i}}}}{\sum\nolimits_{j}^{k}{{{s}_{\alpha ,l}}{{t}_{i}}}}$
+
 In matrix form, this is $\mathbf{R}=\left( {{r}_{\alpha ,l}} \right)$.
 
 In "protlocassign", we get the RSA matrix from "relAmtProtFrac" and "totProt" as follows:
 
 
 ```{r, echo=TRUE, eval=TRUE}
-rsa <- RSAtransform(Acup, totProt=totProtUse)
+rsa <- RSAfromAcup(Acup, totProt=totProtUse)
 round(rsa, digits=4)
 ```
 
@@ -296,7 +293,7 @@ round(t(apply(rsa,1, function(x) x/sum(x))), digits=4)
 
 If we just need to obtain the RSA transformed data directly, just do this:
 ```{r, echo=TRUE, eval=TRUE}
-markerLocRrsa <- rsaDirect(SS=markerLocR, nDiffFractions=6, nNycFractions=3,
+markerLocRrsa <- RSAfromS(SS=markerLocR, nDiffFractions=6, nNycFractions=3,
         totProt=totProtUse)
 
 round(markerLocRrsa, digits=4)
@@ -317,14 +314,14 @@ round(mixCytoLyso, digits=4)
 Then we can test the CPA algorithm by first converting this mixture data to RSA's:
 ```{r, echo=TRUE, eval=TRUE}
 
-mixCytoLysoRSA <- RSAtransform(Acup=mixCytoLyso, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
+mixCytoLysoRSA <- RSAfromAcup(Acup=mixCytoLyso, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
 
 mixCytoLysoRelAmt <- data.frame(rownames(mixCytoLysoRSA), mixCytoLysoRSA)
 names(mixCytoLysoRelAmt)[1] <- "protName"
 round(mixCytoLysoRelAmt[,-1], digits=4)
 
 #markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, totProt=totProt)
-markerLocRrsa <- rsaDirect(SS=markerLocR, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
+markerLocRrsa <- RSAfromS(SS=markerLocR, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
 rownames(markerLocRrsa) <- rownames(markerLocR)
 ```
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data:

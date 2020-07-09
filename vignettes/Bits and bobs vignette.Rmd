@@ -1,0 +1,59 @@
+---
+  title: "Vignette 2: Data Transformations Using protlocassign"
+author: "Dirk Moore"
+date: "`r Sys.Date()`"
+#output: rmarkdown::html_vignette
+output:
+  #mathjax:  default
+  #  html_document:
+  word_document:
+  fig_caption:  true
+toc: true
+#section_numbering: true
+#css: ggsci.css
+#output:
+#  word_document:
+#    reference_docx: word-styles-reference-03.docx
+#output: pdf_document
+#fontsize: 10pt
+vignette: >
+  %\VignetteIndexEntry{protlocassign}
+%\VignetteEngine{knitr::rmarkdown}
+---
+
+  ```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  #collapse = TRUE,
+  comment = "",
+  fig.width = 4,
+  fig.height = 4,
+  message = FALSE,
+  warning = FALSE,
+  tidy.opts = list(
+    keep.blank.line = TRUE,
+    width.cutoff = 150
+  ),
+  options(width = 150),
+  eval = TRUE
+)
+```
+
+
+
+## Nearest proteins in a data set
+We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the proteins in a list of mean profiles, such as "protProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
+
+```{r, echo=TRUE, eval=TRUE}
+distUse <- dist(protProfileSummaryTMTms2[,2:10], method="euclidean")
+```
+Then select the protein names:
+
+```{r, echo=TRUE, eval=TRUE}
+protsUse <- protProfileSummaryTMTms2[,1]
+```
+Finally, provide a protein name. Here, for the protein "AADAC", we find the 10 nearest proteins.
+
+```{r, echo=TRUE, eval=TRUE}
+protIndex("AAD")
+nearestProts("AADAC", n.nearest=10,  distProts=distUse, protNames=protsUse)
+```
