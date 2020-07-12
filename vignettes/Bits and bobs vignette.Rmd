@@ -1,12 +1,12 @@
 ---
-  title: "Vignette 2: Data Transformations Using protlocassign"
+title: "Vignette X: Bits and bobs"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
 #output: rmarkdown::html_vignette
 output:
-  #mathjax:  default
-  #  html_document:
   word_document:
+  #  html_document:
+  #mathjax:  default
   fig_caption:  true
 toc: true
 #section_numbering: true
@@ -18,7 +18,7 @@ toc: true
 #fontsize: 10pt
 vignette: >
   %\VignetteIndexEntry{protlocassign}
-%\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
   ```{r setup, include = FALSE}
@@ -44,6 +44,7 @@ knitr::opts_chunk$set(
 We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the proteins in a list of mean profiles, such as "protProfileSummaryTMTms2". In this dataset, the profiles are in columns 2 through 10.
 
 ```{r, echo=TRUE, eval=TRUE}
+library(protlocassign)
 distUse <- dist(protProfileSummaryTMTms2[,2:10], method="euclidean")
 ```
 Then select the protein names:
