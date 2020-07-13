@@ -67,6 +67,8 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
     return(temp)
   }
   protPlot <- temp[1,1]   # works even if temp is a vector
+  # protPlot is the index of the protein
+
   ##if(!protsOK) cat("Error: protein names don't match\n")
   ##stopifnot(protsOK)
   #assignProbsOut <- protProfileSummary[,1:(1+8)]   # just the protein name and the assigned proportions to the 8 compartments
@@ -202,9 +204,9 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
     #channels.i <- meanProteinLevels[{names(as.data.frame(markerLocR)) == as.character(assign.i)},]
     ##?? means.peptides.i <- meanProteinLevels[{names(as.data.frame(markerLocR)) == as.character(assign.i)},]
     #mean.i <- markerLoc[,i]
-    mean.i <- markerLocR[i,]
+    mean.i <- as.numeric(markerLocR[i,])
     if (!is.null(finalList)) max.y <- max(c(max(means.peptides.i), max(markerLocR[i,])))
-    if (is.null(finalList)) max.y <- max(markerLocR[i,])
+    if (is.null(finalList)) max.y <- max(c(mean.i,yy))
     plot(mean.i ~ xvals,  axes="F", type="l",
          ylim=c(min.y, max.y))
     axis(1,at=xvals,labels=fractions.list)
