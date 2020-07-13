@@ -126,12 +126,20 @@ str(assignPropsUse)
 
                    
 
-The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines. 
+
 
 The `protPlotfun` function is designed to plot profiles of eight subcellular locations. If a data set has more than eight of these, it will be necessary to modify the code to accommodate the larger number.
 
+Now we plot the results for protein AADAC:
 
+```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
 
+protPlotfun(protName="AADAC", protProfileSummary=protProfileSummaryRSA, n.fractions=9,
+                        Nspectra=T, markerLocR=markerLocRrsa,
+                        assignPropsMat=assignPropsUse)
+```
+
+The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines. 
 
 
 
@@ -146,7 +154,7 @@ The `protPlotfun` function is designed to plot profiles of eight subcellular loc
 The profiles of some compartments (e.g. nuclear and mitochondrial) show a high relative abundance level in the N or M fractions, respectively, and little in the others. Cytosolic proteins also are high in one fraction (S) and low in the others. Peroxisomes have high activity levels in the L1 and L2 fractions, and low levels in the others, including Nyc2. Lysosomes, like peroxisomes, have high level in the L1 and L2 fractions, but, unlike peroxisomes, high levels in Nyc2. The other compartments (ER, Golgi, and PM) have more complex profiles. Once we have obtained reference profiles for each of the eight compartments, we score each new protein as the optimal combination of the reference proteins, thereby obtaining estimates of the proportionate contributions of each reference profile to that of the protein being considered.
 
 
-The first step is an outlier screen, for each protein, of the abundance levels for each fraction of all of the spectra. Abundance levels $p$ are first log2 transformed via $y = log_2(p + \delta)$, where $\delta$ is an estimate of the background "noise" in the abundance estimates. Here we used $\delta = 10^{(-5)}$. Then boxplot outliers are identified as values more than three times the interquartile range beyond the first or third quartile. We discard any spectrum for which any observation is thereby classified as an outlier. This process is repeated for all proteins.
+The first step is an outlier screen, for each protein, of the abundance levels for each fraction of all of the spectra. Abundance levels $p$ are first log2 transformed via $y = log_2(p + \epsilon)$, where $\epsilon$ is an estimate of the background "noise" in the abundance estimates. Here we used $\epsilon = 0.02988$ based on the distribution of a bacterial protein, as explained in the main paper. Then boxplot outliers are identified as values more than three times the interquartile range beyond the first or third quartile. We discard any spectrum for which any observation is thereby classified as an outlier. This process is repeated for all proteins.
 
 
 ## Constrained proportional assignment
@@ -230,10 +238,15 @@ $$\mathbf{A}=\mathbf{\tilde{S}}\cdot \text{diag}(\mathbf{t})=\left[ \begin{matri
 \end{matrix} \right]$$
 
 We need this matrix to do the next step, which is to convert to a common scale for all proteins. We do this by normalizing to the amount of protein $\alpha$ in the starting material, which we denote as $a_{\alpha, h}$. In some experiments, if the homogenate is measured directly, this can be calculated from ${{s}_{\alpha ,h}}{{t}_{h}}$.
-Alternatively, if a complete set of fractions that entirely represent the homogenate are available, it is preferable to calculate this by summing $s_{\alpha,l}t_l$ over these fractions. In our case, the first six fractions represent a complete set of differential fractions, and thus ${{a}_{\alpha ,h}}=\sum\nolimits_{i=1}^{6}{{{s}_{\alpha ,i}}{{t}_{i}}}$. Finally, we normalize amounts in any given fraction to amounts in starting material, which we call the relative amount and denote as ${{\overset{\scriptscriptstyle\smile}{a}}_{\alpha ,l}}$. In our example, 
+Alternatively, if a complete set of fractions that entirely represent the homogenate are available, it is preferable to calculate this by summing $s_{\alpha,l}t_l$ over these fractions. In our case, the first six fractions represent a complete set of differential fractions, and thus ${{a}_{\alpha ,h}}=\sum\nolimits_{i=1}^{6}{{{s}_{\alpha ,i}}{{t}_{i}}}$. Finally, we normalize amounts in any given fraction to amounts in starting material, which we call the relative amount and denote as ${\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over 
+ a} _{\alpha ,l}}$. In our example, 
+ 
+${\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over 
+ a} _{\alpha ,l}} = {{{s_{\alpha ,l}}{t_l}} \over {{s_{\alpha ,h}}{t_h}}} = {{{s_{\alpha ,l}}{t_l}} \over {\sum\nolimits_{i = 1}^6 {{s_{\alpha ,i}}{t_i}} }} = {{{{\tilde s}_{\alpha ,l}}{t_l}} \over {\sum\nolimits_{i = 1}^6 {{{\tilde s}_{\alpha ,i}}{t_i}} }}$
+ 
 
-$${{\overset{\scriptscriptstyle\smile}{a}}_{\alpha ,l}}=\frac{{{s}_{\alpha ,l}}{{t}_{l}}}{{{s}_{\alpha ,h}}{{t}_{h}}}=\frac{{{s}_{\alpha ,l}}{{t}_{l}}}{\sum\nolimits_{i=1}^{6}{{{s}_{\alpha ,i}}{{t}_{i}}}}=\frac{{{{\tilde{s}}}_{\alpha ,l}}{{t}_{l}}}{\sum\nolimits_{i=1}^{6}{{{{\tilde{s}}}_{\alpha ,i}}{{t}_{i}}}}$$
 In matrix form, we may write this as 
+
 ${\bf{\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over 
  A} }} = {\bf{A}} \cdot {\rm{diag}}(1/{a_{\alpha ,h}}) = \left[ {\matrix{
    {{s_{11}}{t_1}/{a_{1,h}}} & {{s_{12}}{t_2}/{a_{1,h}}} &  \cdots  & {{s_{19}}{t_9}/{a_{1,h}}}  \cr 
@@ -242,17 +255,11 @@ ${\bf{\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over
    {{s_{n1}}{t_1}/{a_{n,h}}} & {{s_{n2}}{t_2}/{a_{n,h}}} &  \cdots  & {{s_{n9}}{t_9}/{a_{n,h}}}  \cr 
 
  } } \right]$
+ 
 
 
-$$\mathbf{\overset{\scriptscriptstyle\smile}{A}}=\mathbf{A}\cdot \text{diag}(1/{{a}_{\alpha ,h}})=\left[ \begin{matrix}
-   {{s}_{11}}{{t}_{1}}/{{a}_{1,h}} & {{s}_{12}}{{t}_{2}}/{{a}_{1,h}} & \cdots  & {{s}_{19}}{{t}_{9}}/{{a}_{1,h}}  \\
-   {{s}_{21}}{{t}_{1}}/{{a}_{2,h}} & {{s}_{22}}{{t}_{2}}/{{a}_{2,h}} & \cdots  & {{s}_{29}}{{t}_{9}}/{{a}_{2,h}}  \\
-   \vdots  & \vdots  & {} & \vdots   \\
-   {{s}_{n1}}{{t}_{1}}/{{a}_{n,h}} & {{s}_{n2}}{{t}_{2}}/{{a}_{n,h}} & \cdots  & {{s}_{n9}}{{t}_{9}}/{{a}_{n,h}}  \\
-\end{matrix} \right]$$
 
-
-or simply as $\mathbf{\overset{\scriptscriptstyle\smile}{A}}=\left( {{{\overset{\scriptscriptstyle\smile}{a}}}_{\alpha ,l}} \right)$. The function abundanceTransform compoutes this:
+or simply as  $\mathbf{\overset{\scriptscriptstyle\smile}{A}}=\left( {{{\overset{\scriptscriptstyle\smile}{a}}}_{\alpha ,l}} \right)$. The function abundanceTransform compoutes this:
 
 
 
@@ -272,9 +279,10 @@ When examining the distribution of a given protein in different fractions, it is
 Then the Relative Specific Amount (RSA) values represent the degree of enrichment or depletion of a protein in a given fraction compared to the amount in the starting material. For a protein $\alpha$ the RSA in fraction $l$ is given by
 
 
+$${r_{\alpha ,l}} = {{{{\mathop a\limits^\smile  }_{\alpha ,l}}} \over {{{\mathop t\limits^\smile  }_l}}} = {{{s_{\alpha ,l}} \cdot \sum\nolimits_j^k {{t_i}} } \over {\sum\nolimits_j^k {{s_{\alpha ,l}}{t_i}} }}$$
 
 
-${{r}_{\alpha ,l}}=\frac{{{{\overset{\scriptscriptstyle\smile}{a}}}_{\alpha ,l}}}{{{{\overset{\scriptscriptstyle\smile}{t}}}_{l}}}=\frac{{{s}_{\alpha ,l}}\cdot \sum\nolimits_{j}^{k}{{{t}_{i}}}}{\sum\nolimits_{j}^{k}{{{s}_{\alpha ,l}}{{t}_{i}}}}$
+
 
 In matrix form, this is $\mathbf{R}=\left( {{r}_{\alpha ,l}} \right)$.
 
