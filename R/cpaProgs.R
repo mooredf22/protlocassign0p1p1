@@ -5,8 +5,6 @@
 #' @param n.channels Number of channels of abundance levels
 #' @return A matrix markerLocR giving the abundance level profiles of the subcellular locations
 
-#'
-
 
 cpaSetup <- function(protProfileSummary, refLocProteins=refLocProteins, n.channels) {
   # Find the mean profiles of the subcellular locations
@@ -116,7 +114,7 @@ protIndex <- function(protName, protProfileSummary=protProfileSummaryTMTms2,
 
 
 protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showProgress=T,
-                          log2Transf=F, maxit, assignProbsStart, maxR=NULL) {
+                          log2Transf=F, eps=2^(-5), maxit, assignProbsStart, maxR=NULL) {
   # maxit and assignPRobsStart must be specified
   # assignProbsStart must be NULL or have a column "protName" and assignment probabilities to use as starting values
   # use the spg function (in package BB) to assign proportionate assignments to compartments
@@ -170,7 +168,7 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
    }
   }
   if (log2Transf) {
-    eps <- 2^(-5)
+    eps <- eps # defined in argument function
     markerLocRlog <- log2(markerLocR + eps)
 
     yyLog2= log2(yy + eps)
@@ -230,11 +228,14 @@ ans <- spg(rep(1/n.locs, n.locs), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(m
 #' @param protProfileSummary data frame of protein names and relative abundance levels.
 #' @param markerLocR A matrix giving the abundance level profiles of the subcellular locations
 #' @param n.channels Number of channels of abundance levels
+#' @param log2Transf  Transform data before running CPA? Default is F
+#' @param eps  Small quantity to add to data prior to taking a log transformation; ignored
+#'              if log2Transf=F
 #' @param maxit maximum number of iterations
 #' @param assignProbsStart A matrix of starting values, one for each protein. The first column must be protName
 #' @param maxR  A value to truncate values of markerLocR; if NULL (default), ignore
 #' @return assignProbsOut  Data frame of proportionate assignments of each protein to compartments
-proLocAll <- function(protProfileSummary, markerLocR, n.channels=n.channels, log2Transf=F, maxit=10000,
+proLocAll <- function(protProfileSummary, markerLocR, n.channels=n.channels, log2Transf=F, eps=2^(-5), maxit=10000,
                         assignProbsStart=NULL, maxR=NULL) {
   #markerLocR <- cpaSetup(protProfileSummary, refLocProteins, n.channels=n.channels)
   n.prot <- nrow(protProfileSummary)

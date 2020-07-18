@@ -5,8 +5,7 @@
 #' @param SS A matrix giving the specific amount or normalized specific amount
 #'           profiles, either marker profiles from 'cpaSetup' (which requires
 #'           normalized specific amounts as input), or a list of many protein profiles
-#' @param nDiffFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
-#' @param nNycFractions Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none
+#' @param NstartMaterialFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
 #' @param totProt Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's
 #'
 #' @return amtProtFrac: amount of protein in a given fraction
@@ -17,7 +16,7 @@
 # # # # # # # # #
 
 # function name change
-#abundanceTransform <- function(markerLocR, nDiffFractions=6, nNycFractions=3,
+#abundanceTransform <- function(markerLocR, NstartMaterialFractions=6,
 
 # markerLocR -> SS   # no need to limit this to the marker profiles
 # amtProtFrac -> AA  # these are the amounts of protein (or other species)
@@ -27,15 +26,11 @@
     # these are of interest for simulations
 #
 
-relAmtTransform <- function(SS, nDiffFractions=6, nNycFractions=3,
+relAmtTransform <- function(SS, NstartMaterialFractions=6,
                                totProt=NULL) {
-  if ((nDiffFractions + nNycFractions) != ncol(SS)) {
-    cat("Error from relAmtTransform\nTotal number of fractions must be the number of columns of SS\n")
-    return()
-  }
-  diffFractions <- SS[,1:nDiffFractions]
-  if (nNycFractions > 0) nycFractions <- SS[,(nDiffFractions+1):(nDiffFractions+nNycFractions)]
-  if (nNycFractions == 0) nycFractions <- NULL
+
+  startMaterialFractions <- SS[,1:NstartMaterialFractions]
+
 
   # Compute amount of protein in a given fraction
   # yellow in Excel spreadsheet: "RSAtransformation instructions Lobel 29 Apr 2019"
@@ -56,11 +51,11 @@ relAmtTransform <- function(SS, nDiffFractions=6, nNycFractions=3,
   # Compute amount of given protein in fraction / amount of given protein in starting material
   # use these values to create mixtures
   # these are in red in Excel spreadsheet
-  Acup <- data.frame(t(apply(AA, 1, function(x) x/sum(x[1:nDiffFractions]))))
+  Acup <- data.frame(t(apply(AA, 1, function(x) x/sum(x[1:NstartMaterialFractions]))))
   names(Acup) <- colnames(AA)
 
   # relative specific activity (RSA)   # these are in heatmap in Excel spreadsheet
-  #Difp <- sum(totProt[1:nDiffFractions])   # total protein in the differential fractions
+  #Difp <- sum(totProt[1:NstartMaterialFractions])   # total protein in the differential fractions
   #propFrac <- totProt/Difp  # proportion of protein in the differential fractions
   #rsa <- data.frame(as.matrix(relAmtProtFrac) %*% diag(1/propFrac))
   #names(rsa) <- colnames(markerLocR)
@@ -76,11 +71,10 @@ relAmtTransform <- function(SS, nDiffFractions=6, nNycFractions=3,
 
 #' Compute relative specific amount from relative amounts in protein fractions
 #' @param Acup amount of given protein in fraction / amount of that given protein in starting material
-#' @param nDiffFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
-#' @param nNycFractions Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none
+#' @param NstartMaterialFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
 #' @param totProt Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's
 #' @return rsa: relative specific amount
-RSAfromAcup <- function(Acup, nDiffFractions=6, nNycFractions=3,
+RSAfromAcup <- function(Acup, NstartMaterialFractions=6,
                          totProt=NULL) {
 # # # # # # # #
 # rename variabiles
@@ -90,7 +84,7 @@ RSAfromAcup <- function(Acup, nDiffFractions=6, nNycFractions=3,
 # propFrac -> t.cup
 
   # relative specific amount (RSA)   # these are in heatmap in Excel spreadsheet
-  t.h <- sum(totProt[1:nDiffFractions])   # total protein in the differential fractions
+  t.h <- sum(totProt[1:NstartMaterialFractions])   # total protein in the differential fractions
   t.cup <- totProt/t.h  # proportion of protein in the differential fractions (9 component vector)
   #rsa <- data.frame(as.matrix(relAmtProtFrac) %*% diag(1/propFrac))
   rsa <- sweep(Acup, 2, 1/t.cup, "*")
@@ -139,13 +133,12 @@ proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
 #' Directly compute relative specific activity from protProfileSummary (or from markerLocR)
 #'
 #' @param protProfileLevels A matrix (with no prot names) giving the abundance level profiles of the subcellular locations, from 'cpaSetup', or many protein profiles
-#' @param nDiffFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
-#' @param nNycFractions Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none
-#' @param totProt Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's
+#' @param NstartMaterialFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
+#' @param totProt Total protein counts in each of the fractions; this is necessary to compute RSA's
 #'
 #' @return protProfileRSA: relative specific activity
 
-RSAfromS <- function(SS=protProfileLevels, nDiffFractions=6, nNycFractions=3,
+RSAfromS <- function(SS=protProfileLevels, NstartMaterialFractions=6,
                       totProt=NULL) {
 
   missing.rows <- SS[!complete.cases(SS),]
@@ -153,20 +146,15 @@ RSAfromS <- function(SS=protProfileLevels, nDiffFractions=6, nNycFractions=3,
     cat("Error from rsaDirect: missing values not allowed\n")
     return(missing.rows)
   }
-  if ((nDiffFractions + nNycFractions) != ncol(SS)) {
-    cat("Error from RSAdirect\nTotal number of fractions must be the number of columns of markerLocR\n")
-    return()
-  }
-  diffFractions <- SS[,1:nDiffFractions]
-  if (nNycFractions > 0) nycFractions <- SS[,(nDiffFractions+1):(nDiffFractions+nNycFractions)]
-  if (nNycFractions == 0) nycFractions <- NULL
 
-  protAbund <- relAmtTransform(SS,nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
+  startMaterialFractions <- SS[,1:NstartMaterialFractions]
+
+  protAbund <- relAmtTransform(SS,NstartMaterialFractions=6, totProt=totProtUse)
   Acup <- protAbund$Acup
   rsa <- RSAfromAcup(Acup, totProt=totProtUse)
 
-  #Difp <- sum(totProt[1:nDiffFractions])   # total protein in the differential fractions
-  #TT <- as.matrix(protProfileLevels[,1:nDiffFractions]) %*% totProt[1:nDiffFractions]
+  #Difp <- sum(totProt[1:NstartMaterialFractions])   # total protein in the differential fractions
+  #TT <- as.matrix(protProfileLevels[,1:NstartMaterialFractions]) %*% totProt[1:NstartMaterialFractions]
   #protProfileRSA <- diag(as.numeric(1/TT)) %*% as.matrix(protProfileLevels) * Difp
   #protProfileRSA <- sweep(protProfileLevels, 1, 1/TT, "*")
   # truncate any large values at 15, for numerical stability

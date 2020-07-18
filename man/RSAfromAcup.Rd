@@ -4,14 +4,12 @@
 \alias{RSAfromAcup}
 \title{Compute relative specific amount from relative amounts in protein fractions}
 \usage{
-RSAfromAcup(Acup, nDiffFractions = 6, nNycFractions = 3, totProt = NULL)
+RSAfromAcup(Acup, NstartMaterialFractions = 6, totProt = NULL)
 }
 \arguments{
 \item{Acup}{amount of given protein in fraction / amount of that given protein in starting material}
 
-\item{nDiffFractions}{Number of differential fractions, typically 6, for N, M, L1, L2, P, and S}
-
-\item{nNycFractions}{Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none}
+\item{NstartMaterialFractions}{Number of differential fractions, typically 6, for N, M, L1, L2, P, and S}
 
 \item{totProt}{Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's}
 }

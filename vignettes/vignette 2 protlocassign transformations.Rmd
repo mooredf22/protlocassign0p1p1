@@ -4,9 +4,9 @@ author: "Dirk Moore"
 date: "`r Sys.Date()`"
 #output: rmarkdown::html_vignette
 output:
-  word_document:
   #  html_document:
   #mathjax:  default
+  word_document:
   fig_caption:  true
   toc: true
 #section_numbering: true
@@ -42,7 +42,7 @@ knitr::opts_chunk$set(
 
 ## Data transformations
 
-In Vignette 1 (“Getting Started”) we illustrated the principles of constrained proportional assignment using protein profiles that represent normalized mass spectrometry data from a set of subcellular fractions.  This vignette describes how to use functions in the protlocassign package to transform such profiles in a manner that is more useful for inferring proportional residence in subcellular compartments.
+In Vignette 1 (“Getting Started”) we illustrated the principles of constrained proportional assignment using protein profiles that represent normalized mass spectrometry data from a set of subcellular fractions.  This vignette describes how to use functions in the `protlocassign` package to transform such profiles in a manner that is more useful for inferring proportional residence in subcellular compartments.
 
 
 ## Loading the data
@@ -68,7 +68,7 @@ The function `RSAfromS` calculates transformed profiles from individual and tota
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 protProfileLevelsUse <- protProfileSummaryTMTms2[,2:(1 + 9)]
 protProfileLevelsRSA <- RSAfromS(SS=protProfileLevelsUse,
-                                   nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
+                                   NstartMaterialFractions=6,  totProt=totProtUse)
 dim(protProfileLevelsRSA)
 str(protProfileLevelsRSA)
 ```
@@ -98,8 +98,8 @@ markerLocRuse
 We then use `RSAfromS` to transform these reference profiles.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-markerLocRrsa <- RSAfromS(SS=markerLocRuse, nDiffFractions=6,
-       nNycFractions=3, totProt=totProtUse)
+markerLocRrsa <- RSAfromS(SS=markerLocRuse, NstartMaterialFractions=6,
+       totProt=totProtUse)
 row.names(markerLocRrsa) <- row.names(markerLocRuse)
 
 ```
@@ -238,7 +238,7 @@ $$\mathbf{A}=\mathbf{\tilde{S}}\cdot \text{diag}(\mathbf{t})=\left[ \begin{matri
 \end{matrix} \right]$$
 
 We need this matrix to do the next step, which is to convert to a common scale for all proteins. We do this by normalizing to the amount of protein $\alpha$ in the starting material, which we denote as $a_{\alpha, h}$. In some experiments, if the homogenate is measured directly, this can be calculated from ${{s}_{\alpha ,h}}{{t}_{h}}$.
-Alternatively, if a complete set of fractions that entirely represent the homogenate are available, it is preferable to calculate this by summing $s_{\alpha,l}t_l$ over these fractions. In our case, the first six fractions represent a complete set of differential fractions, and thus ${{a}_{\alpha ,h}}=\sum\nolimits_{i=1}^{6}{{{s}_{\alpha ,i}}{{t}_{i}}}$. Finally, we normalize amounts in any given fraction to amounts in starting material, which we call the relative amount and denote as ${\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over 
+Alternatively, if a complete set of fractions that entirely represent the homogenate are available, it is preferable to calculate this by summing $s_{\alpha,l}t_l$ over these fractions. In our case, the first six fractions represent a complete set of differential fractions, and thus ${a_{\alpha ,h}} = \sum\nolimits_{i = 1}^6 {{s_{\alpha ,i}}{t_i}} $. Finally, we normalize amounts in any given fraction to amounts in starting material, which we call the relative amount and denote as ${\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over 
  a} _{\alpha ,l}}$. In our example, 
  
 ${\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over 
@@ -265,7 +265,7 @@ or simply as  $\mathbf{\overset{\scriptscriptstyle\smile}{A}}=\left( {{{\overset
 
 ```{r, echo=TRUE, eval=TRUE}
 
-protAbund <- relAmtTransform(markerLocR,6,3, totProt=totProtUse)
+protAbund <- relAmtTransform(markerLocR,6, totProt=totProtUse)
 Acup <- protAbund$Acup
 round(Acup, digits=4)
 ```
@@ -301,7 +301,7 @@ round(t(apply(rsa,1, function(x) x/sum(x))), digits=4)
 
 If we just need to obtain the RSA transformed data directly, just do this:
 ```{r, echo=TRUE, eval=TRUE}
-markerLocRrsa <- RSAfromS(SS=markerLocR, nDiffFractions=6, nNycFractions=3,
+markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
         totProt=totProtUse)
 
 round(markerLocRrsa, digits=4)
@@ -313,7 +313,7 @@ We may simulate data from proteins with multiple residences using the "proteinMi
 ```{r, echo=TRUE, eval=TRUE}
 #totProt=c(46.044776, 48.955954, 1.384083, 1.566324, 24.045584, 58.181818, 0.0368564, 0.0684596, 1.27301587)
 
-protAbund <- relAmtTransform(markerLocR, nDiffFractions=6, nNycFractions=3 , totProt=totProtUse)
+protAbund <- relAmtTransform(markerLocR, NstartMaterialFractions=6, totProt=totProtUse)
 Acup <- protAbund$Acup
 mixCytoLyso <- proteinMix(Acup, 1, 4)
 round(mixCytoLyso, digits=4)
@@ -322,14 +322,14 @@ round(mixCytoLyso, digits=4)
 Then we can test the CPA algorithm by first converting this mixture data to RSA's:
 ```{r, echo=TRUE, eval=TRUE}
 
-mixCytoLysoRSA <- RSAfromAcup(Acup=mixCytoLyso, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
+mixCytoLysoRSA <- RSAfromAcup(Acup=mixCytoLyso, NstartMaterialFractions=6, totProt=totProtUse)
 
 mixCytoLysoRelAmt <- data.frame(rownames(mixCytoLysoRSA), mixCytoLysoRSA)
 names(mixCytoLysoRelAmt)[1] <- "protName"
 round(mixCytoLysoRelAmt[,-1], digits=4)
 
 #markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, totProt=totProt)
-markerLocRrsa <- RSAfromS(SS=markerLocR, nDiffFractions=6, nNycFractions=3, totProt=totProtUse)
+markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6, totProt=totProtUse)
 rownames(markerLocRrsa) <- rownames(markerLocR)
 ```
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data:

@@ -4,19 +4,12 @@
 \alias{RSAfromS}
 \title{Directly compute relative specific activity from protProfileSummary (or from markerLocR)}
 \usage{
-RSAfromS(
-  SS = protProfileLevels,
-  nDiffFractions = 6,
-  nNycFractions = 3,
-  totProt = NULL
-)
+RSAfromS(SS = protProfileLevels, NstartMaterialFractions = 6, totProt = NULL)
 }
 \arguments{
-\item{nDiffFractions}{Number of differential fractions, typically 6, for N, M, L1, L2, P, and S}
+\item{NstartMaterialFractions}{Number of differential fractions, typically 6, for N, M, L1, L2, P, and S}
 
-\item{nNycFractions}{Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none}
-
-\item{totProt}{Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's}
+\item{totProt}{Total protein counts in each of the fractions; this is necessary to compute RSA's}
 
 \item{protProfileLevels}{A matrix (with no prot names) giving the abundance level profiles of the subcellular locations, from 'cpaSetup', or many protein profiles}
 }

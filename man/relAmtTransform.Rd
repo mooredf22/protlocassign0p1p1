@@ -4,16 +4,14 @@
 \alias{relAmtTransform}
 \title{Set up RSA (relative specific amount) profiles for constrained proportional assignment}
 \usage{
-relAmtTransform(SS, nDiffFractions = 6, nNycFractions = 3, totProt = NULL)
+relAmtTransform(SS, NstartMaterialFractions = 6, totProt = NULL)
 }
 \arguments{
 \item{SS}{A matrix giving the specific amount or normalized specific amount
 profiles, either marker profiles from 'cpaSetup' (which requires
 normalized specific amounts as input), or a list of many protein profiles}
 
-\item{nDiffFractions}{Number of differential fractions, typically 6, for N, M, L1, L2, P, and S}
-
-\item{nNycFractions}{Number of Nycodenz fractions, typically 3, but could be 1 (if only Nyc2 is present) or 0 if none}
+\item{NstartMaterialFractions}{Number of differential fractions, typically 6, for N, M, L1, L2, P, and S}
 
 \item{totProt}{Total protein counts in each of the differential and nycodenz fractions; this is necessary to compute RSA's}
 }
