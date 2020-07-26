@@ -26,12 +26,12 @@
 #'        of upper confidence interval limits
 #'
 
-protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspectra=T, finalList=NULL,
+protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL,
                         n.fractions=9, n.compartments=8,
                         markerLocR=markerLocRuse, assignPropsMat=assignPropsUse, propCI=F) {
   # protPlot is the number of the protein to plot
   # protProfileSummaryUse is a matrix with components:
-  #    protName: name of protein
+  #    rownames: name of protein
   #    N, M, L1, ... : relative protein levels for fractions 1 through n.fractions; must sum to 1
   #
   # If standard errors are not available, se is false, and seMat is NULL
@@ -48,9 +48,10 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
   #protName.i <- as.character(meanCovarProtsUseAll.t$protNames[protPlot])
   oldpar <- par(no.readonly=TRUE)
   on.exit(par(oldpar))
-  protsOK <- {protProfileSummary$protName == assignPropsMat$protName}
+  protsOK <- {rownames(protProfileSummary) == rownames(assignPropsMat)}
 
   temp <- protIndex(protName, protProfileSummary, exactMatch=T)
+  protName.i <- protName
   # must be exact to avoid duplicate finds
 
   # this can be a vector, matrix, or vector, so handling is complicated
@@ -72,21 +73,19 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
   ##if(!protsOK) cat("Error: protein names don't match\n")
   ##stopifnot(protsOK)
   #assignProbsOut <- protProfileSummary[,1:(1+8)]   # just the protein name and the assigned proportions to the 8 compartments
-  meanProteinLevels <- protProfileSummary[,2:(1+n.fractions)]  # drop protein name column
+  meanProteinLevels <- protProfileSummary[,1:n.fractions]  # just the profiles
   # (formerly named meanCovarprots)
   #channelsAll <-  [,-1]  # another name for this
-  protName <- as.character(protProfileSummary$protName)
-  protNameUnique <- make.unique(protName)
-  row.names(meanProteinLevels) <- protProfileSummary$protNameUnique
+  protNames <- rownames(protProfileSummary)
+  protNameUnique <- make.unique(protNames)
+  rownames(meanProteinLevels) <- protNameUnique
   subCellNames <- rownames(markerLocR)
   #subCellNames[8] <- "Plasma membrane"
   #subCellNames[4] <- "Lysosomes"
   #subCellNames[2] <- "Endoplasmic reticulum"
 
   #markerLoc <- t(markerLocR)
-  fractions.list <- colnames(markerLocR)  # column names
-
-  protName.i <- as.character(protProfileSummary$protName[protPlot])
+  fractions.list <- colnames(markerLocR)  # column names[protPlot])
 
   if (!is.null(finalList)) {
     finalList.i <- finalList[toupper(finalList$prot) == protName.i, ]
@@ -260,7 +259,7 @@ protPlotfun <- function(protName, protProfileSummary=protProfileSummaryUse, Nspe
       ))
     }
     if (!propCI) {
-      title(paste(assignLong.i, "\n p = ", round(assignPropsMat[protPlot,1+i], digits=2 )))
+      title(paste(assignLong.i, "\n p = ", round(assignPropsMat[protPlot,i], digits=2 )))
     }
   }
   x <- c(0,5)

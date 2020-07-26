@@ -17,7 +17,7 @@ refProfilePlot(
 
 \item{refLocProteins}{List of reference proteins}
 
-\item{protProfileSummary}{data frame of protein names and relative abundance levels.}
+\item{protProfileSummary}{data frame of protein names (as row names) and relative abundance levels.}
 
 \item{markerLocR}{A matrix markerLocR giving the abundance level profiles of the subcellular locations}
 }

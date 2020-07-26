@@ -9,19 +9,22 @@
 cpaSetup <- function(protProfileSummary, refLocProteins=refLocProteins, n.channels) {
   # Find the mean profiles of the subcellular locations
 
-  # "protProfileSummary" must be a data frame with these columns:
-  #  Column 1: (protName): Prot name (or protein name)
-  #  columns 2 - n.channels:   log2-transformed relative activities
+  # "protProfileSummary" must be a data frame with proteins as row names and these columns:
+  #  columns 1 - n.channels:  normalized specific amounts or specific amounts
   #  Last two columns:   Nspectra (number of spectra) and Nseq (number of distince peptide sequences)
 
   # "refLocProteins" must be a list of (1) the reference proteins and (2) the corresponding subcelluar locations
 
   # Select those entries from "protProfileSummary" that are reference proteins
-  protNamesUpper <- toupper(protProfileSummary$protName)    # make names all upper case
-  protProfileSummaryoriginal <- protProfileSummary
-  protProfileSummary$protName <- protNamesUpper
+  # protNamesUpper <- toupper(protProfileSummary$protName)    # make names all upper case
+  protNamesUpper <- toupper(rownames(protProfileSummary))
+  #protProfileSummaryoriginal <- protProfileSummary
+  #protProfileSummary$protName <- protNamesUpper
+  rownames(protProfileSummary) <- protNamesUpper
+  protProfileSummaryWithProts <- data.frame(protNamesUpper, protProfileSummary)
+  names(protProfileSummaryWithProts)[1] <- "protName"  # this has a column of protnames for merge
   #meanCovarProtsStringent <- merge(x=refLocProteins, y=protProfileSummary,
-  meanReferenceProts <- merge(x=refLocProteins, y=protProfileSummary,
+  meanReferenceProts <- merge(x=refLocProteins, y=protProfileSummaryWithProts,
          by.x="protName", by.y="protName", all.x=F, sort=F)
 
   # Find mean profiles for each sub-cellular location, using reference proteins
@@ -88,7 +91,7 @@ protIndex <- function(protName, protProfileSummary=protProfileSummaryTMTms2,
   #   the string given in "protName"
   n.prot <- nrow(protProfileSummary)
 
-  prot.list <- toupper(as.character(protProfileSummary[,1]))  # must be in column 1
+  prot.list <- toupper(as.character(rownames(protProfileSummary)))  # must be in column 1
   #if (exactMatch) inx <- grep(paste("^", protName, "$", sep=""), prot.list, ignore.case=T)
   if (exactMatch) inx <- (1:n.prot)[protName == prot.list]
   if (!exactMatch) inx <- grep(paste("^",protName, sep=""), prot.list, ignore.case=T)
@@ -114,7 +117,7 @@ protIndex <- function(protName, protProfileSummary=protProfileSummaryTMTms2,
 
 
 protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showProgress=T,
-                          log2Transf=F, eps=2^(-5), maxit, assignProbsStart, maxR=NULL) {
+                          log2Transf=F, eps=2^(-5), maxit, assignProbsStart=NULL) {
   # maxit and assignPRobsStart must be specified
   # assignProbsStart must be NULL or have a column "protName" and assignment probabilities to use as starting values
   # use the spg function (in package BB) to assign proportionate assignments to compartments
@@ -122,20 +125,15 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
   # i=2
   # i=1000
   if (!is.null(assignProbsStart)) {
-    testEq <- {protProfileSummary$protName == assignProbsStart$protName}
+    testEq <- {names(protProfileSummary) == names(assignProbsStart)}
     if (sum(as.numeric(testEq)) != nrow(protProfileSummary)) {
       cat("Error in protLocAssign: protName not identical in protProfileSummary and assignProbsStart\n")
     }
   }
   # check for excessively large component of markderLocR, if maxR is not NULL
   # If maxR is not NULL, truncate at maxR
-  if (!is.null(maxR)) {
-    markerLocRemp <- markerLocR
-    ind.too.big <- {markerLocRtemp > maxR}
-    markerLocR[ind.too.big] <- maxR
-  }
   n.compartments <- nrow(markerLocR)
-  allPeptideProfilesMat <- protProfileSummary[,1 + 1:n.channels]     # just the data
+  allPeptideProfilesMat <- protProfileSummary[, 1:n.channels]     # just the data
 
   yyT <- allPeptideProfilesMat[i,]
 
@@ -217,7 +215,7 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
 
 # Test
 if (F) {
-yy= as.numeric(protProfileSummary[231,2:(n.channels+1)])
+yy= as.numeric(protProfileSummary[231,1:(n.channels)])
 n.locs <- n.compartments
 ans <- spg(rep(1/n.locs, n.locs), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(markerLocR),
     control=list(trace=F))
@@ -225,7 +223,7 @@ ans <- spg(rep(1/n.locs, n.locs), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(m
 
 #' Carry out constrained proportional assignment on all proteinss
 #'
-#' @param protProfileSummary data frame of protein names and relative abundance levels.
+#' @param protProfileSummary data frame of protein names (row names) and relative abundance levels.
 #' @param markerLocR A matrix giving the abundance level profiles of the subcellular locations
 #' @param n.channels Number of channels of abundance levels
 #' @param log2Transf  Transform data before running CPA? Default is F
@@ -236,7 +234,7 @@ ans <- spg(rep(1/n.locs, n.locs), fn=Qfun4, project=proj.simplex, y=yy, gmat=t(m
 #' @param maxR  A value to truncate values of markerLocR; if NULL (default), ignore
 #' @return assignProbsOut  Data frame of proportionate assignments of each protein to compartments
 proLocAll <- function(protProfileSummary, markerLocR, n.channels=n.channels, log2Transf=F, eps=2^(-5), maxit=10000,
-                        assignProbsStart=NULL, maxR=NULL) {
+                        assignProbsStart=NULL) {
   #markerLocR <- cpaSetup(protProfileSummary, refLocProteins, n.channels=n.channels)
   n.prot <- nrow(protProfileSummary)
   indList <- 1:n.prot
@@ -244,8 +242,7 @@ proLocAll <- function(protProfileSummary, markerLocR, n.channels=n.channels, log
 
    result <- sapply(indList, protLocAssign,
                 protProfileSummary=protProfileSummary, markerLocR=markerLocR, n.channels=n.channels, showProgress=T,
-                simplify=T, log2Transf=log2Transf, maxit=maxit, assignProbsStart=assignProbsStart,
-                maxR=maxR)
+                simplify=T, log2Transf=log2Transf, maxit=maxit, assignProbsStart=assignProbsStart)
 
   assignProbs <- data.frame(t(result))
 
@@ -253,13 +250,15 @@ proLocAll <- function(protProfileSummary, markerLocR, n.channels=n.channels, log
 
   if (checkCols) {
     names(assignProbs) <- c(row.names(markerLocR), "Nspectra", "Npeptides")
-    protName <- as.character(protProfileSummary$protName)  # make sure it is character
-    assignProbsOut <- data.frame(protName, assignProbs)
+    protNames <- rownames(protProfileSummary)  # make sure it is character
+    assignProbsOut <- assignProbs
+    rownames(assignProbsOut) <- protNames
     }
   if (!checkCols) {
     names(assignProbs) <- row.names(markerLocR)
-    protName <- as.character(protProfileSummary$protName)
-    assignProbsOut <- data.frame(protName, assignProbs)
+    protNames <- rownames(protProfileSummary)
+    assignProbsOut <- assignProbs
+    rownames(assignProbsOut) <- protNames
   }
   assignProbsOut
   }

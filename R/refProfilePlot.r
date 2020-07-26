@@ -6,7 +6,7 @@
 #'
 #' @param refLoc  the name of the reference subcellular compartment to plot
 #' @param refLocProteins List of reference proteins
-#' @param protProfileSummary data frame of protein names and relative abundance levels.
+#' @param protProfileSummary data frame of protein names (as row names) and relative abundance levels.
 #' @param markerLocR A matrix markerLocR giving the abundance level profiles of the subcellular locations
 #'
 
@@ -14,8 +14,11 @@
 refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, protProfileSummary=protProfileSummaryTMTms2,
                            markerLocR=markerLocR, refProtPlot=NULL)  {
   n.channels <- ncol(markerLocR)
-  names(protProfileSummary)[1] <- "protName"
-  meanReferenceProts <- merge(x=refLocProteins, y=protProfileSummary,
+  protNames <- rownames(protProfileSummary)
+  # add protName column for merge
+  protProfileSummaryWithProteins <- data.frame(protNames, protProfileSummary)
+  names(protProfileSummaryWithProteins)[1] <- "protName"
+  meanReferenceProts <- merge(x=refLocProteins, y=protProfileSummaryWithProteins,
                             by.x="protName", by.y="protName", all.x=F, sort=F)
   markerLoc <- t(markerLocR)
   max.val <- max(markerLoc)

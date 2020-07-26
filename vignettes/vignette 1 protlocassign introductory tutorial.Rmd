@@ -92,9 +92,13 @@ options(digits=2)
 str(protProfileSummaryTMTms2)
 ```
 
-Each row represents a column, and presents the variable name, type (character, number, or integer) and the first few values of that variable. The first column is the protein name and the next nine columns represent its average levels of the different fractions, across spectra. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. (While we use a nested random effects model described in Jadot, 2016 to compute the means across spectra, other methods, including taking a straight average, may be appropriate for other applications.) 
+Each row represents a column, and presents the variable name, type (character, number, or integer) and the first few values of that variable. The first nine columns represent the average levels of the different fractions, across spectra. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. (While we use a nested random effects model described in Jadot, 2016 to compute the means across spectra, other methods, including taking a straight average, may be appropriate for other applications.) 
 
-Alternatively, you may also examine the first few rows by typing `head(protProfileSummaryTMTms2)`.
+You may also examine the first few rows by typing `head(protProfileSummaryTMTms2)`, and we see that the row names of the data set contain the protein names:
+
+```{r, echo=TRUE}
+round(head(protProfileSummaryTMTms2), digits=2)
+```
 
 The second data set we need has 39 reference proteins and two columns, the first for the protein name and the second for their respective subcellular compartments. These are from Jadot et al (2016) and may be viewed as follows:
 
@@ -121,9 +125,16 @@ Then read in the two data sets (profile data and reference genes), which must be
 comma-separated format (`.csv`), with the first row containing column names:
 
 ```
-protProfileSummaryMyProfiles <- read.csv(file="protProfileSummaryMyProfiles.csv",
-                                         row.names=F
+protProfileSummaryMyProfilesAll <- read.csv(file="protProfileSummaryMyProfiles.csv",
+                                         row.names=F)
 refLocProteinsMyRefs <- read.csv(file="refLocProteinsMyRefs.csv", row.names=F)
+```
+
+The form of the data required for the `protlocassign` package require that the protein names be present only as row names, not as a column. So we create the data we need by dropping the first column (the protein names) and setting those as row names:
+
+```
+protProfileSummaryMyProfiles <- protProfileSummaryMyProfilesAll[,-1]
+rownames(protProfileSummayrMyProfiles) <- protProfileSummaryMyProfilesAll[,1]
 ```
 
 If one is working with either the linux or Mac OS, appropriate changes to these procedures will be needed to access files.
@@ -202,7 +213,7 @@ The first column contains the protein names, and the next 8 columns contain the 
 We can look at the profile of, for example, the protein "TLN1". We first ensure that the protein is in the dataset:
 
 ```{r, echo=TRUE, eval=TRUE}
-protIndex("TLN1")
+protIndex("TLN1", protProfileSummary=protProfileSummaryTMTms2)
 ```
 
 This function also accepts partial matching of the first few letters of a protein. For example, we can find the indices of the genes starting with "TLN":

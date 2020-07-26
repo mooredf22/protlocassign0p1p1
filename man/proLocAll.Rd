@@ -11,12 +11,11 @@ proLocAll(
   log2Transf = F,
   eps = 2^(-5),
   maxit = 10000,
-  assignProbsStart = NULL,
-  maxR = NULL
+  assignProbsStart = NULL
 )
 }
 \arguments{
-\item{protProfileSummary}{data frame of protein names and relative abundance levels.}
+\item{protProfileSummary}{data frame of protein names (row names) and relative abundance levels.}
 
 \item{markerLocR}{A matrix giving the abundance level profiles of the subcellular locations}
 

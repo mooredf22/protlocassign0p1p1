@@ -6,7 +6,7 @@
 \usage{
 protPlotfun(
   protName,
-  protProfileSummary = protProfileSummaryUse,
+  protProfileSummary,
   Nspectra = T,
   finalList = NULL,
   n.fractions = 9,
