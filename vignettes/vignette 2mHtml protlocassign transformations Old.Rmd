@@ -3,9 +3,10 @@ title: "Vignette 2: Data Transformations Using protlocassign"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
 #output: rmarkdown::html_vignette
-output: 
+output:
    word_document:
 #  html_document:
+#  pdf_document:
      #mathjax:  default
      fig_caption:  true
      toc: true
@@ -13,7 +14,7 @@ output:
      #css: ggsci.css
 
 
-#output: 
+#output:
 #  word_document:
 #    reference_docx: word-styles-reference-03.docx
 #output: pdf_document
@@ -52,7 +53,7 @@ In Vignette 1 (“Getting Started”) we illustrated the principles of constrain
 
 ## Loading the data
 
-As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `protProfileSummaryTMTms2`, consists of a column of protein names followed by nine columns of normalized relative specific amounts derived from a subcellular fractionation experiment. The other, `refLocProteinsJadot`, consists of a list of reference proteins that serve as markers for different subcellular compartments in the first column and the name of the subcellular compartment in the second column.  As before, to run the program, the `protlocassign` library must be installed. 
+As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `protProfileSummaryTMTms2`, consists of a column of protein names followed by nine columns of normalized relative specific amounts derived from a subcellular fractionation experiment. The other, `refLocProteinsJadot`, consists of a list of reference proteins that serve as markers for different subcellular compartments in the first column and the name of the subcellular compartment in the second column.  As before, to run the program, the `protlocassign` library must be installed.
 
 
 
@@ -67,7 +68,7 @@ totProtUse <- tmtMS2totProt
 totProtUse
 ```
 
-The function `RSAfromS` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material.  
+The function `RSAfromS` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material.
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
@@ -129,7 +130,7 @@ assignPropsUse <- data.frame(assignPropsOutTemp[,-ncol.a] ) # drop this last col
 str(assignPropsUse)
 ```
 
-                   
+
 
 
 
@@ -144,7 +145,7 @@ protPlotfun(protName="AADAC", protProfileSummary=protProfileSummaryRSA, n.fracti
                         assignPropsMat=assignPropsUse)
 ```
 
-The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines. 
+The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines.
 
 
 
@@ -185,7 +186,7 @@ Thus, we may view the proportions $\hat{p}_j$ as proportional allocations of the
 
 ## Adjustment of protein abundance levels
 
-The input data, protProfileSummary, consists of a list of protein names (first column) and the relative abundance (technically, the "specific amount", which reflects the signal in arbitrary units per unit total protein) of the corresponding proteins in the next columns. Typically, there will be six differential fraction columns (N, M, L1, L2, P, and S) and one to three additional Nycodenz fractions (which have been extracted from the L1 differential fraction). These quantities represent the specific amounts of a protein in each fraction. The amounts (denoted $t_l$) of protein extracted from each fraction, (R variable "totProtein"), differ dramatically from one fraction to another. Notably, the L1 and L2 fractions, which are heavily enriched in lysosomal and peroxixomal proteins, contain much smaller amounts of protein than the other differential fractions. Also, the samples used for the Nycodenz fractionization are taken from the L1 fraction, so they also represent very small proportions of the total sample. For technical reasons, when samples of material are prepared for analysis, equal amounts are selected for each channel, regardless of the amount of protein in the fractions. As a result, when the data are analyzed, adjustments need to be made in order to obtain meaningful comparisons. 
+The input data, protProfileSummary, consists of a list of protein names (first column) and the relative abundance (technically, the "specific amount", which reflects the signal in arbitrary units per unit total protein) of the corresponding proteins in the next columns. Typically, there will be six differential fraction columns (N, M, L1, L2, P, and S) and one to three additional Nycodenz fractions (which have been extracted from the L1 differential fraction). These quantities represent the specific amounts of a protein in each fraction. The amounts (denoted $t_l$) of protein extracted from each fraction, (R variable "totProtein"), differ dramatically from one fraction to another. Notably, the L1 and L2 fractions, which are heavily enriched in lysosomal and peroxixomal proteins, contain much smaller amounts of protein than the other differential fractions. Also, the samples used for the Nycodenz fractionization are taken from the L1 fraction, so they also represent very small proportions of the total sample. For technical reasons, when samples of material are prepared for analysis, equal amounts are selected for each channel, regardless of the amount of protein in the fractions. As a result, when the data are analyzed, adjustments need to be made in order to obtain meaningful comparisons.
 
 Consider an $n$ by 9 matrix that details the average distribtuion of $n$ proteins (or other species of interest) among 9 fractions:
 $$
@@ -243,24 +244,24 @@ $$\mathbf{A}=\mathbf{\tilde{S}}\cdot \text{diag}(\mathbf{t})=\left[ \begin{matri
 \end{matrix} \right]$$
 
 We need this matrix to do the next step, which is to convert to a common scale for all proteins. We do this by normalizing to the amount of protein $\alpha$ in the starting material, which we denote as $a_{\alpha, h}$. In some experiments, if the homogenate is measured directly, this can be calculated from ${{s}_{\alpha ,h}}{{t}_{h}}$.
-Alternatively, if a complete set of fractions that entirely represent the homogenate are available, it is preferable to calculate this by summing $s_{\alpha,l}t_l$ over these fractions. In our case, the first six fractions represent a complete set of differential fractions, and thus ${a_{\alpha ,h}} = \sum\nolimits_{i = 1}^6 {{s_{\alpha ,i}}{t_i}} $. Finally, we normalize amounts in any given fraction to amounts in starting material, which we call the relative amount and denote as ${\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over 
- a} _{\alpha ,l}}$. In our example, 
- 
-${\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over 
+Alternatively, if a complete set of fractions that entirely represent the homogenate are available, it is preferable to calculate this by summing $s_{\alpha,l}t_l$ over these fractions. In our case, the first six fractions represent a complete set of differential fractions, and thus ${a_{\alpha ,h}} = \sum\nolimits_{i = 1}^6 {{s_{\alpha ,i}}{t_i}} $. Finally, we normalize amounts in any given fraction to amounts in starting material, which we call the relative amount and denote as ${\overset{\lower0.5em\hbox{$\smash{\scriptscriptstyle\smile}$}}{a} _{\alpha ,l}}$
+In our example,
+
+${\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over
  a} _{\alpha ,l}} = {{{s_{\alpha ,l}}{t_l}} \over {{s_{\alpha ,h}}{t_h}}} = {{{s_{\alpha ,l}}{t_l}} \over {\sum\nolimits_{i = 1}^6 {{s_{\alpha ,i}}{t_i}} }} = {{{{\tilde s}_{\alpha ,l}}{t_l}} \over {\sum\nolimits_{i = 1}^6 {{{\tilde s}_{\alpha ,i}}{t_i}} }}$
- 
 
-In matrix form, we may write this as 
 
-${\bf{\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over 
+In matrix form, we may write this as
+
+${\bf{\mathord{\buildrel{\lower3pt\hbox{$\scriptscriptstyle\smile$}}\over
  A} }} = {\bf{A}} \cdot {\rm{diag}}(1/{a_{\alpha ,h}}) = \left[ {\matrix{
-   {{s_{11}}{t_1}/{a_{1,h}}} & {{s_{12}}{t_2}/{a_{1,h}}} &  \cdots  & {{s_{19}}{t_9}/{a_{1,h}}}  \cr 
-   {{s_{21}}{t_1}/{a_{2,h}}} & {{s_{22}}{t_2}/{a_{2,h}}} &  \cdots  & {{s_{29}}{t_9}/{a_{2,h}}}  \cr 
-    \vdots  &  \vdots  & {} &  \vdots   \cr 
-   {{s_{n1}}{t_1}/{a_{n,h}}} & {{s_{n2}}{t_2}/{a_{n,h}}} &  \cdots  & {{s_{n9}}{t_9}/{a_{n,h}}}  \cr 
+   {{s_{11}}{t_1}/{a_{1,h}}} & {{s_{12}}{t_2}/{a_{1,h}}} &  \cdots  & {{s_{19}}{t_9}/{a_{1,h}}}  \cr
+   {{s_{21}}{t_1}/{a_{2,h}}} & {{s_{22}}{t_2}/{a_{2,h}}} &  \cdots  & {{s_{29}}{t_9}/{a_{2,h}}}  \cr
+    \vdots  &  \vdots  & {} &  \vdots   \cr
+   {{s_{n1}}{t_1}/{a_{n,h}}} & {{s_{n2}}{t_2}/{a_{n,h}}} &  \cdots  & {{s_{n9}}{t_9}/{a_{n,h}}}  \cr
 
  } } \right]$
- 
+
 
 
 
@@ -369,7 +370,7 @@ We may plot the predicted (based on CPA) and expected (based on the simulation p
 
 ```{r, echo=TRUE, eval=TRUE}
 library(pracma)
-mixturePlot(mixProtiProtjProp=mixCytoLysoProp, NstartMaterialFractions=6, 
+mixturePlot(mixProtiProtjProp=mixCytoLysoProp, NstartMaterialFractions=6,
              Loc1=1, Loc2=4, xaxisLab=T, yaxisLab=T)
 ```
 
@@ -378,18 +379,18 @@ Here we see visually that the estimated proportions match the simulated ones. Th
 As an alternative, we may obtain CPA estimates using log-transformed relative amounts using `log2Transf=T`:
 
 ```{r, echo=TRUE, eval=TRUE}
-mixCytoLysoRelAmtLog2 <- cbind(mixCytoLysoRelAmt[,1], log2(mixCytoLysoRelAmt[,-1] + .01))
-names(mixCytoLysoRelAmtLog2)[1] <- "protName"
+mixCytoLysoRSAlog2 <- cbind(mixCytoLysoRSA[,1], log2(mixCytoLysoRSA[,-1] + .01))
+names(mixCytoLysoRSAlog2)[1] <- "protName"
 markerLocRrsalog2 <- log2(markerLocRrsa + .01)
 #mixCytoLysoRelAmtLog2 <- mixCytoLysoRelAmt
 #mixCytoLysoRelAmtLog2[,-1],  <- log2(mixCytoLysoRelAmt[,-1] + .01)
-mixCytoLysoPropT <- proLocAll(protProfileSummary=mixCytoLysoRelAmtLog2,
+mixCytoLysoPropT <- proLocAll(protProfileSummary=mixCytoLysoRSAlog2,
                               markerLocR=markerLocRrsalog2,
                             n.channels=9)
 mixCytoLysoPropLog <- mixCytoLysoPropT[,-1]
-row.nam(mixCyestoLysoPropLog) <- mixCytoLysoPropT[,1]
+row.names(mixCytoLysoPropLog) <- mixCytoLysoPropT[,1]
 round(mixCytoLysoPropLog, digits=3)
-mixturePlot(mixProtiProtjProp=mixCytoLysoPropLog, NstartMaterialFractions=6, 
+mixturePlot(mixProtiProtjProp=mixCytoLysoPropLog, NstartMaterialFractions=6,
              Loc1=1, Loc2=4, xaxisLab=T, yaxisLab=T)
 
 ```
@@ -439,7 +440,7 @@ We see that the estimates are sub-obtimal. The area between the observed and exp
     cpaOutT <- proLocAll(protProfileSummary=rsaFractions, markerLocR=markerLocRuse, n.channels=n.channels, log2Transf=log2Transf)
     cpaOutData <- cpaOutT[,-1]
   }
-  
+
 
 
 ## References

@@ -119,14 +119,27 @@ proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
   nrow.out <- length(prop.vec)
   mixAmount <- NULL
   mixProtNames <- NULL
+
   for (i in 1:nrow.out) {
     mixAmount.i <- prop.vec[i]*Acup[Loc1,] + qrop.vec[i]*Acup[Loc2,]
     mixAmount <- rbind(mixAmount, mixAmount.i)
     mixProtNames.i <- paste(prop.vec[i],"_", LocNames[Loc1], ":", qrop.vec[i], "_",LocNames[Loc2], sep='')
     mixProtNames <- c(mixProtNames, mixProtNames.i)
+
   }
+
+  mixMat <- matrix(0, nrow=nrow.out, ncol=nrow(Acup))  # matrix of mixtures
+  # each row is a "protein" with mixed residence
+  # each column is a subcellular location, with the proportioal assignment
+  mixMat[,Loc1] <- prop.vec
+  mixMat[,Loc2] <- qrop.vec
+  mix.df <- data.frame(mixMat)
+  names(mix.df) <- row.names(Acup)
+  rownames(mix.df) <- mixProtNames
+
   row.names(mixAmount) <- mixProtNames
-  mixAmount
+  result <- list(mixAmount=mixAmount, mix.df=mix.df)
+  result
   }
 
 

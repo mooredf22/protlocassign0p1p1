@@ -9,6 +9,7 @@ proLocAll(
   markerLocR,
   n.channels = n.channels,
   log2Transf = F,
+  eps = 2^(-5),
   maxit = 10000,
   assignProbsStart = NULL,
   maxR = NULL
@@ -20,6 +21,11 @@ proLocAll(
 \item{markerLocR}{A matrix giving the abundance level profiles of the subcellular locations}
 
 \item{n.channels}{Number of channels of abundance levels}
+
+\item{log2Transf}{Transform data before running CPA? Default is F}
+
+\item{eps}{Small quantity to add to data prior to taking a log transformation; ignored
+if log2Transf=F}
 
 \item{maxit}{maximum number of iterations}
 

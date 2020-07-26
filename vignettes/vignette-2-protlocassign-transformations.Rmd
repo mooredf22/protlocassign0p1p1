@@ -3,28 +3,23 @@ title: "Vignette 2: Data Transformations Using protlocassign"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
 #output: rmarkdown::html_vignette
-output: 
-   word_document:
-#  html_document:
-     #mathjax:  default
-     fig_caption:  true
-     toc: true
-     #section_numbering: true
-     #css: ggsci.css
-
-
-#output: 
+output:
+  #  html_document:
+  #mathjax:  default
+  word_document:
+  fig_caption:  true
+  toc: true
+#section_numbering: true
+#css: ggsci.css
+#output:
 #  word_document:
 #    reference_docx: word-styles-reference-03.docx
 #output: pdf_document
 #fontsize: 10pt
-
 vignette: >
   %\VignetteIndexEntry{protlocassign}
   %\VignetteEngine{knitr::rmarkdown}
-#  %\VignetteEncoding{UTF-8}
 ---
-
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -209,7 +204,7 @@ In some experiments, where bookkeeping is not practicable, these are the only va
 
 ```{r, echo=TRUE, eval=TRUE}
 markerLocR <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
-round(markerLocR, digits=3)
+round(markerLocR, digits=4)
 
 ```
 
@@ -271,8 +266,8 @@ or simply as  $\mathbf{\overset{\scriptscriptstyle\smile}{A}}=\left( {{{\overset
 ```{r, echo=TRUE, eval=TRUE}
 
 protAbund <- relAmtTransform(markerLocR,6, totProt=totProtUse)
-AcupMarkers <- protAbund$Acup
-round(AcupMarkers, digits=3)
+Acup <- protAbund$Acup
+round(Acup, digits=4)
 ```
 
 The values in "relAmtProtFrac" represent the amount of protein per fraction, normalized to same amount of protein in the starting material (before mixing). In theory, these values correspond approximately to the relative amounts of protein in compartments within a cell.
@@ -295,13 +290,13 @@ In "protlocassign", we get the RSA matrix from "relAmtProtFrac" and "totProt" as
 
 
 ```{r, echo=TRUE, eval=TRUE}
-rsaMarkers <- RSAfromAcup(AcupMarkers, totProt=totProtUse)
-round(rsaMarkers, digits=3)
+rsa <- RSAfromAcup(Acup, totProt=totProtUse)
+round(rsa, digits=4)
 ```
 
 Finally, if we normalize the rsa matrix so that rows sum to one (via the "apply" function), we get original input data, markerLocR
 ```{r, echo=TRUE, eval=TRUE}
-round(t(apply(rsaMarkers,1, function(x) x/sum(x))), digits=3)
+round(t(apply(rsa,1, function(x) x/sum(x))), digits=4)
 ```
 
 If we just need to obtain the RSA transformed data directly, just do this:
@@ -309,7 +304,7 @@ If we just need to obtain the RSA transformed data directly, just do this:
 markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
         totProt=totProtUse)
 
-round(markerLocRrsa, digits=3)
+round(markerLocRrsa, digits=4)
 ```
 
 ## Simulating proteins resident in multiple subcellular locations
@@ -337,7 +332,7 @@ mixCytoLysoRSAtemp <- RSAfromAcup(Acup=mixCytoLyso$mixAmount, NstartMaterialFrac
 
 mixCytoLysoRSA <- data.frame(rownames(mixCytoLysoRSAtemp), mixCytoLysoRSAtemp)
 names(mixCytoLysoRSA)[1] <- "protName"
-round(mixCytoLysoRSA[,-1], digits=3)
+round(mixCytoLysoRSA[,-1], digits=4)
 
 #markerLocRrsa <- rsaDirect(protProfileLevels=markerLocR, totProt=totProt)
 markerLocRrsa <- RSAfromAcup(Acup=AcupMarkers, NstartMaterialFractions=6, totProt=totProtUse)
@@ -379,7 +374,6 @@ As an alternative, we may obtain CPA estimates using log-transformed relative am
 
 ```{r, echo=TRUE, eval=TRUE}
 mixCytoLysoRelAmtLog2 <- cbind(mixCytoLysoRelAmt[,1], log2(mixCytoLysoRelAmt[,-1] + .01))
-names(mixCytoLysoRelAmtLog2)[1] <- "protName"
 markerLocRrsalog2 <- log2(markerLocRrsa + .01)
 #mixCytoLysoRelAmtLog2 <- mixCytoLysoRelAmt
 #mixCytoLysoRelAmtLog2[,-1],  <- log2(mixCytoLysoRelAmt[,-1] + .01)
