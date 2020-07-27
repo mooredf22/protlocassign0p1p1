@@ -271,7 +271,7 @@ To output plots all of the protein profiles into a single pdf file, one can set 
 pdf(file="allPlotsPDFfile.pdf", width=7, height=10)
 n.prots <- nrow(assignPropsUse)
 for (i in 1:n.prots) {
-   protPlotfun(protName=assignPropsUse$protName[i],
+   protPlotfun(protName=rownames(assignPropsUse)[i],
        protProfileSummary=protProfileSummaryTMTms2, n.fractions=9, n.compartments=8,
        Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
 }

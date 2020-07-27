@@ -124,6 +124,9 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
   #nboot=1
   # i=2
   # i=1000
+  SpectraSeqInd <- T    # extra columns for numbers of spectra and sequences
+  if (n.channels == ncol(protProfileSummary)) SpectraSeqInd <- F  # no extra columns
+
   if (!is.null(assignProbsStart)) {
     testEq <- {names(protProfileSummary) == names(assignProbsStart)}
     if (sum(as.numeric(testEq)) != nrow(protProfileSummary)) {
@@ -144,9 +147,14 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
 
 
 
-
-  Nspectra.i <- protProfileSummary$Nspectra[i]   # this is the number of spectra for a protein
-  Nseq.i <- protProfileSummary$Nseq[i] # number of unique sequences
+  if (SpectraSeqInd) {  #if these variables are present
+    Nspectra.i <- protProfileSummary$Nspectra[i]   # this is the number of spectra for a protein
+    Nseq.i <- protProfileSummary$Nseq[i] # number of unique sequences
+  }
+  if (!SpectraSeqInd) {
+    Nspectra.i <- NULL
+    Nseq.i <- NULL
+  }
   #channelsProb.i <- matrix(NA, nrow=nboot, ncol=8)
 
   startValsUnif <- rep(1/n.compartments, n.compartments)   # start with uniform probabilities
@@ -202,7 +210,8 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
 
 
     parEstTemp <- channelsMeanProb.i
-    parEst <- c(parEstTemp, Nspectra.i, Nseq.i)
+    if (SpectraSeqInd) parEst <- c(parEstTemp, Nspectra.i, Nseq.i)
+    if (!SpectraSeqInd) parEst <- parEstTemp
 
 
    parEst
