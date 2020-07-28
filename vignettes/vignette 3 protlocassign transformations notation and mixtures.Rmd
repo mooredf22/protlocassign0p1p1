@@ -219,51 +219,147 @@ round(mixCytoLysoPropLog, digits=3)
 mixturePlot(mixProtiProtjProp=mixCytoLysoPropLog, NstartMaterialFractions=6,
              Loc1=1, Loc2=4, xaxisLab=T, yaxisLab=T)
 
+``` 
+
+We see that the estimates are sub-optimal. The area between the observed and expected is 0.268.
+
+## Effect of transformations on error rates for mixtures
+
+Now we consider the effects of fitting CPA to mixtures using a variety of transformations. First, let us consider a mixture of Cyto with each of the other seven compartments in turn, using the ideal RSA-based transformations.
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
+
+#windows(height=10, width=7)
+par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
+
+i=1  # fix one component of the mixture to the first, which is Cyto
+for (j in 2:8) {   # mix with each of the other compartments, and plot
+   #j=4
+   # Create mixture of subcellular locations i and j using "Acupmarkers"
+   mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
+ 
+   # Transform these mixtures to RSA
+   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, NstartMaterialFractions=6,  
+                     totProt=totProtUse)
+                     
+   # Obtain CPA estimates from the RSA-transformed mixtures
+   mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjRSA,
+                        markerLocR=markerLocRrsa, n.channels=9)
+                            
+   # Plot the results, including the area-based error estimate
+   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
+             Loc1=i, Loc2=j)
+             
+}
 ```
 
-We see that the estimates are sub-obtimal. The area between the observed and expected is 0.268.
-
-## Miscellaneous bits
-
- #i=1
-  #j=4
-  #mixCytoLyso <- proteinMix(relAmtProtFrac, Loc1=i, Loc2=j)
-  n.channels <- ncol(Acup)
-  mixProtiProtj <- proteinMix(Acup=Acup, Loc1=Loc1, Loc2=Loc2)
-  #mixCytoLyso
-
-  mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj, NstartMaterialFractions=6, totProt=totProtUse)
-
-  mixProtiProtjRelAmt <- data.frame(rownames(mixProtiProtjRSA), mixProtiProtjRSA)
-  names(mixProtiProtjRelAmt)[1] <- "protName"
-  round(mixProtiProtjRelAmt[,-1], digits=4)
+All seven mixtures have zero error, as we expect. Next, consider a log2 transformation `y = log2(prop + 0.01)` of the RSA values before carrying out the CPA procedure.
 
 
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
+
+#windows(height=10, width=7)
+par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
+
+i=1  # fix one component of the mixture to the first, which is Cyto
+for (j in 2:8) {   # mix with each of the other compartments, and plot
+   #j=4
+   # Create mixture of subcellular locations i and j using "Acupmarkers"
+   mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
+ 
+   # Transform these mixtures to RSA
+   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, NstartMaterialFractions=6,  
+                     totProt=totProtUse)
+   
+   # Take a log2 transformation
+   log2MixProtiProtjRSA <- log2(mixProtiProtjRSA + 0.01)
+   log2MarkerLocRrsa <- log2(markerLocRrsa + 0.01)
+                     
+   # Obtain CPA estimates from the RSA-transformed mixtures
+   mixProtiProtjProp <- proLocAll(protProfileSummary=log2MixProtiProtjRSA,
+                        markerLocR=log2MarkerLocRrsa, n.channels=9)
+                            
+   # Plot the results, including the area-based error estimate
+   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
+             Loc1=i, Loc2=j)
+             
+}
+```
 
 
-  if (type == "relAmt") {
-    #cpaOutT <- proLocAll(geneProfileSummary=mixCytoLysoRelAmt, matLocR=matLocRrsa,
-    #      n.channels=7, log2Transf=log2Transf)
-    cpaOutT <- proLocAll(protProfileSummary=mixProtiProtjRelAmt, markerLocR=markerLocRrsa,
-                         n.channels=n.channels, log2Transf=log2Transf)
-    #cpaOutT
-    # the fitted proportions match the created ones perfectly
-    cpaOutData <- cpaOutT[,-1]
-  }
+
+Now consider using normalized specific values, which is what we would use for these mixtures if the amounts of starting material in each fraction were not available. The first two function calls are as above, but we obtain these normalized specific values by constraining the RSA values to sum to 1 before using `proLocAll` with `markerLocRuse' to compute the CPA estimates.
 
 
-  # Now compute what would have been the original input data:
-  if (type == "original") {
-    #rsa <- mixCytoLysoRelAmt[,2:8]
-    rsa <- mixProtiProtjRelAmt[,2:10]
-    rsaFractionsT <- t(apply(rsa,1, function(x) x/sum(x)))
-    #rsaFractions <- data.frame(mixCytoLysoRelAmt[,1], rsaFractionsT)
-    rsaFractions <- data.frame(mixProtiProtjRelAmt[,1], rsaFractionsT)
-    names(rsaFractions)[1] <- "protName"
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
 
-    # Now run CPA on these
+#windows(height=10, width=7)
+par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
 
-    cpaOutT <- proLocAll(protProfileSummary=rsaFractions, markerLocR=markerLocRuse, n.channels=n.channels, log2Transf=log2Transf)
-    cpaOutData <- cpaOutT[,-1]
-  }
+i=1  # fix one component of the mixture to the first, which is Cyto
+for (j in 2:8) {   # mix with each of the other compartments, and plot
+   #j=4
+   # Create mixture of subcellular locations i and j using "Acupmarkers"
+   mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
+ 
+   # Transform these mixtures to RSA
+   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, NstartMaterialFractions=6,  
+                     totProt=totProtUse)
+   
+   # Now convert to normalized specific values
+   mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
+                     
+   # Obtain CPA estimates from the RSA-transformed mixtures
+   mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjSpecific,
+                        markerLocR=markerLocR, n.channels=9)
+                            
+   # Plot the results, including the area-based error estimate
+   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
+             Loc1=i, Loc2=j)
+             
+}
+```
+
+Finally we consider log2-transformed values of normalized specific values. This set of plots is similar to the last one except a transformation `y = log2(prop + 0.01)` is applied before obtaining CPA estimates.
+
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
+
+#windows(height=10, width=7)
+par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
+
+i=1  # fix one component of the mixture to the first, which is Cyto
+for (j in 2:8) {   # mix with each of the other compartments, and plot
+   #j=4
+   # Create mixture of subcellular locations i and j using "Acupmarkers"
+   mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
+ 
+   # Transform these mixtures to RSA
+   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, NstartMaterialFractions=6,  
+                     totProt=totProtUse)
+   
+   # Now convert to normalized specific values
+   mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
+   log2MixProtiProtjSpecific <- log2(mixProtiProtjSpecific + 0.01)
+   log2MarkerLocR <- log2(markerLocR + 0.01)
+                     
+   # Obtain CPA estimates from the RSA-transformed mixtures
+   mixProtiProtjProp <- proLocAll(protProfileSummary=log2MixProtiProtjSpecific,
+                        markerLocR=log2MarkerLocR, n.channels=9)
+                            
+   # Plot the results, including the area-based error estimate
+   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
+             Loc1=i, Loc2=j)
+             
+}
+```
+
+ 
+
+
+
+
+
+
 
