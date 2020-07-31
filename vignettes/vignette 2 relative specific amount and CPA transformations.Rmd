@@ -40,7 +40,7 @@ In Vignette 1 (“Getting Started”) we illustrated the principles of constrain
 
 ## Loading the data
 
-As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `protProfileSummaryTMTms2`, consists of a column of protein names followed by nine columns of normalized relative specific amounts derived from a subcellular fractionation experiment. The other, `refLocProteinsJadot`, consists of a list of reference proteins that serve as markers for different subcellular compartments in the first column and the name of the subcellular compartment in the second column.  As before, to run the program, the `protlocassign` library must be installed.
+As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `protProfileSummaryTMTms2`, consists of row names that indicate protein identifiers, each of which is followed by data describing the identifier profile across the nine normalized relative specific amounts derived from a subcellular fractionation experiment. The other data set, `refLocProteinsJadot`, consists of a list of reference proteins and their associated known subcelluar compartments.  As before, to run the program, the `protlocassign` library must be installed.
 
 
 
@@ -48,9 +48,10 @@ As explained in the Vignette 1, as an example we will use two R data sets that a
 library(protlocassign)
 ```
 
-In Vignette 1, we use `protProfileSummaryTMTms2` and an untransformed average of reference proteins for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as relative specific amounts (RSAs).  As explained in the main text and elaborated in the Appendix, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `tmtMS2totProt` which is preloaded in `protlocassign`.  Note that the order of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `tmtMS2totProt`) must correspond to those in the data set containing individual protein profiles (e.g., `protProfileSummaryTMTms2`).
+In Vignette 1, we use `protProfileSummaryTMTms2` and an untransformed average of reference proteins for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as relative specific amounts (RSAs).  As explained in the main text and elaborated in Vignette 3, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `tmtMS2totProt` which is preloaded in `protlocassign`.  Note that the order of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `tmtMS2totProt`) must correspond to those in the data set containing individual protein profiles (e.g., `protProfileSummaryTMTms2`).
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
+options(digits=2)
 totProtUse <- tmtMS2totProt
 totProtUse
 ```
@@ -97,17 +98,21 @@ markerLocRrsa
 
 ```
 
-Now we can plot the reference profile for any subcellular location on the RSA scale. For example, here is the plot for PM:
+As in Vignette 1, we can plot reference profiles, but this time using the RSA-transformed data. For example, here is a plot for all markers:
 
-
-```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
+```{r, echo=TRUE, eval=TRUE, fig.width = 7, fig.height = 10}
+loc.list <- rownames(markerLocRuse)
+n.loc <- length(loc.list)
+par(mfrow=c(4,2))
+for (i in 1:n.loc) {
+  refProfilePlot(refLoc=loc.list[i], refLocProteins=refLocProteinsJadot,
                      protProfileSummary=protProfileSummaryRSA,
                      markerLocR=markerLocRrsa)
-
+  }
 ```
 
-Now we can run the CPA routine on the RSA-transformed levels; this may take several minutes to complete. The last column is a convergence indicator, with 1 indicating successful convergence. We remove this last column to get a matrix of protein names, and columns indicating the estimated proportional assignments of each protein among the eight subcellular locations.
+
+Now we can run the CPA routine on the RSA-transformed levels; this may take several minutes to complete. The result is a matrix with protein identifiers as row names, and data indicating the estimated proportional assignments of each protein among the eight subcellular locations.
 
 ```{r, echo=TRUE, eval=TRUE}
 assignPropsUse <- proLocAll(protProfileSummary=protProfileSummaryRSA,
@@ -116,44 +121,20 @@ str(assignPropsUse)
 ```
 
 
-
-
-
 The `protPlotfun` function is designed to plot profiles of eight subcellular locations. If a data set has more than eight of these, it will be necessary to modify the code to accommodate the larger number.
 
-Now we plot the results for protein AADAC:
+Now we plot the results for protein TLN1:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
 
-protPlotfun(protName="AADAC", protProfileSummary=protProfileSummaryRSA, n.fractions=9,
+protPlotfun(protName="TLN1", protProfileSummary=protProfileSummaryRSA, n.fractions=9,
                         Nspectra=T, markerLocR=markerLocRrsa,
                         assignPropsMat=assignPropsUse)
 ```
 
-The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines.
+The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 36 percent residence proportion to plasma membrane and 51 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines.
 
 
-# Appendix:  Constrained proportional assignment
-
-Once outlier spectra have been removed, the next step is to determine a mean profile for each protein. If a protein has at least 4 spectra and at least 3 different sequences (peptides), we ordinarily have enough data to fit a random effects model. This model computes, for each EF in each fraction of this protein, a weighted average and standard error of the measures, accounting for the fact that spectra are nested within sequences. (This computation is carried out using the “lmer” function in the “lme4” R package.) . The result is essentially the mean and standard error of the observations, with an adjustment for the nested structure of the data. This procedure prevents a sequence with a very large number of spectra from dominating the estimates of the mean and standard error.  Occasionally the “lmer” program will fail to converge for a particular abundance. If that happens or if the condition of having at least 4 spectra and 3 different sequences is not met, we compute the simple mean and standard error of the (log2 transformed) for that abundance level. If there are fewer than 3 spectra, we cannot compute a standard error, and thus only report the mean.  When this process has been completed, every protein has a mean profile which for now we denote as $\underset{\sim}x = (x_1, x_2, ..., x_q)$  of abundance levels in the $q=9$ fractions N, M, L1, L2, P, S, Nyc1, Nyc2, and Nyc3. Below we will see that the abundance levels $x_j$ may be represented as either the amount of species of interest (typically a protein) measured in a channel or, if a process known as bookkeeping has been followed, the relative specific amounts of that species of interest. For proteins with at least 2 peptides and three spectra, each component of the profile has an estimate of its standard deviation.
-
-Next, the profiles of the reference proteins are selected. For each of the eight compartments (Cytosol, ER, Golgi, Lysosome, Mitochondria, Nucleus, Peroxisome, and PM), the reference protein abundance levels are averaged to form eight compartment profiles $\underset{\sim}x^*_1, \underset{\sim}x^*_2, ..., \underset{\sim}x^*_8$, where each vector $\underset{\sim}x^*_j$ is a $q \times 1$ vector of mean levels of the $q=9$ channels.
-
-Finally, for each protein, we find estimated proportions $\hat{p}_1, \hat{p}_2, ..., \hat{p}_8$ so that
-$$\underset{\sim}y = \hat{p}_1 \underset{\sim}x^*_1 + ...+ \hat{p}_8 \underset{\sim}x^*_8$$
-is as close as possible to the observed value $\underset{\sim}x$, subject to the constraints
-
-$$ 0 \leq \hat{p_j} \leq 1$$
-
-for all $j$, and
-
-
-
-$$ \sum_{j=1}^{8} \hat{p}_j = 1 $$
-where "close" is defined by minimizing the sum of squares of the differences
-
-$$ \psi(p_1, p_2, \dots, p_g) =\sum_{i=1}^{q}(y_i - x_i)^2 $$
-Thus, we may view the proportions $\hat{p}_j$ as proportional allocations of the eight standard profiles to form $\underset{\sim}y$, which is as close as possible to the observed $\underset{\sim}x$ for this particular protein. This constrained optimization is carried out using the “spg” function in the R package “BB” to compute assignment probabilities for each profile for each organelle.
 
 
 

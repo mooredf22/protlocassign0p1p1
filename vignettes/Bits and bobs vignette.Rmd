@@ -65,3 +65,68 @@ The profiles of some compartments (e.g. nuclear and mitochondrial) show a high r
 
 
 The first step is an outlier screen, for each protein, of the abundance levels for each fraction of all of the spectra. Abundance levels $p$ are first log2 transformed via $y = log_2(p + \epsilon)$, where $\epsilon$ is an estimate of the background "noise" in the abundance estimates. Here we used $\epsilon = 0.02988$ based on the distribution of a bacterial protein, as explained in the main paper. Then boxplot outliers are identified as values more than three times the interquartile range beyond the first or third quartile. We discard any spectrum for which any observation is thereby classified as an outlier. This process is repeated for all proteins.
+
+# Appendix:  Constrained proportional assignment
+
+Once outlier spectra have been removed, the next step is to determine a mean profile for each protein. If a protein has at least 4 spectra and at least 3 different sequences (peptides), we ordinarily have enough data to fit a random effects model. This model computes, for each EF in each fraction of this protein, a weighted average and standard error of the measures, accounting for the fact that spectra are nested within sequences. (This computation is carried out using the “lmer” function in the “lme4” R package.) . The result is essentially the mean and standard error of the observations, with an adjustment for the nested structure of the data. This procedure prevents a sequence with a very large number of spectra from dominating the estimates of the mean and standard error.  Occasionally the “lmer” program will fail to converge for a particular abundance. If that happens or if the condition of having at least 4 spectra and 3 different sequences is not met, we compute the simple mean and standard error of the (log2 transformed) for that abundance level. If there are fewer than 3 spectra, we cannot compute a standard error, and thus only report the mean.  When this process has been completed, every protein has a mean profile which for now we denote as $\underset{\sim}x = (x_1, x_2, ..., x_q)$  of abundance levels in the $q=9$ fractions N, M, L1, L2, P, S, Nyc1, Nyc2, and Nyc3. Below we will see that the abundance levels $x_j$ may be represented as either the amount of species of interest (typically a protein) measured in a channel or, if a process known as bookkeeping has been followed, the relative specific amounts of that species of interest. For proteins with at least 2 peptides and three spectra, each component of the profile has an estimate of its standard deviation.
+
+Next, the profiles of the reference proteins are selected. For each of the eight compartments (Cytosol, ER, Golgi, Lysosome, Mitochondria, Nucleus, Peroxisome, and PM), the reference protein abundance levels are averaged to form eight compartment profiles $\underset{\sim}x^*_1, \underset{\sim}x^*_2, ..., \underset{\sim}x^*_8$, where each vector $\underset{\sim}x^*_j$ is a $q \times 1$ vector of mean levels of the $q=9$ channels.
+
+Finally, for each protein, we find estimated proportions $\hat{p}_1, \hat{p}_2, ..., \hat{p}_8$ so that
+$$\underset{\sim}y = \hat{p}_1 \underset{\sim}x^*_1 + ...+ \hat{p}_8 \underset{\sim}x^*_8$$
+is as close as possible to the observed value $\underset{\sim}x$, subject to the constraints
+
+$$ 0 \leq \hat{p_j} \leq 1$$
+
+for all $j$, and
+
+
+
+$$ \sum_{j=1}^{8} \hat{p}_j = 1 $$
+where "close" is defined by minimizing the sum of squares of the differences
+
+$$ \psi(p_1, p_2, \dots, p_g) =\sum_{i=1}^{q}(y_i - x_i)^2 $$
+Thus, we may view the proportions $\hat{p}_j$ as proportional allocations of the eight standard profiles to form $\underset{\sim}y$, which is as close as possible to the observed $\underset{\sim}x$ for this particular protein. This constrained optimization is carried out using the “spg” function in the R package “BB” to compute assignment probabilities for each profile for each organelle.
+
+
+## try images of equations
+
+```{r, echo=TRUE, eval=TRUE}
+latexImg = function(latex){
+ 
+    link = paste0('http://latex.codecogs.com/gif.latex?',
+           gsub('\\=','%3D',URLencode(latex)))
+ 
+    link = gsub("(%..)","\\U\\1",link,perl=TRUE)
+    return(paste0('![](',link,')'))
+}
+latexImg('a = \\frac{b}{c}')
+
+url <- "http://latex.codecogs.com/gif.latex?a%20%3D%20%5Cfrac%7Bb%7D%7Bc%7D"
+
+latexImg2 = function(latex){
+ 
+    link = paste0('http://latex.codecogs.com/gif.latex?',
+           gsub('\\=','%3D',URLencode(latex)))
+ 
+    link = gsub("(%..)","\\U\\1",link,perl=TRUE)
+    return(link)
+}
+
+url2 <- latexImg2('a = \\frac{b}{c}')
+url3 <- latexImg2('{a_{\alpha ,h}} = \\sum\\nolimits_{i = 1}^6 {{s_{\alpha ,i}}{t_i}} ')
+
+```
+
+#<center><img src="`r url2`"></center>
+
+${\widetilde{s}}_{\alpha,l}=\frac{s_{\alpha,l}}{\sum_{j=1}^{f}s_{\alpha,j}}$
+
+$\mathbf{A}=\widetilde{\mathbf{S}}\cdot\mathrm{diag}(\mathbf{t})=\left[\begin{matrix}{\widetilde{s}}_{11}t_1&{\widetilde{s}}_{12}t_2&\cdots&{\widetilde{s}}_{19}t_9\\{\widetilde{s}}_{21}t_1&{\widetilde{s}}_{22}t_2&\cdots&{\widetilde{s}}_{29}t_9\\\vdots&\vdots&&\vdots\\{\widetilde{s}}_{n1}t_1&{\widetilde{s}}_{n2}t_2&\cdots&{\widetilde{s}}_{n9}t_9\\\end{matrix}\right]$
+
+
+${\breve{a}}_{\alpha,l}=\frac{s_{\alpha,l}t_l}{s_{\alpha,h}t_h}=\frac{s_{\alpha,l}t_l}{\sum_{i=1}^{6}{s_{\alpha,i}t_i}}=\frac{{\widetilde{s}}_{\alpha,l}t_l}{\sum_{i=1}^{6}{{\widetilde{s}}_{\alpha,i}t_i}}$
+
+
+#This is an equation `r latexImg('{a_{\\alpha ,h}} = \\sum\\nolimits_{i = 1}^6 {{s_{\\alpha ,i}}{t_i}} ')` 
+

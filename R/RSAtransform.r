@@ -60,11 +60,9 @@ relAmtTransform <- function(SS, NstartMaterialFractions=6,
   #rsa <- data.frame(as.matrix(relAmtProtFrac) %*% diag(1/propFrac))
   #names(rsa) <- colnames(markerLocR)
 
-  # The following, which standardizes rsa rows to sum to one, returns the original markerLocR !!
-  #rsaFractions <- t(apply(rsa,1, function(x) x/sum(x)))
+  # return just Acup; no need for AA
 
-  result <- list(AA=AA, Acup=Acup)
-  result
+ Acup
 }
 
 
@@ -163,7 +161,7 @@ RSAfromS <- function(SS=protProfileLevels, NstartMaterialFractions=6,
   startMaterialFractions <- SS[,1:NstartMaterialFractions]
 
   protAbund <- relAmtTransform(SS,NstartMaterialFractions=6, totProt=totProtUse)
-  Acup <- protAbund$Acup
+  Acup <- protAbund
   rsa <- RSAfromAcup(Acup, totProt=totProtUse)
 
   #Difp <- sum(totProt[1:NstartMaterialFractions])   # total protein in the differential fractions

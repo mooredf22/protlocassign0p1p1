@@ -26,8 +26,8 @@ mixturePlot <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1, Loc2
   # calculate sum of squares of errors
 
   }
-  area1 <- 0.5 + polyarea(x=c(fracList, 1), y=c(mixProtiProtjProp[,Loc1], 0))
-  area2 <- -0.5 - polyarea(x=c(fracList, 0), y=c(mixProtiProtjProp[,Loc2],0))
+  area1 <- abs(0.5 + polyarea(x=c(fracList, 1), y=c(mixProtiProtjProp[,Loc1], 0)))
+  area2 <- abs(-0.5 - polyarea(x=c(fracList, 0), y=c(mixProtiProtjProp[,Loc2],0)))
   area <- area1 + area2
 
   abline(a=0,b=1, col="gray")

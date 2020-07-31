@@ -15,27 +15,28 @@ cpaSetup <- function(protProfileSummary, refLocProteins=refLocProteins, n.channe
 
   # "refLocProteins" must be a list of (1) the reference proteins and (2) the corresponding subcelluar locations
 
-  # Select those entries from "protProfileSummary" that are reference proteins
-  # protNamesUpper <- toupper(protProfileSummary$protName)    # make names all upper case
+
+  # make names all upper case
   protNamesUpper <- toupper(rownames(protProfileSummary))
-  #protProfileSummaryoriginal <- protProfileSummary
-  #protProfileSummary$protName <- protNamesUpper
+
   rownames(protProfileSummary) <- protNamesUpper
   protProfileSummaryWithProts <- data.frame(protNamesUpper, protProfileSummary)
   names(protProfileSummaryWithProts)[1] <- "protName"  # this has a column of protnames for merge
-  #meanCovarProtsStringent <- merge(x=refLocProteins, y=protProfileSummary,
+
+  names(refLocProteins)[1] <- "protName"
+  refLocProteins$protName <- toupper(refLocProteins$protName)  # all must by upper case
   meanReferenceProts <- merge(x=refLocProteins, y=protProfileSummaryWithProts,
          by.x="protName", by.y="protName", all.x=F, sort=F)
 
   # Find mean profiles for each sub-cellular location, using reference proteins
-  #location.list <- unique(meanCovarProtsStringent$referenceCompartment)
+
   location.list <- as.character(unique(meanReferenceProts$referenceCompartment))
   n.loc <- length(location.list)
   meanProfile <- NULL
   for (i in 1:n.loc) {
     # i=1
     loc.i <- location.list[i]
-    #profile.i <- meanCovarProtsStringent[meanCovarProtsStringent$referenceCompartment == loc.i,2+1:n.channels]
+
     profile.i <- meanReferenceProts[meanReferenceProts$referenceCompartment == loc.i,2+1:n.channels]
     meanProfile.i <- apply(profile.i, 2, mean, na.rm=T)
     meanProfile <- rbind(meanProfile, meanProfile.i)

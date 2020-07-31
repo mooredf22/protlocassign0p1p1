@@ -1,5 +1,5 @@
 ---
-title: 'Vignette 3: Data Transformations: Notation and Mixtures Using protlocassign'
+title: 'Vignette 3B: Data Transformations: Notation and Mixtures Using protlocassign'
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
 output:
@@ -33,125 +33,33 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Adjustment of protein profiles
 
-As explained in the main text and in Vignette 2, there are different ways to transform protein profile data.  Here, we describe a way to explore the effect of using transformed data with CPA.  Briefly, we conduct different data transformations on a set of theoretical proteins that have a range of distributions between two cellular compartments, and then conduct CPA and determine how well it predicts the original distribution.  For our simulations, to create the theoretical proteins, we use data from the experiment from Tannous et al which consists of a TMT-MS2 analysis of six differential fraction (N, M, L1, L2, P, and S) and three fractions from a Nycodenz density gradient separation of the differential fraction L1 (Nyc1, Nyc2, and Nyc3).
-
-In our procedure, we first use the eight compartment profiles generated from the marker protein set to simulate a set of eight theoretical proteins that wholly reside in each of the respective compartments.  We then mix these in defined amounts to simulate proteins that are distributed in varying proportions between two compartments. Note that the untransformed protein profiles described in Vignette 1 represent the specific amounts of a protein in each fraction (e.g., signal in arbitrary units per unit total protein). For conducting our simulations, we first must transform this data into relative amounts, so that each protein has precisely the same total amount in the initial starting material used for fractionation.
-
-
-Consider an $n$ by 9 matrix that details the average distribution of $n$ proteins (or other species of interest) among 9 fractions:
-$$
-\mathbf{S}=\left[ \begin{matrix}
-   {{s}_{11}} & {{s}_{12}} & \cdots  & {{s}_{19}}  \\
-   {{s}_{21}} & {{s}_{22}} & \cdots  & {{s}_{29}}  \\
-   \vdots  & \vdots  & {} & \vdots   \\
-   {{s}_{n1}} & {{s}_{n2}} & \cdots  & {{s}_{n9}}  \\
-\end{matrix} \right]
-$$
-
-Each row $\alpha$ represents a mean profile for a protein or other species of interest $\alpha$, with each profile consisting of $f=9$ fractions. For $i$
-
-In the introductory vignette we actually used a normalized specific amount $\overset{\sim} s_l$ (generally the amount of signal in that fraction), calculated as follows:
-
-
-$$ {{\tilde{s}}_{\alpha ,l}}=\frac{{{s}_{\alpha ,l}}}{\sum\limits_{j=1}^{f}{{{s}_{\alpha ,j}}}} $$
-In some experiments, where bookkeeping is not practicable, these are the only values available for using the CPA procedure. However, with appropriate bookkeeping, the amounts of total protein, $t_l$, are available. We can use these to calculate the amount of protein in fraction $l$ derived from a set amount of starting material as $a_l = s_l t_l$.
-
-  To see how this works in protlocassign, let us consider the Jadot reference protein profiles
-
+(Set up the data)
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
 markerLocR <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
-round(markerLocR, digits=3)
-
-```
-
-
-Here, each row represents the profile $\overset{\sim} s_l$ for a protein resident solely in a particular compartment. The amount of starting material, `tmtMS2totProt`, ($t_l$) in each fraction is as follows:
-
-```{r, echo=TRUE, eval=TRUE}
 options(digits=2)
 totProtUse <- tmtMS2totProt
-totProtUse
-```
 
-We denote these values using a vector $\mathbf{t}= ({t_1},{t_2}, \ldots ,{t_9})$. The total amount of starting material ${{t}_{h}}=\sum\limits_{i=1}^{6}{{{t}_{i}}}$ is the sum of the amounts given in the first six (differential) fractions (N, M, L1, L2, P, and S).
-
-```{r, echo=TRUE, eval=TRUE}
-sum(totProtUse[1:6])
-```
-
-(The last three "Nyc" columns were derived from L1, so we do not include them in the sum.)
-
-The next step is to compute the amount of protein in each fraction by multiplying the normalized specific amount by the total protein. Thus for protein $\alpha$ in fraction $l$, we have ${{a}_{\alpha ,l}}={{\tilde{s}}_{\alpha ,l}}{{t}_{l}}$. In matrix form,
-
-
-$\mathbf{A}=\widetilde{\mathbf{S}}\cdot\mathrm{diag}(\mathbf{t})=\left[\begin{matrix}{\widetilde{s}}_{11}t_1&{\widetilde{s}}_{12}t_2&\cdots&{\widetilde{s}}_{19}t_9\\{\widetilde{s}}_{21}t_1&{\widetilde{s}}_{22}t_2&\cdots&{\widetilde{s}}_{29}t_9\\\vdots&\vdots&&\vdots\\{\widetilde{s}}_{n1}t_1&{\widetilde{s}}_{n2}t_2&\cdots&{\widetilde{s}}_{n9}t_9\\\end{matrix}\right]$
-
-
-
-
-We need this matrix to do the next step, which is to convert to a common scale for all proteins. We do this by normalizing to the amount of protein $\alpha$ in the starting material, which we denote as $a_{\alpha, h}$. In some experiments, if the homogenate is measured directly, this can be calculated from ${{s}_{\alpha ,h}}{{t}_{h}}$.
-Alternatively, if a complete set of fractions that entirely represent the homogenate are available, it is preferable to calculate this by summing $s_{\alpha,l}t_l$ over these fractions. In our case, the first six fractions represent a complete set of differential fractions, and thus 
-
-$${a_{\alpha ,h}} = \sum\nolimits_{i = 1}^6 {{s_{\alpha ,i}}{t_i}} $$
-
-Finally, we normalize amounts in any given fraction to amounts in starting material, which we call the relative amount and denote as ${\breve{a}}_{\alpha,l}$
-
-
-
-In our example,
-
-$${\overset{\smile}{a}_{\alpha ,l}} = \frac{{{s_{\alpha ,l}}{t_l}}}{{{s_{\alpha ,h}}{t_h}}} = \frac{{{s_{\alpha ,l}}{t_l}}}{{\sum\nolimits_{i = 1}^6 {{s_{\alpha ,i}}{t_i}} }} = \frac{{{{\tilde s}_{\alpha ,l}}{t_l}}}{{\sum\nolimits_{i = 1}^6 {{{\tilde s}_{\alpha ,i}}{t_i}} }}$$
-
-
-In matrix form, we may write this as 
-
-
-```{r, echo=FALSE, eval=TRUE, fig.show='hold', fig.width = 1, fig.height = 1}
- knitr::include_graphics('C:\\Users\\mooredf\\OneDrive - Rutgers University\\gp7\\Res\\constrainedPropAssignDev\\protlocassignPackage\\protlocassign0p1p1\\protlocassign\\vignettes\\images/AcupMatrix.gif')
-
-```
-
-${{\mathbf{A}}^*} = {\mathbf{A}} \cdot {\mathrm{diag}}(1/{a_{\alpha ,h}}) = \left[ {\begin{}
-{{s_{11}}{t_1}/{a_{1,h}}}&{{s_{12}}{t_2}/{a_{1,h}}}& \cdots &{{s_{19}}{t_9}/{a_{1,h}}}\\
-{{s_{21}}{t_1}/{a_{2,h}}}&{{s_{22}}{t_2}/{a_{2,h}}}& \cdots &{{s_{29}}{t_9}/{a_{2,h}}}\\
- \vdots & \vdots &{}& \vdots \\
-{{s_{n1}}{t_1}/{a_{n,h}}}&{{s_{n2}}{t_2}/{a_{n,h}}}& \cdots &{{s_{n9}}{t_9}/{a_{n,h}}}
-\end{matrix}} \right]$
-
-
- 
-
-or simply as  ${\breve{\mathbf{A}}} = (\breve{a}_{\alpha ,l})$.
-
-The function `abundanceTransform` computes this:
-
-
-
-```{r, echo=TRUE, eval=TRUE}
-
-AcupMarkers <- relAmtTransform(markerLocR,6, totProt=totProtUse)
+protAbund <- relAmtTransform(markerLocR,6, totProt=totProtUse)
+AcupMarkers <- protAbund$Acup
 round(AcupMarkers, digits=3)
 ```
 
-The values in `relAmtProtFrac` represent the amount of protein per fraction, normalized to same amount of protein in the starting material (before mixing). In theory, these values correspond approximately to the relative amounts of protein in compartments within a cell.
- 
+
 ## Relative Specific Amounts
 
-When examining the distribution of a given protein in different fractions, it is particularly useful to consider its abundance relative to that of total protein.  We refer to this as a Relative Specific Amount (RSA or $r$), which can be calculated as ${r_{\alpha ,l}} = \breve{a}_{\alpha ,l}/ \breve{t}_l$, where ${\breve{\mathbf{t}}} = {\mathbf{t}}/{t_h}$. This describes the fold-enrichment ($r>1$) or depletion ($r<1$) of a protein during the fractionation process, and is analogous to the relative specific activity term used in classical analytical subcellular fractionation.
+When examining the distribution of a given protein in different fractions, it is particularly useful to consider its abundance relative to that of total protein.  We refer to this as a Relative Specific Amount (RSA or $r$), which can be calculated as ${r_{\alpha ,l}} = a_{\alpha ,l}^*/t_l^*$, where ${{\textrm{t}}^*} = {\textrm{t}}/{t_h}$. This describes the fold-enrichment ($r>1$) or depletion ($r<1$) of a protein during the fractionation process, and is analogous to the relative specific activity term used in classical analytical subcellular fractionation.
 
 Then the Relative Specific Amount (RSA) values represent the degree of enrichment or depletion of a protein in a given fraction compared to the amount in the starting material. For a protein $\alpha$ the RSA in fraction $l$ is given by
 
-$r_{\alpha,l}=\frac{\breve{a}}{{\breve{t}}_l}=\frac{s_{\alpha,l}\bullet\sum_{j}^{k}t_i}{\sum_{j}^{k}{s_\alpha}t_i}$
-
+${r_{\alpha ,l}} = {{a_{\alpha ,l}^*} \over {t_l^*}} = {{{s_{\alpha ,l}} \cdot \sum\nolimits_j^k {{t_i}} } \over {\sum\nolimits_j^k {{s_{\alpha ,l}}{t_i}} }}$
 
 
 
 In matrix form, this is $\mathbf{R}=\left( {{r}_{\alpha ,l}} \right)$.
 
-We can get the RSA matrix from AcupMarkers` and "totProt" as follows:
+In "protlocassign", we get the RSA matrix from "relAmtProtFrac" and "totProt" as follows:
 
 
 ```{r, echo=TRUE, eval=TRUE}
@@ -164,7 +72,7 @@ Finally, if we normalize the rsa matrix so that rows sum to one (via the "apply"
 round(t(apply(rsaMarkers,1, function(x) x/sum(x))), digits=3)
 ```
 
-Note that we can also obtain the RSA transformed data directly from normalized specific amound data (data from Vignette 1):
+If we just need to obtain the RSA transformed data directly, just do this:
 ```{r, echo=TRUE, eval=TRUE}
 markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
         totProt=totProtUse)
@@ -178,7 +86,8 @@ We may simulate data from proteins with multiple residences using the `proteinMi
 
 ```{r, echo=TRUE, eval=TRUE}
 
-AcupMarkers <- relAmtTransform(markerLocR, NstartMaterialFractions=6, totProt=totProtUse)
+protAbund <- relAmtTransform(markerLocR, NstartMaterialFractions=6, totProt=totProtUse)
+AcupMarkers <- protAbund$Acup
 mixCytoLyso <- proteinMix(AcupMarkers, Loc1=1, Loc2=4)
 round(mixCytoLyso$mixAmount, digits=3)
 ```
@@ -372,7 +281,6 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
 ```
 
  
-
 
 
 
