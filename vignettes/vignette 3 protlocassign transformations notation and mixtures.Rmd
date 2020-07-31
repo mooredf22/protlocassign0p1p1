@@ -216,8 +216,8 @@ We may plot the predicted (based on CPA) and expected (based on the simulation p
 
 ```{r, echo=TRUE, eval=TRUE}
 library(pracma)
-mixturePlot(mixProtiProtjProp=mixCytoLysoProp, NstartMaterialFractions=6,
-             Loc1=1, Loc2=4, xaxisLab=T, yaxisLab=T)
+mixturePlot(mixProtiProtjProp=mixCytoLysoProp, NstartMaterialFractions=6, Loc1=1, Loc=4,
+              mix.df=mixCytoLyso$mix.df, xaxisLab=T, yaxisLab=T)
 ```
 
 Here we see visually that the estimated proportions match the simulated ones. The area separated by the observed and expected CPA estimates is zero, which is shown in parentheses.
@@ -232,8 +232,8 @@ mixCytoLysoPropLog <- proLocAll(protProfileSummary=mixCytoLysoRSAlog2,
                               markerLocR=markerLocRrsalog2,
                             n.channels=9)
 round(mixCytoLysoPropLog, digits=3)
-mixturePlot(mixProtiProtjProp=mixCytoLysoPropLog, NstartMaterialFractions=6,
-             Loc1=1, Loc2=4, xaxisLab=T, yaxisLab=T)
+mixturePlot(mixProtiProtjProp=mixCytoLysoPropLog, NstartMaterialFractions=6, Loc1=1, Loc=4,
+              mix.df=mixCytoLyso$mix.df, xaxisLab=T, yaxisLab=T)
 
 ``` 
 
@@ -264,8 +264,8 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
                         markerLocR=markerLocRrsa, n.channels=9)
                             
    # Plot the results, including the area-based error estimate
-   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
-             Loc1=i, Loc2=j)
+   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6, Loc1=i, Loc2=j,
+             mix.df=mixProtiProtj$mix.df)
              
 }
 ```
@@ -297,8 +297,8 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
                         markerLocR=log2MarkerLocRrsa, n.channels=9)
                             
    # Plot the results, including the area-based error estimate
-   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
-             Loc1=i, Loc2=j)
+   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6, Loc1=i, Loc2=j,
+              mix.df=mixProtiProtj$mix.df)
              
 }
 ```
@@ -331,8 +331,8 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
                         markerLocR=markerLocR, n.channels=9)
                             
    # Plot the results, including the area-based error estimate
-   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
-             Loc1=i, Loc2=j)
+   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6, Loc1=i, Loc2=j,
+             mix.df=mixProtiProtj$mix.df)
              
 }
 ```
@@ -365,8 +365,8 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
                         markerLocR=log2MarkerLocR, n.channels=9)
                             
    # Plot the results, including the area-based error estimate
-   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
-             Loc1=i, Loc2=j)
+   mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6, Loc1=i, Loc2=j,
+              mix.df=mixProtiProtj$mix.df)
              
 }
 ```

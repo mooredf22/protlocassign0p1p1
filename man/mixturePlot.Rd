@@ -9,6 +9,7 @@ mixturePlot(
   NstartMaterialFractions = 6,
   Loc1,
   Loc2,
+  mix.df,
   xaxisLab = T,
   yaxisLab = T
 )
@@ -18,9 +19,11 @@ mixturePlot(
 
 \item{NstartMaterialFractions}{Number of fractions that comprise the starting material}
 
-\item{Loc1}{row number of the matrix Acup for compartment 1}
+\item{Loc1}{row number of subcellular location 1 of mixture}
 
-\item{Loc2}{row number of the matrix Acup for compartment 2}
+\item{Loc2}{row number of subcellular location 2 of mixture}
+
+\item{mix.df}{true mixture proportions used to make the  mixtures (from proteinMix)}
 
 \item{type}{normalized specific amounts or relative specific amounts}
 }

@@ -41,9 +41,24 @@ markerLocR <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProtei
 options(digits=2)
 totProtUse <- tmtMS2totProt
 
-protAbund <- relAmtTransform(markerLocR,6, totProt=totProtUse)
-AcupMarkers <- protAbund$Acup
+AcupMarkers <- relAmtTransform(markerLocR,6, totProt=totProtUse)
 round(AcupMarkers, digits=3)
+
+mixCytoLyso <- proteinMix(AcupMarkers, Loc1=1, Loc2=4)
+round(mixCytoLyso$mixAmount, digits=3)
+round(mixCytoLyso$mix.df, digits=3)
+
+mixCytoLysoProp <- proLocAll(protProfileSummary=mixCytoLysoRSA, markerLocR=markerLocRrsa,
+                            n.channels=9)
+round(mixCytoLysoProp, digits=3)
+
+library(pracma)
+fracList <- seq(0,1,0.1)
+trapz(fracList, mixCytoLyso$mix.df[,1])
+
+auc <- sum(diff(fracList)*rollmean(mixCytoLyso$mix.df[,1],2))
+
+
 ```
 
 
@@ -87,7 +102,7 @@ We may simulate data from proteins with multiple residences using the `proteinMi
 ```{r, echo=TRUE, eval=TRUE}
 
 protAbund <- relAmtTransform(markerLocR, NstartMaterialFractions=6, totProt=totProtUse)
-AcupMarkers <- protAbund$Acup
+AcupMarkers <- protAbund
 mixCytoLyso <- proteinMix(AcupMarkers, Loc1=1, Loc2=4)
 round(mixCytoLyso$mixAmount, digits=3)
 ```
@@ -174,7 +189,7 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
                             
    # Plot the results, including the area-based error estimate
    mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
-             Loc1=i, Loc2=j)
+             Loc1=i, Loc2=j, mix.df=mixProtiProtj$mix.df)
              
 }
 ```
