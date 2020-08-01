@@ -47,7 +47,7 @@ Determining the locations of proteins in the cell is an important but complex pr
 
 This package implements a subcellular protein assignment procedure as “constrained proportional assignment”, or CPA (Jadot et al, 2016). The basic concepts involved in CPA and analysis of subcellular proteomics data are described in the main paper. These vignettes serve as a basis for implementing CPA and various utilities for both experienced and beginner R users.
 
-There are two fundamental inputs for CPA.  The first is a file with information regarding the distribution of each protein to be analyzed across centrifugation fractions. Each protein has a unique identifier, referred to here as `protName`, which can be a protein name, protein group, gene name, accession number, or peptide sequence. For each protein, there are data that reflects its distribution among the centrifugal fractions, which represent a profile. The second is a file containing a curated list of reference proteins (markers) with defined subcellular locations. As an initial step, the uses the markers to compute profiles for individual cellular compartments. Then, for each protein, it finds the best match for its profile using a linear combination of compartment profiles. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. 
+There are two fundamental inputs for CPA.  The first is a file with information regarding the distribution of each protein or other species of interest to be analyzed across centrifugation fractions. Each row has a name that serves as a unique identifier, which can be a protein name, protein group, gene name, accession number, or peptide sequence. For each protein identifier, there are data that reflects its distribution among the centrifugal fractions, which represent a profile. The second is a file containing a curated list of reference proteins (markers) with defined subcellular locations. As an initial step, the package uses the markers to compute profiles for individual cellular compartments. Then, for each protein, it finds the best match for its profile using a linear combination of compartment profiles. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. 
 
 
 
@@ -80,44 +80,34 @@ install.packages(c("BB", "pracma", "lme4"))
 ```
 Once you have installed these packages, you do not need to re-install them the next time you start up R.
 
-These are the only packages required for data that are presented as mean levels for a protein/gene. In another vignette there is a description of R functions that work with data at the spectral level; additional packages will be needed to process spectral-level data and produce protein-level data.
+These are the only packages required for data that are presented as mean levels for a protein. In another vignette there is a description of R functions that work with data at the spectral level; additional packages will be needed to process spectral-level data and produce protein-level data.
 
 ## Working with data
 
-To use this package you will need two data sets. One contains rows consisting of a protein identifier followed by data describing its profile across a series of centrifugation fractions. In this vignette, the distribution reflects specific amounts constrained to 1 (see main Paper) but can be further transformed to improve the quality of the fit (see Vignettes 2 and 3). In addition, there may be two additional values representing the numbers of peptides and spectra that were used to compute the profile.  The other data set consists of a list of reference proteins and their associated known subcellular compartments.
+To use this package you will need two data sets. One, referred to here as the protein profile data set, contains rows with a unique identifier followed by data describing its profile across a series of centrifugation fractions. In this vignette, the profiles are specific amounts with sums constrained to 1 (see main Paper) but can be further transformed to improve the quality of the fit (see Vignettes 2 and 3). In addition, there may be two additional values representing the numbers of peptides and spectra that were used to compute the profile.  The other data set consists of a list of reference proteins and their associated known subcellular compartments.
 
 
-Consider for example the TMT MS2 data from Tannous et al. (2020). To get started, load the package and look at the dimensions of the data set and then the last few rows:
+Consider for example the TMT MS2 data from Tannous et al. (2020). To get started, load the package and look at the dimensions of the protein profile data set which shows that it has 7893 rows and 11 columns: 
 
 ```{r, echo=TRUE}
 library(protlocassign)
 dim(protProfileSummaryTMTms2)
 ```
 
-Now use the `str` function to summarize the contents of `protProfileSummaryTMTms2`. The command `options(digits=2)` is optional; it reduces the number of significant digits displayed.
-
-```{r, echo=TRUE}
-options(digits=2)
-str(protProfileSummaryTMTms2, digits=2)
-```
-
-Each row represents a column, and presents the variable name, type (character, number, or integer) and the first few values of that variable. The first nine columns represent the average levels of the different fractions, across spectra. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. (While we use a nested random effects model described in Jadot, 2016 to compute the means across spectra, other methods, including taking a straight average, may be appropriate for other applications.) 
-
-Note that the protein identifier is part of the row name and does not appear using the `str` command.  You can see this for the first few rows by typing `head(protProfileSummaryTMTms2)`:
-
+Now look at the first few rows of the data, rounding to improve legibility. The first nine columns represent the average levels of the different fractions, across spectra. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. (While we use a nested random effects model described in Jadot, 2016 to compute the means across spectra, other methods, including taking a straight average, may be appropriate for other applications.)
 
 ```{r, echo=TRUE}
 round(head(protProfileSummaryTMTms2), digits=2)
 ```
 
-The second data set we need has 39 reference proteins and two columns, the first for the protein name and the second for their respective subcellular compartments. These are derived from Jadot et al (2016) and may be viewed as follows:
+The list containing reference proteins (also called marker proteins) that we use is derived from Jadot et al (2016) and contains 39 rows and two columns, the first for the protein names and the second for their respective subcellular compartments. These may be viewed as follows:
 
 ```{r, echo=TRUE}
 dim(refLocProteinsJadot)
 refLocProteinsJadot
 ```
 
-While the `protProfileSummaryTMTms2` and `refLocProteinsJadot`  data sets are included in the package, they were initially read in from external files and converted to data frames.  This will need to be done for any new data set.  As an example we demonstrate this for a case where one is working with the Windows operating system and that the data sets reside in a directory `C:\temp\myproteindata`. (If one is working with either the linux or Mac OS, appropriate changes to these procedures will be needed to access files.)
+While the `protProfileSummaryTMTms2` and `refLocProteinsJadot`  data sets are included in the package, they were initially read into R from external files and automatically converted to data frames.  This will need to be done for any new data set.  As an example we demonstrate this for a case where one is working with the Windows operating system and that the data sets reside in a directory `C:\temp\myproteindata`. (If one is working with either the linux or Mac OS, appropriate changes to these procedures will be needed to access files.)
 First, set the working directory to point there, either by navigating to it in R studio (session menu pane) or by entering:
 
 
@@ -256,10 +246,10 @@ setwd("C:/temp/myProteinOutput")
 The write out the data as a comma separated file, using `write.csv`:
 
 ```
-write.csv(assignPropsUse, file="assignPropsUse.txt", row.names=F)
+write.csv(assignPropsUse, file="assignPropsUse.txt", row.names=T)
 ```
 
-This writes the CPA results (which we had previously put into the R dataset `assignPropsUse`), without row names, and in comma separated format. Ordinarily one would give the file a `.csv` extension so that Excel would automatically open it when clicking on the file name in Windows. Here we do not recommend that because of a naming issue with proteins. Specifically, some proteins (`MARCH9` for example) will be interpreted by Excel as dates, and switched to a date format (`9-Mar` in this case). To prevent that, save the comma-separated value file as a text file, with extension `.txt`. Then, in Windows, open up the Excel program and navigate within Excel to the `assignPropsUse.txt` file and open it. You will then be presented with an Excel import wizard where you specify that columns are separated by commas, and then select the first row (`protName`), and specify that this is a text column. This will prevent Excel from converting protein names to date format.
+This writes the CPA results (which we had previously put into the R dataset `assignPropsUse`), writing row names, and in comma separated format. Ordinarily one would give the file a `.csv` extension so that Excel would automatically open it when clicking on the file name in Windows. Here we do not recommend that because of a naming issue with proteins. Specifically, some proteins (`MARCH9` for example) will be interpreted by Excel as dates, and switched to a date format (`9-Mar` in this case). To prevent that, save the comma-separated value file as a text file, with extension `.txt`. Then, in Windows, open up the Excel program and navigate within Excel to the `assignPropsUse.txt` file and open it. You will then be presented with an Excel import wizard where you specify that columns are separated by commas, and then select the first row (`protName`), and specify that this is a text column. This will prevent Excel from converting protein names to date format.
 
 ### Plot output as pdf files
 

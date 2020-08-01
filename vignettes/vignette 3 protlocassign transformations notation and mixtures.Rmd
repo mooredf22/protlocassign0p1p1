@@ -37,10 +37,10 @@ knitr::opts_chunk$set(
 
 As explained in the main text and in Vignette 2, there are different ways to transform protein profile data.  Here, we describe a way to explore the effect of using transformed data with CPA.  Briefly, we conduct different data transformations on a set of theoretical proteins that have a range of distributions between two cellular compartments, and then conduct CPA and determine how well it predicts the original distribution.  For our simulations, to create the theoretical proteins, we use data from the experiment from Tannous et al which consists of a TMT-MS2 analysis of six differential fraction (N, M, L1, L2, P, and S) and three fractions from a Nycodenz density gradient separation of the differential fraction L1 (Nyc1, Nyc2, and Nyc3).
 
-In our procedure, we first use the eight compartment profiles generated from the marker protein set to simulate a set of eight theoretical proteins that wholly reside in each of the respective compartments.  We then mix these in defined amounts to simulate proteins that are distributed in varying proportions between two compartments. Note that the untransformed protein profiles described in Vignette 1 represent the specific amounts of a protein in each fraction (e.g., signal in arbitrary units per unit total protein). For conducting our simulations, we first must transform this data into relative amounts, so that each protein has precisely the same total amount in the initial starting material used for fractionation.
+In our procedure, we first use the eight compartment profiles generated from the marker protein set to simulate a set of eight theoretical proteins that wholly reside in each of the respective compartments.  We then mix these in defined amounts to simulate proteins that are distributed in varying proportions between two compartments. Note that data from mass spectrometry experiments represent specific amounts ${s_{\alpha ,l}}$ of a protein $\alpha$ in fraction $l$ (e.g. for each fraction, the ratio of the signal in arbitrary units for a given protein $\alpha$ to units of total protein).  For conducting our simulations, we first must transform this data into relative amounts, so that each protein has precisely the same total amount in the initial starting material used for fractionation.
 
 
-Consider an $n$ by 9 matrix that details the average distribution of $n$ proteins (or other species of interest) among 9 fractions:
+Consider an $n$ by 9 matrix of specific amounts that details the average distribution of $n$ proteins (or other species of interest) among 9 fractions:
 $$
 \mathbf{S}=\left[ \begin{matrix}
    {{s}_{11}} & {{s}_{12}} & \cdots  & {{s}_{19}}  \\
@@ -50,15 +50,15 @@ $$
 \end{matrix} \right]
 $$
 
-Each row $\alpha$ represents a mean profile for a protein or other species of interest $\alpha$, with each profile consisting of $f=9$ fractions. For $i$
+Each row $\alpha$ represents a mean profile for a protein or other species of interest $\alpha$, with each profile consisting of $f=9$ fractions. 
 
-In the introductory vignette we actually used a normalized specific amount $\overset{\sim} s_l$ (generally the amount of signal in that fraction), calculated as follows:
+In the Vignette 1 we actually used a normalized specific amount $\tilde{s}_{\alpha,l}$  calculated as follows:
 
 
 $$ {{\tilde{s}}_{\alpha ,l}}=\frac{{{s}_{\alpha ,l}}}{\sum\limits_{j=1}^{f}{{{s}_{\alpha ,j}}}} $$
-In some experiments, where bookkeeping is not practicable, these are the only values available for using the CPA procedure. However, with appropriate bookkeeping, the amounts of total protein, $t_l$, are available. We can use these to calculate the amount of protein in fraction $l$ derived from a set amount of starting material as $a_l = s_l t_l$.
+In some experiments, where bookkeeping is not practicable, these are the only values available for using the CPA procedure. However, with appropriate bookkeeping, the amounts of total protein, $t_l$, are available. We can use these to calculate the amount of protein in arbitrary units in fraction $l$ derived from a set amount of starting material as $a_l = s_l t_l$. Note that as $a_l$ is in arbitrary units one can do the same calculation using either $s_l$ or ${\tilde s_l}$, as later, these will yield the same values when calculating relative amounts (see below).
 
-  To see how this works in protlocassign, let us consider the Jadot reference protein profiles
+  To see how this works in `protlocassign`, let us consider the Jadot reference protein profiles
 
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
@@ -68,7 +68,7 @@ round(markerLocR, digits=3)
 ```
 
 
-Here, each row represents the profile $\overset{\sim} s_l$ for a protein resident solely in a particular compartment. The amount of starting material, `tmtMS2totProt`, ($t_l$) in each fraction is as follows:
+Here, each row represents the profile $\tilde{s}_l$ for a protein resident solely in a particular cellular compartment. The amount of starting material, `tmtMS2totProt`, ($t_l$) in each fraction is as follows:
 
 ```{r, echo=TRUE, eval=TRUE}
 options(digits=2)
@@ -84,12 +84,10 @@ sum(totProtUse[1:6])
 
 (The last three "Nyc" columns were derived from L1, so we do not include them in the sum.)
 
-The next step is to compute the amount of protein in each fraction by multiplying the normalized specific amount by the total protein. Thus for protein $\alpha$ in fraction $l$, we have ${{a}_{\alpha ,l}}={{\tilde{s}}_{\alpha ,l}}{{t}_{l}}$. In matrix form,
+As noted above, for protein $\alpha$ in fraction $l$, we have ${{a}_{\alpha ,l}}={{\tilde{s}}_{\alpha ,l}}{{t}_{l}}$. In matrix form,
 
 
 $\mathbf{A}=\widetilde{\mathbf{S}}\cdot\mathrm{diag}(\mathbf{t})=\left[\begin{matrix}{\widetilde{s}}_{11}t_1&{\widetilde{s}}_{12}t_2&\cdots&{\widetilde{s}}_{19}t_9\\{\widetilde{s}}_{21}t_1&{\widetilde{s}}_{22}t_2&\cdots&{\widetilde{s}}_{29}t_9\\\vdots&\vdots&&\vdots\\{\widetilde{s}}_{n1}t_1&{\widetilde{s}}_{n2}t_2&\cdots&{\widetilde{s}}_{n9}t_9\\\end{matrix}\right]$
-
-
 
 
 We need this matrix to do the next step, which is to convert to a common scale for all proteins. We do this by normalizing to the amount of protein $\alpha$ in the starting material, which we denote as $a_{\alpha, h}$. In some experiments, if the homogenate is measured directly, this can be calculated from ${{s}_{\alpha ,h}}{{t}_{h}}$.
@@ -133,20 +131,20 @@ The function `abundanceTransform` computes this:
 ```{r, echo=TRUE, eval=TRUE}
 
 AcupMarkers <- relAmtTransform(markerLocR,6, totProt=totProtUse)
-round(AcupMarkers, digits=3)
+round(AcupMarkers, digits=4)
 ```
 
-The values in `relAmtProtFrac` represent the amount of protein per fraction, normalized to same amount of protein in the starting material (before mixing). In theory, these values correspond approximately to the relative amounts of protein in compartments within a cell.
+The values in `AcupMarkers` represent in principle the relative amount of a given cellular compartment that ends up in a given centrifugation fraction.
  
 ## Relative Specific Amounts
 
-When examining the distribution of a given protein in different fractions, it is particularly useful to consider its abundance relative to that of total protein.  We refer to this as a Relative Specific Amount (RSA or $r$), which can be calculated as ${r_{\alpha ,l}} = \breve{a}_{\alpha ,l}/ \breve{t}_l$, where ${\breve{\mathbf{t}}} = {\mathbf{t}}/{t_h}$. This describes the fold-enrichment ($r>1$) or depletion ($r<1$) of a protein during the fractionation process, and is analogous to the relative specific activity term used in classical analytical subcellular fractionation.
+When examining the distribution of a given protein in different fractions, it is particularly useful to consider its abundance relative to that of total protein.  We refer to this as a Relative Specific Amount (RSA or $r$), which can be calculated as ${r_{\alpha ,l}} = \breve{a}_{\alpha ,l}/ \breve{t}_l$, where the vector ${\breve{\mathbf{t}}} = {\mathbf{t}}/{t_h}$. This describes the fold-enrichment ($r>1$) or depletion ($r<1$) of a protein during the fractionation process, and is analogous to the relative specific activity term used in classical analytical subcellular fractionation.
 
-Then the Relative Specific Amount (RSA) values represent the degree of enrichment or depletion of a protein in a given fraction compared to the amount in the starting material. For a protein $\alpha$ the RSA in fraction $l$ is given by
+For a protein $\alpha$ the RSA in fraction $l$ is given by
 
 $r_{\alpha,l}=\frac{\breve{a}}{{\breve{t}}_l}=\frac{s_{\alpha,l}\bullet\sum_{j}^{k}t_i}{\sum_{j}^{k}{s_\alpha}t_i}$
 
-
+$r_{\alpha,l}=\frac{\breve{a}}{{\breve{t}}_l}=\frac{s_{\alpha,l}\bullet\sum_{j}^{k}t_i}{\sum_{j}^{k}{s_\alpha}t_i} =\frac{\tilde{s}_{\alpha,l}\bullet\sum_{j}^{k}t_i}{\sum_{j}^{k}{\tilde{s}_\alpha}t_i}$
 
 
 In matrix form, this is $\mathbf{R}=\left( {{r}_{\alpha ,l}} \right)$.
@@ -159,12 +157,9 @@ rsaMarkers <- RSAfromAcup(AcupMarkers, totProt=totProtUse)
 round(rsaMarkers, digits=3)
 ```
 
-Finally, if we normalize the rsa matrix so that rows sum to one (via the "apply" function), we get original input data, markerLocR
-```{r, echo=TRUE, eval=TRUE}
-round(t(apply(rsaMarkers,1, function(x) x/sum(x))), digits=3)
-```
 
-Note that we can also obtain the RSA transformed data directly from normalized specific amound data (data from Vignette 1):
+Note that we can also obtain the RSA transformed data directly from normalized specific amount data as described in Vignette 2:
+
 ```{r, echo=TRUE, eval=TRUE}
 markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
         totProt=totProtUse)
@@ -172,21 +167,33 @@ markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
 round(markerLocRrsa, digits=3)
 ```
 
+Finally, if we normalize the RSA matrix so that rows sum to one (via the `apply` function), this yields normalized specific amounts, which are identical to those in `markerLocR`:
+
+```{r, echo=TRUE, eval=TRUE}
+round(t(apply(rsaMarkers,1, function(x) x/sum(x))), digits=3)
+```
+
+
 ## Simulating proteins resident in multiple subcellular locations
 
-We may simulate data from proteins with multiple residences using the `proteinMix` function. For example, to simulate date from proteins resident in a range of proportions in cytosol and lysosomes, we do this:
+We may simulate data from proteins with multiple residences using the `proteinMix` function. For example, to simulate data from proteins that are distributed in a range of proportions between cytosol and lysosomes, we use this function with normalized amounts of the single-compartment marker profiles:
 
 ```{r, echo=TRUE, eval=TRUE}
 
 AcupMarkers <- relAmtTransform(markerLocR, NstartMaterialFractions=6, totProt=totProtUse)
 mixCytoLyso <- proteinMix(AcupMarkers, Loc1=1, Loc2=4)
-round(mixCytoLyso$mixAmount, digits=3)
 ```
 
-The `proteinMix` function returns the mixture amounts in the `mixAmount` component and also the mixing information in the `mix.df` component. The latter shows the "true" simulated mixture proportions:
+The function produces two components.  One component, ‘mix.df’, is a matrix that describes the proportions used to create the simulated multi-resident proteins.  This shows the “true” simulated mixture proportions:
 
 ```{r, echo=TRUE, eval=TRUE}
 round(mixCytoLyso$mix.df, digits=2)
+```
+
+The other component, `mixAmount`,  is a matrix that contains the Acup values (normalized amounts) for the simulated proteins:
+
+```{r, echo=TRUE, eval=TRUE}
+round(mixCytoLyso$mixAmount, digits=3)
 ```
 
 Then we can test the CPA algorithm by first converting this mixture data to RSA's:
@@ -196,7 +203,8 @@ mixCytoLysoRSA <- RSAfromAcup(Acup=mixCytoLyso$mixAmount, NstartMaterialFraction
 
 round(mixCytoLysoRSA, digits=3)
 
-markerLocRrsa <- RSAfromAcup(Acup=AcupMarkers, NstartMaterialFractions=6, totProt=totProtUse)
+markerLocRrsa <- RSAfromAcup(Acup=AcupMarkers, NstartMaterialFractions=6, 
+                             totProt=totProtUse)
 ```
 
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data:
@@ -208,11 +216,11 @@ round(mixCytoLysoProp, digits=3)
 ```
 
 
-The estimated proportions correspond closely to the the proportions used in the simulation.
+The estimated proportions correspond closely to the proportions used in the simulation.
 
 ## Plotting mixtures of proteins with transformations
 
-We may plot the predicted (based on CPA) and expected (based on the simulation parameters) proportional assignments using the `mixturePlot` function. We need to tell the program which locations were used to generate the mixtures using `Loc1` and `Loc2`:
+We may plot the predicted (based on CPA) and expected (based on the simulation parameters) proportional assignments using the `mixturePlot` function. This function evaluates the prediction error by computing the area separating  the predicted and expected protein mixtures via the trapezoidal rule; this is done with the `trapz` function in the `pracma` library, which must have been previously installed. We also need to tell the program which locations were used to generate the mixtures using `Loc1` and `Loc2`:
 
 ```{r, echo=TRUE, eval=TRUE}
 library(pracma)
@@ -241,41 +249,32 @@ We see that the estimates are sub-optimal. The area between the observed and exp
 
 ## Effect of transformations on error rates for mixtures
 
-Now we consider the effects of fitting CPA to mixtures using a variety of transformations. First, let us consider a mixture of Cyto with each of the other seven compartments in turn, using the ideal RSA-based transformations.
-
+Now we consider the effects of fitting CPA to mixtures using a variety of transformations. First, let us consider a mixture of Cyto with each of the other seven compartments in turn, using the ideal RSA-based transformations. We begin by setting up the plot area for a 4 by 2 array of plots. Optionally, to control the size of the window, we may want to explicitly open a window using `windows(height=10, width=7)`. Next we fix one component of the mixture to the first, which is Cyto, and loop over the other 7 subcellular compartments, creating mixtures of the AcupMarkers values. For each case, we transform these mixtures to RSA and obtain CPA mixing proportion estimates from these RSA-transformed mixtures and compute the area-based prediction errors. 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
-
-#windows(height=10, width=7)
-par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
-
-i=1  # fix one component of the mixture to the first, which is Cyto
-for (j in 2:8) {   # mix with each of the other compartments, and plot
-   #j=4
-   # Create mixture of subcellular locations i and j using "Acupmarkers"
+par(mfrow=c(4,2))
+i <- 1
+for (j in 2:8) {   
    mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
- 
-   # Transform these mixtures to RSA
+
    mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, NstartMaterialFractions=6,  
                      totProt=totProtUse)
                      
-   # Obtain CPA estimates from the RSA-transformed mixtures
    mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjRSA,
                         markerLocR=markerLocRrsa, n.channels=9)
                             
-   # Plot the results, including the area-based error estimate
    mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6, Loc1=i, Loc2=j,
              mix.df=mixProtiProtj$mix.df)
              
 }
 ```
 
-All seven mixtures have zero error, as we expect. Next, consider a log2 transformation `y = log2(prop + 0.01)` of the RSA values before carrying out the CPA procedure.
+All seven mixtures have zero error, as we expect. 
+
+Next, consider a log2 transformation `y = log2(prop + 0.01)` of the RSA values before carrying out the CPA procedure. Aside from this log2 transformation, the other R commands are the same as above.
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
-
-#windows(height=10, width=7)
 par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
 
 i=1  # fix one component of the mixture to the first, which is Cyto

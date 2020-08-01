@@ -35,12 +35,12 @@ knitr::opts_chunk$set(
 
 ## Data transformations
 
-In Vignette 1 (“Getting Started”) we illustrated the principles of constrained proportional assignment using protein profiles that represent normalized mass spectrometry data from a set of subcellular fractions.  This vignette describes how to use functions in the `protlocassign` package to transform such profiles in a manner that is more useful for inferring proportional residence in subcellular compartments.
+In Vignette 1 (“Getting Started”) we illustrated the principles of constrained proportional assignment using protein profiles that represent mass spectrometry data from a set of subcellular fractions in the form of normalized specific amounts (sum of all fractions constrained to 1).  This vignette describes how to use functions in the `protlocassign` package to transform such profiles in a manner that is more useful for inferring proportional residence in subcellular compartments.
 
 
 ## Loading the data
 
-As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `protProfileSummaryTMTms2`, consists of row names that indicate protein identifiers, each of which is followed by data describing the identifier profile across the nine normalized relative specific amounts derived from a subcellular fractionation experiment. The other data set, `refLocProteinsJadot`, consists of a list of reference proteins and their associated known subcelluar compartments.  As before, to run the program, the `protlocassign` library must be installed.
+As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `protProfileSummaryTMTms2`, consists of row names that indicate protein identifiers, each of which is followed by data describing the identifier profile across the nine normalized specific amounts derived from a subcellular fractionation experiment. The other data set, `refLocProteinsJadot`, consists of a list of reference proteins and their associated known subcelluar compartments.  As before, to run the program, the `protlocassign` library must be installed.
 
 
 
@@ -48,7 +48,7 @@ As explained in the Vignette 1, as an example we will use two R data sets that a
 library(protlocassign)
 ```
 
-In Vignette 1, we use `protProfileSummaryTMTms2` and an untransformed average of reference proteins for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as relative specific amounts (RSAs).  As explained in the main text and elaborated in Vignette 3, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `tmtMS2totProt` which is preloaded in `protlocassign`.  Note that the order of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `tmtMS2totProt`) must correspond to those in the data set containing individual protein profiles (e.g., `protProfileSummaryTMTms2`).
+In Vignette 1, we use `protProfileSummaryTMTms2` and an untransformed average of reference protein profiles for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as relative specific amounts (RSAs).  As explained in the main text and elaborated in Vignette 3, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `tmtMS2totProt` which is preloaded in `protlocassign`.  Note that the order of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `tmtMS2totProt`) must correspond to those in the data set containing individual protein profiles (e.g., `protProfileSummaryTMTms2`).
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 options(digits=2)
@@ -84,7 +84,7 @@ To obtain profiles for the reference proteins, use the function `cpaSetup`:
 
 ```{r, echo=TRUE, eval=TRUE}
 markerLocRuse <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
-round(markerLocRuse, digits=3)
+markerLocRuse
 
 ```
 
@@ -93,7 +93,6 @@ We then use `RSAfromS` to transform these reference profiles.
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 markerLocRrsa <- RSAfromS(SS=markerLocRuse, NstartMaterialFractions=6,
        totProt=totProtUse)
-row.names(markerLocRrsa) <- row.names(markerLocRuse)
 markerLocRrsa
 
 ```
