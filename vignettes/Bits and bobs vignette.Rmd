@@ -127,6 +127,10 @@ $\mathbf{A}=\widetilde{\mathbf{S}}\cdot\mathrm{diag}(\mathbf{t})=\left[\begin{ma
 
 ${\breve{a}}_{\alpha,l}=\frac{s_{\alpha,l}t_l}{s_{\alpha,h}t_h}=\frac{s_{\alpha,l}t_l}{\sum_{i=1}^{6}{s_{\alpha,i}t_i}}=\frac{{\widetilde{s}}_{\alpha,l}t_l}{\sum_{i=1}^{6}{{\widetilde{s}}_{\alpha,i}t_i}}$
 
+```{r, echo=FALSE, eval=TRUE, fig.show='hold', fig.width = 1, fig.height = 1}
+ knitr::include_graphics('C:\\Users\\mooredf\\OneDrive - Rutgers University\\gp7\\Res\\constrainedPropAssignDev\\protlocassignPackage\\protlocassign0p1p1\\protlocassign\\vignettes\\images/AcupMatrix.gif')
+
+```
 
 #This is an equation `r latexImg('{a_{\\alpha ,h}} = \\sum\\nolimits_{i = 1}^6 {{s_{\\alpha ,i}}{t_i}} ')` 
 

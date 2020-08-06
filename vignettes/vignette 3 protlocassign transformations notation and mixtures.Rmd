@@ -107,17 +107,9 @@ $${\overset{\smile}{a}_{\alpha ,l}} = \frac{{{s_{\alpha ,l}}{t_l}}}{{{s_{\alpha 
 In matrix form, we may write this as 
 
 
-```{r, echo=FALSE, eval=TRUE, fig.show='hold', fig.width = 1, fig.height = 1}
- knitr::include_graphics('C:\\Users\\mooredf\\OneDrive - Rutgers University\\gp7\\Res\\constrainedPropAssignDev\\protlocassignPackage\\protlocassign0p1p1\\protlocassign\\vignettes\\images/AcupMatrix.gif')
+$\breve{\mathbf{A}}=\mathbf{A}\cdot\mathrm{diag}(1/a_{{\alpha},h})=\left[\begin{matrix}{ {s}}_{11}t_1/a_{1,h}&{ {s}}_{12}t_2/a_{1,h}&\cdots&{ {s}}_{19}t_9/a_{1,h}\\{ {s}}_{21}t_1/a_{2,h}&{ {s}}_{22}t_2/a_{2,h}&\cdots&{ {s}}_{29}t_9/a_{2,h}\\\vdots&\vdots&&\vdots\\{ {s}}_{n1}t_1/a_{n,h}&{ {s}}_{n2}t_2/a_{n,h}&\cdots&{ {s}}_{n9}t_9/a_{n,h}\\\end{matrix}\right]$
 
-```
 
-${{\mathbf{A}}^*} = {\mathbf{A}} \cdot {\mathrm{diag}}(1/{a_{\alpha ,h}}) = \left[ {\begin{}
-{{s_{11}}{t_1}/{a_{1,h}}}&{{s_{12}}{t_2}/{a_{1,h}}}& \cdots &{{s_{19}}{t_9}/{a_{1,h}}}\\
-{{s_{21}}{t_1}/{a_{2,h}}}&{{s_{22}}{t_2}/{a_{2,h}}}& \cdots &{{s_{29}}{t_9}/{a_{2,h}}}\\
- \vdots & \vdots &{}& \vdots \\
-{{s_{n1}}{t_1}/{a_{n,h}}}&{{s_{n2}}{t_2}/{a_{n,h}}}& \cdots &{{s_{n9}}{t_9}/{a_{n,h}}}
-\end{matrix}} \right]$
 
 
  
@@ -142,9 +134,8 @@ When examining the distribution of a given protein in different fractions, it is
 
 For a protein $\alpha$ the RSA in fraction $l$ is given by
 
-$r_{\alpha,l}=\frac{\breve{a}}{{\breve{t}}_l}=\frac{s_{\alpha,l}\bullet\sum_{j}^{k}t_i}{\sum_{j}^{k}{s_\alpha}t_i}$
 
-$r_{\alpha,l}=\frac{\breve{a}}{{\breve{t}}_l}=\frac{s_{\alpha,l}\bullet\sum_{j}^{k}t_i}{\sum_{j}^{k}{s_\alpha}t_i} =\frac{\tilde{s}_{\alpha,l}\bullet\sum_{j}^{k}t_i}{\sum_{j}^{k}{\tilde{s}_\alpha}t_i}$
+$r_{\alpha,l}=\frac{\breve{a}}{{\breve{t}}_l}=\frac{s_{\alpha,l}\cdot\sum_{j}^{k}t_i}{\sum_{j}^{k}{s_\alpha}t_i} =\frac{\tilde{s}_{\alpha,l}\cdot\sum_{j}^{k}t_i}{\sum_{j}^{k}{\tilde{s}_\alpha}t_i}$
 
 
 In matrix form, this is $\mathbf{R}=\left( {{r}_{\alpha ,l}} \right)$.
@@ -371,7 +362,19 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
 ```
 
  
+` 
+setwd("c:\\temp5")
+fitType="relAmt"
+transF=F    # no log2 transformation
+#windows(width=8,height=10)
+pdf(file=paste("CPA assignProts Jadot", fitType, transF, ".pdf"), width=7, height=11)
+mixturePlotPanel(Acup=AcupMarkers, totProt=totProtUse, fitType="relAmt", log2Transf=transF)
+dev.off()
 
+
+windows(width=7,height=10)
+mixturePlotPanel(Acup=AcupMarkers) 
+`
 
 
 
