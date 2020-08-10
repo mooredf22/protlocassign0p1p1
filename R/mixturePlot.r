@@ -5,13 +5,16 @@
 #' @param Loc2  row number of subcellular location 2 of mixture
 
 #' @param mix.df  true mixture proportions used to make the  mixtures (from proteinMix)
+#' @param errorReturn  Return area of error region if true
 #' @param type normalized specific amounts or relative specific amounts
 
 mixturePlot <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1, Loc2,
-                        mix.df, xaxisLab=T, yaxisLab=T) {
+                        mix.df, errorReturn=F, xaxisLab=T, yaxisLab=T) {
   # mixtures must be a list of equally spaced proportions
   # this program assumes exactly eight subcellular compartments
   # set up color and point lists
+  Loc1 <- as.integer(Loc1)
+  Loc2 <- as.integer(Loc2)
   loc.list <- names(mixProtiProtjProp)
   col.list <- c("red", "blue", "orange", "darkgreen", "orange", "lightblue", "purple", "green")
   pch.list <- c(1, 2, 3, 4, 17, 6, 15, 8)
@@ -61,4 +64,9 @@ mixturePlot <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1, Loc2
   #6      Nuc lightblue        6
   #7    Perox    purple       15
   #8       PM     green        8
+  if (errorReturn) {
+    areaErrOut <- data.frame(loc.list[Loc1], loc.list[Loc2], areaErr)
+    names(areaErrOut) <- c("Loc1", "Loc2", "ErrorArea")
+    return(areaErrOut)
+  }
 }

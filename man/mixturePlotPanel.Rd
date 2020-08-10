@@ -7,14 +7,18 @@
 mixturePlotPanel(
   Acup = AcupMarkers,
   totProt,
-  fitType = "relAmt",
-  log2Transf = F
+  errorReturn = F,
+  fitType = "specAmt",
+  log2Transf = F,
+  eps = 0.01
 )
 }
 \arguments{
 \item{Acup}{relative amount of a given cellular compartment protein that ends up in a given centrifugation fraction}
 
 \item{totProt}{vector of amounts starting material in each fraction}
+
+\item{errorReturn}{return all area-based errors if true}
 
 \item{fitType}{use (normalized) specific amounts or relative specific amounts}
 

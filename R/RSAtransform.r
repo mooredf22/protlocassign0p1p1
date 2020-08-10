@@ -160,9 +160,9 @@ RSAfromS <- function(SS=protProfileLevels, NstartMaterialFractions=6,
 
   startMaterialFractions <- SS[,1:NstartMaterialFractions]
 
-  protAbund <- relAmtTransform(SS,NstartMaterialFractions=6, totProt=totProtUse)
+  protAbund <- relAmtTransform(SS,NstartMaterialFractions=6, totProt=totProt)
   Acup <- protAbund
-  rsa <- RSAfromAcup(Acup, totProt=totProtUse)
+  rsa <- RSAfromAcup(Acup, totProt=totProt)
 
   #Difp <- sum(totProt[1:NstartMaterialFractions])   # total protein in the differential fractions
   #TT <- as.matrix(protProfileLevels[,1:NstartMaterialFractions]) %*% totProt[1:NstartMaterialFractions]
