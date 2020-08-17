@@ -11,6 +11,7 @@ mixturePlot(
   Loc2,
   mix.df,
   errorReturn = F,
+  subTitle = NULL,
   xaxisLab = T,
   yaxisLab = T
 )

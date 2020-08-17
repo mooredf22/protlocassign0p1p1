@@ -1,0 +1,259 @@
+---
+title: 'Vignette 4: More on mixtures and transformations'
+author: "Dirk Moore"
+date: "`r Sys.Date()`"
+output:
+  #html_document:
+  #  toc: yes
+  #  df_print: paged
+  word_document:
+  fig_caption: yes
+toc: yes
+#pdf_document:
+#  toc: yes
+vignette: |
+  %\VignetteIndexEntry{protlocassign} %\VignetteEngine{knitr::rmarkdown}
+---
+
+
+  ```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  #collapse = TRUE,
+  comment = "",
+  fig.width = 4,
+  fig.height = 4,
+  message = FALSE,
+  warning = FALSE,
+  tidy.opts = list(
+    keep.blank.line = TRUE,
+    width.cutoff = 150
+  ),
+  options(width = 150),
+  eval = TRUE
+)
+```
+In this vignette we explore briefly the effect of using the normalized specific amounts, relative specific amounts, and relative amounts, and their log transformations. We illustrate using two mixtures: Cyto with Lyso and Cyto with Nuc. We begin by creating the normalized amounts for the reference proteins, which we will use to create mixtures.
+
+## Applying CPA to relative specific amounts, normalized specific amounts, or relative amounts derived from simulated mixtures of Cyto and Lyso
+
+```{r, echo=TRUE, eval=TRUE}
+library(protlocassign)
+library(pracma)
+markerLocR <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
+AcupMarkers <- relAmtTransform(markerLocR, NstartMaterialFractions=6, totProt=tmtMS2totProt)
+```
+
+
+Now create markers using AcupMarkers Cyto (row 1) and Lyso (row 4) in the standard way, and transform the mixtures to relative specific amounts
+
+```{r, echo=TRUE, eval=TRUE}
+i=1
+j=4
+mixProt1Prot4 <- proteinMix(AcupMarkers, Loc1=i, Loc2=j)
+mixProt1Prot4RSA <- RSAfromAcup(Acup=mixProt1Prot4$mixAmount, NstartMaterialFractions=6, totProt=tmtMS2totProt)
+```
+
+Next, obtain CPA estimates using the RSA-transformed mixtures and RSA-transformed references profiles. We see that the CPA estimates match the proportions we used to create the mixtures:
+
+```{r, echo=TRUE, eval=TRUE}
+markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
+        totProt=tmtMS2totProt)
+mixProt1Prot4Prop <- proLocAll(protProfileSummary=mixProt1Prot4RSA, 
+                               markerLocR=markerLocRrsa, n.channels=9)
+round(mixProt1Prot4Prop, digits=3)
+```
+
+We may obtain the normalized specific values transformation of `mixProtiProtjRSA` by constraining the row sums to 1, as discussed in Vignette 3. We do this as follows:
+
+```{r, echo=TRUE, eval=TRUE}
+mixProt1Prot4SpecVal <- t(apply(mixProt1Prot4RSA,1, function(x) x/sum(x)))
+round(mixProt1Prot4SpecVal, digits=3)
+```
+
+Following Vignette 3, we may see what happens if we apply the CPA routine to these normalized specific values
+```{r, echo=TRUE, eval=TRUE}
+
+mixProt1Prot4PropSpecVal <- proLocAll(protProfileSummary=mixProt1Prot4SpecVal,
+                                      markerLocR=markerLocR,
+                             n.channels=9)
+round(mixProt1Prot4PropSpecVal, digits=3)
+```
+
+As noted in Vignette 3, the estimates of the proportions deviate somewhat from those used to generate the mixtures.
+
+Now, instead of transforming the Acup mixtures to RSA's, what happens if we just use the Acup mixtures themselves, i.e., the relative amounts? The results show significant departures of the CPA estimates from the proportions used to create the mixtures:
+
+```{r, echo=TRUE, eval=TRUE}
+mixProt1Prot4PropAcup <- 
+                  proLocAll(protProfileSummary=mixProt1Prot4$mixAmount,
+                                   markerLocR=AcupMarkers, n.channels=9)
+round(mixProt1Prot4PropAcup, digits=3)
+```
+
+To understand why, here are the AcupMarkers. Note that the three Nyc columns, which are important for classifying lysosomal proteins, are very small, which effectively down-weights their importance in the CPA procedure:
+
+```{r, echo=TRUE, eval=TRUE}
+round(AcupMarkers, digits=5)
+```
+
+Following are plots of the CPA estimated vs actual mixture proportions for RSA-transformed values, normalized specific amounts, and relative (Acup) amounts.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+par(mfrow=c(1,3))
+mixturePlot(mixProtiProtjProp=mixProt1Prot4Prop, NstartMaterialFractions=6,
+            Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df, errorReturn = T,
+            subTitle="RSA")
+mixturePlot(mixProtiProtjProp=mixProt1Prot4PropSpecVal, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            mix.df=mixProt1Prot4$mix.df, errorReturn = T,
+            subTitle="SpecAmt")
+mixturePlot(mixProtiProtjProp=mixProt1Prot4PropAcup, NstartMaterialFractions=6, 
+            Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df, errorReturn = T,
+            subTitle="RelAmt")
+
+```
+
+## Applying CPA to log transformations of Cyto and Lyso mixtures
+
+As an alternative to RSA, let us apply a log2 transformation of the Acup values. The resulting CPA estimates are much closer to the true values, but not as close as we had obtained using the RSA transformation:
+
+```{r, echo=TRUE, eval=TRUE}
+eps <- 0.00005
+
+
+mixProt1Prot4PropLog2 <- proLocAll(protProfileSummary=log2(mixProt1Prot4RSA + eps), 
+                               markerLocR=log2(markerLocRrsa + eps), n.channels=9)
+round(mixProt1Prot4PropLog2, digits=3)
+
+mixProt1Prot4PropSpecValLog2 <- 
+            proLocAll(protProfileSummary=log2(mixProt1Prot4SpecVal + eps),
+                        markerLocR=log2(markerLocR + eps), n.channels=9)
+round(mixProt1Prot4PropSpecValLog2, digits=3)
+
+mixProt1Prot4PropAcupLog2 <- 
+            proLocAll(protProfileSummary=log2(mixProt1Prot4$mixAmount + eps),
+                        markerLocR=log2(AcupMarkers + eps) , n.channels=9)
+round(mixProt1Prot4PropAcupLog2, digits=3)
+
+```
+
+Following are plots of the CPA estimated vs actual mixture proportions for RSA-transformed values, Acup values, and log2-Acup values.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+par(mfrow=c(1,3))
+mixturePlot(mixProtiProtjProp=mixProt1Prot4PropLog2, NstartMaterialFractions=6,
+            Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df, errorReturn = T,
+            subTitle="Log2RSA")
+mixturePlot(mixProtiProtjProp=mixProt1Prot4PropSpecValLog2, NstartMaterialFractions=6, 
+            Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df, errorReturn = T,
+            subTitle="Log2SpecAmt")
+mixturePlot(mixProtiProtjProp=mixProt1Prot4PropAcupLog2, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            mix.df=mixProt1Prot4$mix.df, errorReturn = T,
+            subTitle="Log2RelAmt")
+```
+
+## Applying CPA to relative specific amounts, normalized specific amounts, or relative amounts derived from simulated mixtures of Cyto and Nuc
+
+In the previous sections we showed that one can apply CPA to Cyto-Lyso mixtures using a range of transformations, and we saw that the best results were obtained using relative specific values, and the worst results from using relative amounts (Acup transformations). Then we saw that log-transformations of the relative amounts improved the quality of the estimates considerably. 
+
+In this section we consider Cyto and Nuc mixtures, which we generate in the standard way. We shall see that here, Acup-transformed values produce good CPA estimates, just as RSA-transformed values. The reason is that, unlike with Lyso, the Nuc (and Cyto) profiles do not depend on the Nyc portions of the values, and thus the estimated subcellular residence proportions do not suffer from the extremely small Nyc profile values.
+
+Here are the CPA estimates from RSA-transformed profiles:
+
+```{r, echo=TRUE, eval=TRUE}
+i=1  # Cyto
+j=6  # Nuc
+mixProt1Prot6 <- proteinMix(AcupMarkers, Loc1=i, Loc2=j)
+mixProt1Prot6RSA <- RSAfromAcup(Acup=mixProt1Prot6$mixAmount, 
+                                NstartMaterialFractions=6, totProt=tmtMS2totProt)
+
+
+mixProt1Prot6Prop <- proLocAll(protProfileSummary=mixProt1Prot6RSA, 
+                               markerLocR=markerLocRrsa, n.channels=9)
+round(mixProt1Prot6Prop, digits=3)
+```
+As noted earlier, the simulated proportions are estimated very accurately.
+
+Following Vignette 3, we may see what happens if we apply the CPA routine to these normalized specific values
+```{r, echo=TRUE, eval=TRUE}
+mixProt1Prot6SpecVal <- t(apply(mixProt1Prot6RSA,1, function(x) x/sum(x)))
+
+mixProt1Prot6PropSpecVal <- proLocAll(protProfileSummary=mixProt1Prot6SpecVal,
+                                      markerLocR=markerLocR,
+                             n.channels=9)
+round(mixProt1Prot6PropSpecVal, digits=3)
+```
+
+As noted in Vignette 3, the estimates of the proportions deviate somewhat from those used to generate the mixtures.
+
+Now do this using "Acup markers" instead of RSA-transformed values. 
+
+```{r, echo=TRUE, eval=TRUE}
+mixProt1Prot6PropAcup <- proLocAll(protProfileSummary=mixProt1Prot6$mixAmount,
+                                   markerLocR=AcupMarkers, n.channels=9)
+```
+
+Note that, unlike with the Cyto-Lyso mixture, the estimates with the Cyto-Nuc mixture are very accurate:
+
+```{r, echo=TRUE, eval=TRUE}
+round(mixProt1Prot6PropAcup, digits=3)
+```
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+par(mfrow=c(1,3))
+mixturePlot(mixProtiProtjProp=mixProt1Prot6Prop, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            mix.df=mixProt1Prot6$mix.df, errorReturn = T,
+            subTitle="RSA")
+mixturePlot(mixProtiProtjProp=mixProt1Prot6PropSpecVal, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            mix.df=mixProt1Prot6$mix.df, errorReturn = T,
+            subTitle="SpecAmt")
+mixturePlot(mixProtiProtjProp=mixProt1Prot6PropAcup, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            mix.df=mixProt1Prot6$mix.df, errorReturn = T,
+            subTitle="RelAmt")
+```
+
+## Applying CPA to log transformations of Cyto and Nuc mixtures
+
+Now try a log2 transformation of the Acup values. Note that the CPA values are different.
+
+```{r, echo=TRUE, eval=TRUE}
+eps <- 0.00005
+
+mixProt1Prot6PropLog2 <- 
+           proLocAll(protProfileSummary=log2(mixProt1Prot6RSA + eps), 
+                      markerLocR=log2(markerLocRrsa + eps), n.channels=9)
+round(mixProt1Prot6PropLog2, digits=3)
+
+mixProt1Prot6PropSpecValLog2 <- 
+           proLocAll(protProfileSummary=log2(mixProt1Prot6SpecVal + eps),
+                      markerLocR=log2(markerLocR + eps), n.channels=9)
+round(mixProt1Prot6PropSpecVal, digits=3)
+
+
+mixProt1Prot6PropAcupLog2 <- 
+           proLocAll(protProfileSummary=log2(mixProt1Prot6$mixAmount + eps),
+                           markerLocR=log2(AcupMarkers + eps), n.channels=9)
+round(mixProt1Prot6PropAcupLog2, digits=3)
+```
+
+Following are plots of the CPA estimated vs actual mixture proportions for RSA-transformed values, Acup values, and log2-Acup values.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+par(mfrow=c(1,3))
+mixturePlot(mixProtiProtjProp=mixProt1Prot6PropLog2, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            mix.df=mixProt1Prot6$mix.df, errorReturn = T,
+            subTitle="Log2RSA")
+mixturePlot(mixProtiProtjProp=mixProt1Prot6PropSpecValLog2, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            mix.df=mixProt1Prot6$mix.df, errorReturn = T,
+            subTitle="Log2SpecAmt")
+mixturePlot(mixProtiProtjProp=mixProt1Prot6PropAcupLog2, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            mix.df=mixProt1Prot6$mix.df, errorReturn = T,
+            subTitle="Log2RelAmt")
+```

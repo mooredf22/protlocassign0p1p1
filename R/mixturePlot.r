@@ -9,7 +9,7 @@
 #' @param type normalized specific amounts or relative specific amounts
 
 mixturePlot <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1, Loc2,
-                        mix.df, errorReturn=F, xaxisLab=T, yaxisLab=T) {
+                        mix.df, errorReturn=F, subTitle=NULL, xaxisLab=T, yaxisLab=T) {
   # mixtures must be a list of equally spaced proportions
   # this program assumes exactly eight subcellular compartments
   # set up color and point lists
@@ -53,7 +53,7 @@ mixturePlot <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1, Loc2
   abline(a=0,b=1, col="gray")
   abline(a=1,b=-1, col="gray")
   titleText <- paste(loc.list[Loc1], "-", loc.list[Loc2])
-  title(paste(titleText, "(", format(round(areaErr,3), nsmall=3), ")"))   # guarantee 3 digits after decimal
+  title(paste(titleText, "(", format(round(areaErr,3), nsmall=3), ")\n", subTitle))   # guarantee 3 digits after decimal
   #plotLables
   #loc.list  col.list pch.list
   #1     Cyto       red        1
