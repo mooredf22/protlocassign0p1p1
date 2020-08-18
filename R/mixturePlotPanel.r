@@ -55,7 +55,7 @@ mixturePlotPanel <- function(Acup=AcupMarkers, totProt, errorReturn=F, fitType="
       mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
 
       mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, NstartMaterialFractions=6,
-                                      totProt=totProtUse)
+                                      totProt=totProt)
       if (!log2Transf & {fitType == "rsa"}) {
        mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjRSA,
                                      markerLocR=markerLocRrsa, n.channels=9)

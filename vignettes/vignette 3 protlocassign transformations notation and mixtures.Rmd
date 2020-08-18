@@ -417,7 +417,7 @@ log2Transf <- F
 
 pdf(file=paste("CPA assignProts Jadot", fitType, log2Transf, ".pdf"), width=7, height=11)
 
-errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=totProtUse, errorReturn = T, 
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=tmtMS2totProt, errorReturn = T, 
               fitType=fitType, log2Transf=log2Transf)
 dev.off()
 
@@ -431,7 +431,7 @@ log2Transf <- T
 
 pdf(file=paste("CPA assignProts Jadot", fitType, log2Transf, ".pdf"), width=7, height=11)
 
-errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=totProtUse, errorReturn = T, 
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=tmtMS2totProt, errorReturn = T, 
               fitType=fitType, log2Transf=log2Transf)
 dev.off()
 
@@ -451,7 +451,7 @@ log2Transf <- F
 
 pdf(file=paste("CPA assignProts Jadot", fitType=fitType, transf=log2Transf, ".pdf"), width=7, height=11)
 
-errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=totProtUse, errorReturn = T, 
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=tmtMS2totProt, errorReturn = T, 
               fitType=fitType, log2Transf=log2Transf)
 dev.off()
 
@@ -465,7 +465,7 @@ log2Transf <- T
 
 pdf(file=paste("CPA assignProts Jadot", fitType, log2Transf, ".pdf"), width=7, height=11)
 
-errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=totProtUse, errorReturn = T, 
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=tmtMS2totProt, errorReturn = T, 
               fitType=fitType, log2Transf=log2Transf)
 dev.off()
 
