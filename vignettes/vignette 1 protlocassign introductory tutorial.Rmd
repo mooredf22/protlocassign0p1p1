@@ -47,15 +47,11 @@ Determining the locations of proteins in the cell is an important but complex pr
 
 This package implements a subcellular protein assignment procedure as “constrained proportional assignment”, or CPA (Jadot et al, 2016). The basic concepts involved in CPA and analysis of subcellular proteomics data are described in the main paper. These vignettes serve as a basis for implementing CPA and various utilities for both experienced and beginner R users.
 
-There are two fundamental inputs for CPA.  The first is a file with information regarding the distribution of each protein or other species of interest to be analyzed across centrifugation fractions. Each row has a name that serves as a unique identifier, which can be a protein name, protein group, gene name, accession number, or peptide sequence. For each protein identifier, there are data that reflects its distribution among the centrifugal fractions, which represent a profile. The second is a file containing a curated list of reference proteins (markers) with defined subcellular locations. As an initial step, the package uses the markers to compute profiles for individual cellular compartments. Then, for each protein, it finds the best match for its profile using a linear combination of compartment profiles. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. 
+There are two fundamental inputs for CPA.  The first is a file with information regarding the distribution of each protein or other species of interest to be analyzed across centrifugation fractions. Each row has a name that serves as a unique identifier, which can be a protein name, protein group, gene name, accession number, or peptide sequence. For each protein identifier, there are data that reflects its distribution among the centrifugal fractions, which represent a profile. The second is a file containing a curated list of marker proteins with defined subcellular locations. As an initial step, the package uses the markers to compute profiles for individual cellular compartments. Then, for each protein, it finds the best match for its profile using a linear combination of compartment profiles. The relative weights of the linear combination in principle reflect the relative abundance of a given protein among different compartments. The CPA method, unlike other previously described methods, can thus account for proteins that have multiple residences, and estimate the relative proportion among these residences. 
 
 
 
-
-
-
-
-## Tutorial on protein assignment
+## Introduction
 
 We illustrate with an example. Tannous et al. (2020) presented abundance levels of proteins among six fractions from a differential centrifugation experiment (N, M, L1, L2, P, and S), and three fractions from a Nycodenz density gradient separation of the differential fraction L1 (Nyc1, Nyc2, and Nyc3). Eight subcellular compartments were considered: nucleus (Nuc), mitochondria (Mito), lysosomes (Lyso), peroxisomes (Perox), endoplasmic reticulum (ER) Golgi apparatus (Golgi), plasma membrane (PM), and cytosol (Cyto). The CPA method assigns each of a large number of proteins to one or more of these compartments, based on profiles from a set of reference proteins. 
 
@@ -84,26 +80,31 @@ These are the only packages required for data that are presented as mean levels 
 
 ## Working with data
 
-To use this package you will need two data sets. One, referred to here as the protein profile data set, contains rows with a unique identifier followed by data describing its profile across a series of centrifugation fractions. In this vignette, the profiles are specific amounts with sums constrained to 1 (see main Paper) but can be further transformed to improve the quality of the fit (see Vignettes 2 and 3). In addition, there may be two additional values representing the numbers of peptides and spectra that were used to compute the profile.  The other data set consists of a list of reference proteins and their associated known subcellular compartments.
+To use this package, you will need two data sets. One, referred to here as the protein profile data set, contains rows with a unique identifier followed by data describing its profile across a series of centrifugation fractions. In this vignette, the profiles are specific amounts with sums constrained to 1 (see main Paper) but can be further transformed to improve the quality of the fit (see Vignettes 2 and 3). In addition, there may be two additional values representing the numbers of peptides and spectra that were used to compute the profile.  The other data set consists of a list of reference proteins and their associated known subcellular compartments.
 
 
-Consider for example the TMT MS2 data from Tannous et al. (2020). To get started, load the package and look at the dimensions of the protein profile data set which shows that it has 7893 rows and 11 columns: 
+Consider for example the TMT MS2 data from Tannous et al. (2020). To get started, load the package and look at the dimensions of the embedded protein profile data set which shows that it has 7893 rows and 11 columns: 
 
 ```{r, echo=TRUE}
 library(protlocassign)
 dim(protProfileSummaryTMTms2)
 ```
 
-Now look at the first few rows of the data, rounding to improve legibility. The first nine columns represent the average levels of the different fractions, across spectra. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. (While we use a nested random effects model described in Jadot, 2016 to compute the means across spectra, other methods, including taking a straight average, may be appropriate for other applications.)
+Now look at the first few rows of the data using the `head` command, rounding to improve legibility. The first nine columns represent the average levels of the different fractions, across spectra. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. (While we use a nested random effects model described in Jadot, 2016 to compute the means across spectra, other methods, including taking a straight average, may be appropriate for other applications.)
 
 ```{r, echo=TRUE}
 round(head(protProfileSummaryTMTms2), digits=2)
 ```
 
-The list containing reference proteins (also called marker proteins) that we use is derived from Jadot et al (2016) and contains 39 rows and two columns, the first for the protein names and the second for their respective subcellular compartments. These may be viewed as follows:
+The list containing reference proteins (also called marker proteins) that we use is derived from Jadot et al (2016) and examining the dimensions of the data reveals that it contains 39 rows and two columns, the first for the protein names and the second for their respective subcellular compartments.
 
 ```{r, echo=TRUE}
 dim(refLocProteinsJadot)
+```
+
+The data set can be viewed by entering its name as follows:
+
+```{r, echo=TRUE}
 refLocProteinsJadot
 ```
 
@@ -144,16 +145,21 @@ In order to assign proteins proportionately to their respective compartments, we
 
 ```{r, echo=TRUE, eval=TRUE}
 markerLocRuse <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
-markerLocRuse
-
 ```
 
-To view a particular compartment profile and its component proteins, use `refProfilePlot`. To examine the available compartments, use the row names of `markerLocR`. 
+We display the dat, using rounding to improve readability.
+
+```{r, echo=TRUE, eval=TRUE}
+round(markerLocRuse, digits=4)
+```
+
+To examine the available compartments, vew the row names of `markerLocRuse`.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 rownames(markerLocRuse)
 ```
 
+To view a particular compartment profile and its component proteins, use `refProfilePlot`. 
 For example, to plot the profile for plasma membrane, use this:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
@@ -172,10 +178,10 @@ refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
                      markerLocR=markerLocRuse, refProtPlot=2)
 ```
 
-To show all five of the reference proteins, use `par(mfrow=c(3,2))` to set up a plot array with 3 rows and 2 columns which will accommodate up to six plots on a single page. Then plot all five of the them one-by-one by specifying `for (j in 1:5)`. (To make them legible, you may first need to open a new window by entering `windows(width=7, height=10)`.) The parameters in `par(mfrow=c(3,2))` and `for (j in 1:5)` can be adjusted to display any number of plots.
+To show all five of the reference proteins that are used to calculate the PM compartmental profile, use `par(mfrow=c(3,2))` to set up a plot array with 3 rows and 2 columns which will accommodate up to six plots on a single page. Then plot all five of the them one-by-one by specifying `for (j in 1:5)`. (To make them legible, you may first need to open a new window by entering `windows(width=7, height=10)`.) The parameters in `par(mfrow=c(3,2))` and `for (j in 1:5)` can be adjusted to display any number of plots.
 
 
-```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 5, fig.height = 7}
 
 par(mfrow=c(3,2))
 for (j in 1:5) {
@@ -185,7 +191,7 @@ for (j in 1:5) {
   }
 ```
 
-To plot all of the reference profiles we may set up a plot window with four rows and two columns and then loop through the eight subcellular compartments.
+To plot all of the compartment and individual marker protein profiles, we may set up a plot window with four rows and two columns and then loop through the eight subcellular compartments.
 
 ```{r, echo=TRUE, eval=TRUE, fig.width = 7, fig.height = 10}
 loc.list <- rownames(markerLocRuse)
@@ -198,16 +204,20 @@ for (i in 1:n.loc) {
   }
 ```
 
-Now we can run the CPA routine, which assigns proteins to their respective compartments; this may take several minutes to complete. 
+Once we are satisfied with the marker set and compartment profiles, we can run the CPA routine which, for each protein in our data set, apportions its residency among the different specified compartments. This  may take several minutes to complete. 
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
 assignPropsUse <- proLocAll(protProfileSummary=protProfileSummaryTMTms2,
                             markerLocR=markerLocRuse, n.channels=9)
-
-str(assignPropsUse, digits=2)
 ```
 
-The first column contains the protein names, and the next 8 columns contain the allocation proportions of each protein to the eight compartments. The last two columns are integers representing the numbers of peptides and spectra, which are carried over from the input `protProfileSummary` profile data, these are not essential for the CPA analysis.
+We can view the structure of the output data file and see that the row names contain the protein names, and the next 8 columns contain the allocation proportions of each protein to the eight compartments. The last two columns are integers representing the numbers of peptides and spectra, which are carried over from the input `protProfileSummary` profile data, these are not essential for the CPA analysis.
+
+```{r, echo=TRUE, eval=TRUE}
+head(assignPropsUse, digits=2)
+```
+
+
 
 We can look at the profile of, for example, the protein "TLN1". We first ensure that the protein is in the dataset:
 
@@ -238,12 +248,12 @@ The `protPlotfun` function is designed to plot profiles of eight subcellular loc
 ## Saving the CPA output
 ### Data output
 
-We may save the results of the `proLocAll` procedure by first setting a directory.
+To save the results of the CPA procedure, first specify a directory for the output.
 
 ```
 setwd("C:/temp/myProteinOutput")
 ```
-The write out the data as a comma separated file, using `write.csv`:
+Next, write out the data as a comma separated file, using `write.csv`:
 
 ```
 write.csv(assignPropsUse, file="assignPropsUse.txt", row.names=T)

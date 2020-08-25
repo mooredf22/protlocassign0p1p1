@@ -203,20 +203,24 @@ round(mixCytoLysoProp, digits=3)
 
 The estimated proportions correspond closely to the proportions used in the simulation.
 
+Plotting these estimates against the “true” distributions of the simulated proteins provides insights into different transformations on the goodness of fit. We first illustrate this using simulated proteins distributed in varying amounts between the cytoplasm and the lysosome. We then extend this to simulated proteins distributed cytoplasm and each of the other compartments.  Finally, we provide a function that performs simulations on proteins residing between all pairs of compartments.
+
 ## Plotting mixtures of proteins with transformations
 
-We may plot the predicted (based on CPA) and expected (based on the simulation parameters) proportional assignments using the `mixturePlot` function. This function evaluates the prediction error by computing the area separating  the predicted and expected protein mixtures via the trapezoidal rule; this is done with the `trapz` function in the `pracma` library, which must have been previously installed. We also need to tell the program which locations were used to generate the mixtures using `Loc1` and `Loc2`:
+We will first illustrate plotting using a simulation of proteins distributed between the cytoplasm and the lysosome.  We will then extend this to examining simulated proteins distributed cytoplasm and each of the other compartments, which provides insights into the different transformations.  Finally, we provide a function that performs simulations on proteins residing between all pairs of compartments.
+
+For our first simulation, of proteins distributed between two compartments (cyto and lyso), we plot  predicted (based on CPA) and expected (based on the simulation parameters) proportional assignments using the `mixturePlot` function. This function evaluates the prediction error by computing the area separating the predicted and expected protein mixtures via the trapezoidal rule; this is done with the `trapz` function in the `pracma` library, which must have been previously installed. We also need to tell the program which two locations were used to generate the mixtures using `Loc1` and `Loc2`. 
 
 ```{r, echo=TRUE, eval=TRUE}
 library(pracma)
 mixturePlot(mixProtiProtjProp=mixCytoLysoProp, 
-            NstartMaterialFractions=6, Loc1=1, Loc=4,
+            NstartMaterialFractions=6, Loc1=1, Loc2=4,
             mix.df=mixCytoLyso$mix.df, xaxisLab=T, yaxisLab=T)
 ```
 
 Here we see visually that the estimated proportions match the simulated ones. The area separated by the observed and expected CPA estimates, an indication of the goodness of fit, is nearly zero, and is shown in parentheses.
 
-As an alternative, we may obtain CPA estimates using log-transformed relative amounts, first adding a small constatn to avoid taking the log of zero:
+As an alternative, we may obtain CPA estimates using log-transformed relative amounts, first adding a small constant to avoid taking the log of zero:
 
 ```{r, echo=TRUE, eval=TRUE}
 mixCytoLysoRSAlog2 <- log2(mixCytoLysoRSA + .01)

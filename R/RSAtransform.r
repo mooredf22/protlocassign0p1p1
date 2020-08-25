@@ -29,7 +29,9 @@
 relAmtTransform <- function(SS, NstartMaterialFractions=6,
                                totProt=NULL) {
 
-  startMaterialFractions <- SS[,1:NstartMaterialFractions]
+  startMaterialFractions <- SS[,1:NstartMaterialFractions]  # just differential fractions
+  nTotFractions <- length(totProt)    # number of all fractions
+  SSfractions <- SS[,1:nTotFractions]  # columns with SS amounts; excludes additional columns
 
 
   # Compute amount of protein in a given fraction
@@ -45,8 +47,8 @@ relAmtTransform <- function(SS, NstartMaterialFractions=6,
   # [1] 9    # 9 columns
   # Therefore, sweep across dimension 2
 
-  AA <- data.frame(sweep(SS, 2,totProt, "*"))
-  names(AA) <- colnames(SS)
+  AA <- data.frame(sweep(SSfractions, 2,totProt, "*"))
+  names(AA) <- colnames(SSfractions)
 
   # Compute amount of given protein in fraction / amount of given protein in starting material
   # use these values to create mixtures
@@ -159,8 +161,11 @@ RSAfromS <- function(SS=protProfileLevels, NstartMaterialFractions=6,
   }
 
   startMaterialFractions <- SS[,1:NstartMaterialFractions]
+  nTotFractions <- length(totProt)    # number of all fractions
+  SSfractions <- SS[,1:nTotFractions]  # columns with SS amounts; excludes additional columns
 
-  protAbund <- relAmtTransform(SS,NstartMaterialFractions=6, totProt=totProt)
+
+  protAbund <- relAmtTransform(SSfractions,NstartMaterialFractions=6, totProt=totProt)
   Acup <- protAbund
   rsa <- RSAfromAcup(Acup, totProt=totProt)
 
