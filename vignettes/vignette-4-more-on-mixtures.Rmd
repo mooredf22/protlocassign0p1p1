@@ -63,20 +63,20 @@ mixProt1Prot4Prop <- proLocAll(protProfileSummary=mixProt1Prot4RSA,
 round(mixProt1Prot4Prop, digits=3)
 ```
 
-We may obtain the normalized specific values transformation of `mixProtiProtjRSA` by constraining the row sums to 1, as discussed in Vignette 3. We do this as follows:
+We may obtain the normalized specific amounts transformation of `mixProtiProtjRSA` by constraining the row sums to 1, as discussed in Vignette 3. We do this as follows:
 
 ```{r, echo=TRUE, eval=TRUE}
-mixProt1Prot4SpecVal <- t(apply(mixProt1Prot4RSA,1, function(x) x/sum(x)))
-round(mixProt1Prot4SpecVal, digits=3)
+mixProt1Prot4SpecAmt <- t(apply(mixProt1Prot4RSA,1, function(x) x/sum(x)))
+round(mixProt1Prot4SpecAmt, digits=3)
 ```
 
 Following Vignette 3, we may see what happens if we apply the CPA routine to these normalized specific values
 ```{r, echo=TRUE, eval=TRUE}
 
-mixProt1Prot4PropSpecVal <- proLocAll(protProfileSummary=mixProt1Prot4SpecVal,
+mixProt1Prot4PropSpecAmt <- proLocAll(protProfileSummary=mixProt1Prot4SpecAmt,
                                       markerLocR=markerLocR,
                              n.channels=9)
-round(mixProt1Prot4PropSpecVal, digits=3)
+round(mixProt1Prot4PropSpecAmt, digits=3)
 ```
 
 As noted in Vignette 3, the estimates of the proportions deviate somewhat from those used to generate the mixtures.
@@ -103,7 +103,7 @@ par(mfrow=c(1,3))
 mixturePlot(mixProtiProtjProp=mixProt1Prot4Prop, NstartMaterialFractions=6,
             Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df, errorReturn = T,
             subTitle="RSA")
-mixturePlot(mixProtiProtjProp=mixProt1Prot4PropSpecVal, 
+mixturePlot(mixProtiProtjProp=mixProt1Prot4PropSpecAmt, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             mix.df=mixProt1Prot4$mix.df, errorReturn = T,
             subTitle="SpecAmt")
@@ -111,6 +111,18 @@ mixturePlot(mixProtiProtjProp=mixProt1Prot4PropAcup, NstartMaterialFractions=6,
             Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df, errorReturn = T,
             subTitle="RelAmt")
 
+```
+
+We may obtain only the areas by using the `mixtureAreaError` function.
+
+```{r, echo=TRUE, eval=TRUE}
+mixtureAreaError(mixProtiProtjProp=mixProt1Prot4Prop, NstartMaterialFractions=6,
+            Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df)
+mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropSpecAmt, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            mix.df=mixProt1Prot4$mix.df)
+mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropAcup, NstartMaterialFractions=6, 
+            Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df)
 ```
 
 ## Applying CPA to log transformations of Cyto and Lyso mixtures
@@ -125,10 +137,10 @@ mixProt1Prot4PropLog2 <- proLocAll(protProfileSummary=log2(mixProt1Prot4RSA + ep
                                markerLocR=log2(markerLocRrsa + eps), n.channels=9)
 round(mixProt1Prot4PropLog2, digits=3)
 
-mixProt1Prot4PropSpecValLog2 <- 
-            proLocAll(protProfileSummary=log2(mixProt1Prot4SpecVal + eps),
+mixProt1Prot4PropSpecAmtLog2 <- 
+            proLocAll(protProfileSummary=log2(mixProt1Prot4SpecAmt + eps),
                         markerLocR=log2(markerLocR + eps), n.channels=9)
-round(mixProt1Prot4PropSpecValLog2, digits=3)
+round(mixProt1Prot4PropSpecAmtLog2, digits=3)
 
 mixProt1Prot4PropAcupLog2 <- 
             proLocAll(protProfileSummary=log2(mixProt1Prot4$mixAmount + eps),
@@ -144,13 +156,25 @@ par(mfrow=c(1,3))
 mixturePlot(mixProtiProtjProp=mixProt1Prot4PropLog2, NstartMaterialFractions=6,
             Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df, errorReturn = T,
             subTitle="Log2RSA")
-mixturePlot(mixProtiProtjProp=mixProt1Prot4PropSpecValLog2, NstartMaterialFractions=6, 
+mixturePlot(mixProtiProtjProp=mixProt1Prot4PropSpecAmtLog2, NstartMaterialFractions=6, 
             Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df, errorReturn = T,
             subTitle="Log2SpecAmt")
 mixturePlot(mixProtiProtjProp=mixProt1Prot4PropAcupLog2, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             mix.df=mixProt1Prot4$mix.df, errorReturn = T,
             subTitle="Log2RelAmt")
+```
+
+Here are just the areas:
+
+```{r, echo=TRUE, eval=TRUE}
+mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropLog2, NstartMaterialFractions=6,
+            Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df)
+mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropSpecAmtLog2, NstartMaterialFractions=6, 
+            Loc1=i, Loc2=j, mix.df=mixProt1Prot4$mix.df)
+mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropAcupLog2, 
+            NstartMaterialFractions=6, Loc1=i, Loc2=j,
+            mix.df=mixProt1Prot4$mix.df)
 ```
 
 ## Applying CPA to relative specific amounts, normalized specific amounts, or relative amounts derived from simulated mixtures of Cyto and Nuc
@@ -177,12 +201,12 @@ As noted earlier, the simulated proportions are estimated very accurately.
 
 Following Vignette 3, we may see what happens if we apply the CPA routine to these normalized specific values
 ```{r, echo=TRUE, eval=TRUE}
-mixProt1Prot6SpecVal <- t(apply(mixProt1Prot6RSA,1, function(x) x/sum(x)))
+mixProt1Prot6SpecAmt <- t(apply(mixProt1Prot6RSA,1, function(x) x/sum(x)))
 
-mixProt1Prot6PropSpecVal <- proLocAll(protProfileSummary=mixProt1Prot6SpecVal,
+mixProt1Prot6PropSpecAmt <- proLocAll(protProfileSummary=mixProt1Prot6SpecAmt,
                                       markerLocR=markerLocR,
                              n.channels=9)
-round(mixProt1Prot6PropSpecVal, digits=3)
+round(mixProt1Prot6PropSpecAmt, digits=3)
 ```
 
 As noted in Vignette 3, the estimates of the proportions deviate somewhat from those used to generate the mixtures.
@@ -206,7 +230,7 @@ mixturePlot(mixProtiProtjProp=mixProt1Prot6Prop,
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             mix.df=mixProt1Prot6$mix.df, errorReturn = T,
             subTitle="RSA")
-mixturePlot(mixProtiProtjProp=mixProt1Prot6PropSpecVal, 
+mixturePlot(mixProtiProtjProp=mixProt1Prot6PropSpecAmt, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             mix.df=mixProt1Prot6$mix.df, errorReturn = T,
             subTitle="SpecAmt")
@@ -215,6 +239,7 @@ mixturePlot(mixProtiProtjProp=mixProt1Prot6PropAcup,
             mix.df=mixProt1Prot6$mix.df, errorReturn = T,
             subTitle="RelAmt")
 ```
+
 
 ## Applying CPA to log transformations of Cyto and Nuc mixtures
 
@@ -228,10 +253,10 @@ mixProt1Prot6PropLog2 <-
                       markerLocR=log2(markerLocRrsa + eps), n.channels=9)
 round(mixProt1Prot6PropLog2, digits=3)
 
-mixProt1Prot6PropSpecValLog2 <- 
-           proLocAll(protProfileSummary=log2(mixProt1Prot6SpecVal + eps),
+mixProt1Prot6PropSpecAmtLog2 <- 
+           proLocAll(protProfileSummary=log2(mixProt1Prot6SpecAmt + eps),
                       markerLocR=log2(markerLocR + eps), n.channels=9)
-round(mixProt1Prot6PropSpecVal, digits=3)
+round(mixProt1Prot6PropSpecAmt, digits=3)
 
 
 mixProt1Prot6PropAcupLog2 <- 
@@ -248,7 +273,7 @@ mixturePlot(mixProtiProtjProp=mixProt1Prot6PropLog2,
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             mix.df=mixProt1Prot6$mix.df, errorReturn = T,
             subTitle="Log2RSA")
-mixturePlot(mixProtiProtjProp=mixProt1Prot6PropSpecValLog2, 
+mixturePlot(mixProtiProtjProp=mixProt1Prot6PropSpecAmtLog2, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             mix.df=mixProt1Prot6$mix.df, errorReturn = T,
             subTitle="Log2SpecAmt")
@@ -257,3 +282,5 @@ mixturePlot(mixProtiProtjProp=mixProt1Prot6PropAcupLog2,
             mix.df=mixProt1Prot6$mix.df, errorReturn = T,
             subTitle="Log2RelAmt")
 ```
+
+If desired, we could obtain only the areas using the `mixtureAreaError` function, as we did earlier.

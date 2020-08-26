@@ -6,7 +6,6 @@
 
 #' @param mix.df  true mixture proportions used to make the  mixtures (from proteinMix)
 #' @param errorReturn  Return area of error region if true
-#' @param type normalized specific amounts or relative specific amounts
 
 mixturePlot <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1, Loc2,
                         mix.df, errorReturn=F, subTitle=NULL, xaxisLab=T, yaxisLab=T) {
