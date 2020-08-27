@@ -284,3 +284,11 @@ mixturePlot(mixProtiProtjProp=mixProt1Prot6PropAcupLog2,
 ```
 
 If desired, we could obtain only the areas using the `mixtureAreaError` function, as we did earlier.
+
+We may visualize the area-based errors for all pairwise mixtures using the `mixtureHeatMap` function, which requires prior installation of the `plot.matrix` R library. For each pair of compartments, this function first creates the mixtures as described earlier using the `Acup` markers. Then it computes the three transformations we have discussed, as well as the log2 transformations of these, and plots them as a 2 by 3 array, with the three transformations (relative specific amountss, normalized specific amounts, and relative amounts) as columns. The first row is the original values, and the second row is a log2 transformation of these values. Colors range from light yellow (for little error) up to dark red (high error). These 2 by 3 heat maps are arranged in an upper triangular array, with each entry corresponding the a mixture of the row compartment and column compartment.
+
+```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+mixtureHeatMap(Acup=AcupMarkers, totProt=tmtMS2totProt)
+```
+
+This heatmap confirms that relative specific amounts provide the most accurate estimates of the true mixtures, and that relative amounts often (but not always) provide the most inaccurate estimates. The log2-transformed errors (second row of each 2 by 3 heatmap) are never as good as relative specific amounts, but generally improve on estimates based on relative amounts.

@@ -17,6 +17,7 @@ RoxygenNote: 7.1.1
 Imports:
     lme4,
     BB,
-    pracma
+    pracma,
+    plot.matrix
 VignetteBuilder: knitr
 URL: http//github.com/mooredf22/protlocassign
