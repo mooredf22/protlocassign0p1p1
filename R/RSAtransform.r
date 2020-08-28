@@ -28,6 +28,9 @@
 
 relAmtTransform <- function(SS, NstartMaterialFractions=6,
                                totProt=NULL) {
+  if (ncol(SS) != length(totProt)) {
+    cat("Error from relAmtTransoform: no. of rows of SS must match length of totProt\n")
+  }
 
   startMaterialFractions <- SS[,1:NstartMaterialFractions]  # just differential fractions
   nTotFractions <- length(totProt)    # number of all fractions
@@ -76,6 +79,10 @@ relAmtTransform <- function(SS, NstartMaterialFractions=6,
 #' @return rsa: relative specific amount
 RSAfromAcup <- function(Acup, NstartMaterialFractions=6,
                          totProt=NULL) {
+
+  if (ncol(Acup) != length(totProt)) {
+    cat("Error from RSAfromAcup: no. of rows of Acup must match length of totProt\n")
+  }
 # # # # # # # #
 # rename variabiles
 # # # # # # # #
@@ -158,6 +165,9 @@ RSAfromS <- function(SS=protProfileLevels, NstartMaterialFractions=6,
   if ({nrow(missing.rows) > 0} | {is.null(missing.rows)}) {
     cat("Error from rsaDirect: missing values not allowed\n")
     return(missing.rows)
+  }
+  if (ncol(SS) != length(totProt)) {
+     cat("Error from rsaDirect: no. of rows of SS must match length of totProt\n")
   }
 
   startMaterialFractions <- SS[,1:NstartMaterialFractions]
