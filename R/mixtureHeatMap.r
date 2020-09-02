@@ -112,8 +112,9 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
   library(plot.matrix)
   library("viridis")
 
-  col <- rev(plasma(20))
-  plot(errorMat, col=col, breaks=seq(0, 2, 0.1), key=NULL, main="",
+
+  col <- rev(magma(20))
+  plot(errorMat, col=col, breaks=seq(0, 2, 0.10), key=NULL, main="",
      axis.col=NULL, axis.row=NULL, xlab="", ylab="", digits=2, cex=0.8)
     }
    }
