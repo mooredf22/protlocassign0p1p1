@@ -18,6 +18,7 @@ Imports:
     lme4,
     BB,
     pracma,
-    plot.matrix
+    plot.matrix,
+    viridis
 VignetteBuilder: knitr
 URL: http//github.com/mooredf22/protlocassign
