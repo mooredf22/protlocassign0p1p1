@@ -19,6 +19,8 @@ Imports:
     BB,
     pracma,
     plot.matrix,
-    viridis
+    viridis,
+    grid,
+    gridExtra
 VignetteBuilder: knitr
 URL: http//github.com/mooredf22/protlocassign
