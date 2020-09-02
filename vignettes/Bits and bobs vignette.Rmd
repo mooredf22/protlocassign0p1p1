@@ -134,3 +134,28 @@ ${\breve{a}}_{\alpha,l}=\frac{s_{\alpha,l}t_l}{s_{\alpha,h}t_h}=\frac{s_{\alpha,
 
 #This is an equation `r latexImg('{a_{\\alpha ,h}} = \\sum\\nolimits_{i = 1}^6 {{s_{\\alpha ,i}}{t_i}} ')` 
 
+```{r, echo=TRUE, eval=TRUE}
+library(knitr)
+library(kableExtra)
+protAmtList <- c("Relative specific amount (RSA)",
+                   "Normalized specific amount (NSA)",
+                   "Relative amount (Acup)",
+                   "Log2 RSA", "Log2 NSA", "Log2 Acup")
+  protAmtMat <- data.frame(matrix(protAmtList, nrow=2, byrow=T))
+  names(protAmtMat) <- c("", "", "")
+
+
+  kable(protAmtMat) %>%
+    kable_styling(latex_options = "hold_position")
+```
+
+\begin{center}
+\captionof{table}{Transformations Associated with the Johnson System}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Johnson Family & Transformation & Parameter Conditions & X Condition \\ \hline
+$S_B$ & $Z=\gamma + \eta ln(\frac {X - \epsilon} {\lambda + \epsilon - X})$ & $\eta, \lambda >0, -\infty < \gamma, \epsilon < \infty$ & $\epsilon < X < \epsilon + \lambda$ \\ \hline
+$S_L$ & $Z=\gamma + \eta ln(X - \epsilon)$ & $\eta >0, -\infty < \gamma, \epsilon < \infty$ & $X > \epsilon$ \\ \hline
+$S_U$ & $Z=\gamma + \eta \sinh^{-1}(\frac {X - \epsilon} {\lambda})$ & $\eta, \lambda >0, -\infty < \gamma, \epsilon < \infty$ & $-\infty < X < \infty$ \\ \hline
+\end{tabular}
+\end{center}

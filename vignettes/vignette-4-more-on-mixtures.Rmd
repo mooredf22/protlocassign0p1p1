@@ -291,4 +291,25 @@ We may visualize the area-based errors for all pairwise mixtures using the `mixt
 mixtureHeatMap(Acup=AcupMarkers, totProt=tmtMS2totProt)
 ```
 
+The following table summarizes the quantities plotted in each two-by-three rectangle.
+
+
+```{r, echo=FALSE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 2}
+  protAmtList <- c("Relative specific amount\n(RSA)",
+                   "Normalized specific amount\n(NSA)",
+                   "Relative amount\n(Acup)",
+                   "Log2 RSA", "Log2 NSA", "Log2 Acup")
+  protAmtMat <- matrix(protAmtList, nrow=2, byrow=T)
+
+  library(grid)
+  library(gridExtra)
+
+  x <- c(0,1)
+  y <- c(0,1)
+  plot(y ~ x, type="n", axes=F, xlab="", ylab="")
+  grid.table(protAmtMat)
+
+```
+
+  
 This heatmap confirms that relative specific amounts provide the most accurate estimates of the true mixtures, and that relative amounts often (but not always) provide the most inaccurate estimates. The log2-transformed errors (second row of each 2 by 3 heatmap) are never as good as relative specific amounts, but generally improve on estimates based on relative amounts.
