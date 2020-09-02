@@ -7,21 +7,34 @@
 
 mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
   op <- par()
+
+  par(mfrow=c(3,3))
+  protAmtList <- c("Relative specific amount\n(RSA)",
+                   "Normalized specific amount\n(NSA)",
+                   "Relative amount\n(Acup)",
+                   "Log2 RSA", "Log2 NSA", "Log2 Acup")
+  protAmtMat <- matrix(protAmtList, nrow=2, byrow=T)
+  library(grid)
+
   x <- c(0,1)
   y <- c(0,1)
   nComp <- nrow(Acup)  # number of compartments
-  par(mfrow=c(nComp,nComp), mar=c(0.5, 0.5, 0.5, 0.5))
+  par(mfrow=c(nComp,nComp), mar=c(0.5, 0.5, 0.5, 0.5), xpd=NA)
  compartmentList <- rownames(Acup)
+ # print column labels
  for (k in 1:nComp) {
-   plot(y ~ x, type="n", axes=F)
+   plot(y ~ x, type="n", axes=F, xlab="", ylab="")
    if (k != 1) text(0.5, 0.5, compartmentList[k], cex=2)
  }
+
  for (i in 1:(nComp-1)) {
    for (j in 1:nComp) {
 
 
    if (j <= i) {
-     plot(y ~ x, type="n", axes=F)
+     plot(y ~ x, type="n", axes=F, xlab="", ylab="")
+
+
      if ((j == 1) & (i != 8)) text(0.5, 0.5, compartmentList[i], cex=2)
    }
     if (j > i) {
@@ -94,11 +107,13 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
 
 
 
-  errorMat1m <- 1 - errorMat # so that higher errors are dark red
-  library(plot.matrix)
 
-  col <- rev(heat.colors(9))
-  plot(errorMat, col=col, breaks=seq(0, 1, 0.1), key=NULL, main="",
+  errorMat1m <- 2 - errorMat # so that higher errors are dark red
+  library(plot.matrix)
+  library("viridis")
+
+  col <- rev(plasma(20))
+  plot(errorMat, col=col, breaks=seq(0, 2, 0.1), key=NULL, main="",
      axis.col=NULL, axis.row=NULL, xlab="", ylab="", digits=2, cex=0.8)
     }
    }
