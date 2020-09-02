@@ -112,6 +112,8 @@ RSAfromAcup <- function(Acup, NstartMaterialFractions=6,
 #' @param increment fraction increment from 0 to 1
 #' @return mixAmount relative amounts of proteins in the fractions
 proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
+  # replace mix.df with input.prop throughout
+  # replace relAmount with relAmount througout
   nrowRef <- nrow(Acup)
   if (Loc1 > Loc2) {
      Loc1orig <- Loc1
@@ -124,12 +126,12 @@ proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
   prop.vec <- seq(0,1,increment)
   qrop.vec <- 1 - prop.vec
   nrow.out <- length(prop.vec)
-  mixAmount <- NULL
+  relAmount <- NULL
   mixProtNames <- NULL
 
   for (i in 1:nrow.out) {
-    mixAmount.i <- prop.vec[i]*Acup[Loc1,] + qrop.vec[i]*Acup[Loc2,]
-    mixAmount <- rbind(mixAmount, mixAmount.i)
+    relAmount.i <- prop.vec[i]*Acup[Loc1,] + qrop.vec[i]*Acup[Loc2,]
+    relAmount <- rbind(relAmount, relAmount.i)
     mixProtNames.i <- paste(prop.vec[i],"_", LocNames[Loc1], ":", qrop.vec[i], "_",LocNames[Loc2], sep='')
     mixProtNames <- c(mixProtNames, mixProtNames.i)
 
@@ -140,12 +142,12 @@ proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
   # each column is a subcellular location, with the proportioal assignment
   mixMat[,Loc1] <- prop.vec
   mixMat[,Loc2] <- qrop.vec
-  mix.df <- data.frame(mixMat)
-  names(mix.df) <- row.names(Acup)
-  rownames(mix.df) <- mixProtNames
+  input.prop <- data.frame(mixMat)
+  names(input.prop) <- row.names(Acup)
+  rownames(input.prop) <- mixProtNames
 
-  row.names(mixAmount) <- mixProtNames
-  result <- list(mixAmount=mixAmount, mix.df=mix.df)
+  row.names(relAmount) <- mixProtNames
+  result <- list(relAmount=relAmount, input.prop=input.prop)
   result
   }
 

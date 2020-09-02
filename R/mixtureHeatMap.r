@@ -30,7 +30,7 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
   # j=4
   # create mixture
   mixProtiProtj <- proteinMix(AcupMarkers, Loc1=i, Loc2=j)
-  mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount,
+  mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$relAmount,
                                 NstartMaterialFractions=6, totProt=tmtMS2totProt)
 
   # find RSA
@@ -50,7 +50,7 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
 
   # apply CPA to relative amounts (Acup)
   mixProtiProtjPropAcup <-
-    proLocAll(protProfileSummary=mixProtiProtj$mixAmount,
+    proLocAll(protProfileSummary=mixProtiProtj$relAmount,
             markerLocR=AcupMarkers, n.channels=9)
 
   # log transformed
@@ -66,7 +66,7 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
             markerLocR=log2(markerLocR + eps), n.channels=9)
 
   mixProtiProtjPropAcupLog2 <-
-    proLocAll(protProfileSummary=log2(mixProtiProtj$mixAmount + eps),
+    proLocAll(protProfileSummary=log2(mixProtiProtj$relAmount + eps),
             markerLocR=log2(AcupMarkers + eps) , n.channels=9)
 
 
@@ -74,22 +74,22 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
 # # # #
 
   ae11 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
-                 Loc1=i, Loc2=j, mix.df=mixProtiProtj$mix.df)
+                 Loc1=i, Loc2=j, input.prop=mixProtiProtj$input.prop)
   ae12 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjPropSpecAmt,
                  NstartMaterialFractions=6, Loc1=i, Loc2=j,
-                 mix.df=mixProtiProtj$mix.df)
+                 input.prop=mixProtiProtj$input.prop)
   ae13 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjPropAcup, NstartMaterialFractions=6,
-                 Loc1=i, Loc2=j, mix.df=mixProtiProtj$mix.df)
+                 Loc1=i, Loc2=j, input.prop=mixProtiProtj$input.prop)
 
 
 
   ae21 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjPropLog2, NstartMaterialFractions=6,
-                 Loc1=i, Loc2=j, mix.df=mixProtiProtj$mix.df)
+                 Loc1=i, Loc2=j, input.prop=mixProtiProtj$input.prop)
   ae22 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjPropSpecAmtLog2, NstartMaterialFractions=6,
-                 Loc1=i, Loc2=j, mix.df=mixProtiProtj$mix.df)
+                 Loc1=i, Loc2=j, input.prop=mixProtiProtj$input.prop)
   ae23 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjPropAcupLog2,
                  NstartMaterialFractions=6, Loc1=i, Loc2=j,
-                 mix.df=mixProtiProtj$mix.df)
+                 input.prop=mixProtiProtj$input.prop)
   errorMat <- matrix(c(ae11, ae12, ae13, ae21, ae22, ae23), nrow=2, byrow=T)
 
 

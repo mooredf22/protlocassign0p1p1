@@ -31,11 +31,12 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Introduction
 
 In Vignette 1 (“Getting Started”) we illustrated the principles of constrained proportional assignment using protein profiles that represent mass spectrometry data from a set of subcellular fractions in the form of normalized specific amounts (equivalent amounts of total protein analyzed per fraction, with the sum of all fractions constrained to 1).  This vignette describes how to use functions in the `protlocassign` package to transform such profiles in a manner that is more useful for inferring proportional residence in subcellular compartments.
 
 
-## Setting up the data and reference protein files, and tranforming to Relative Specfic Amounts
+## Setting up the data and reference protein files, and transforming to Relative Specific Amounts
 
 As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `protProfileSummaryTMTms2`, consists of row names that indicate protein identifiers, each of which is followed by data describing the identifier profile across the nine normalized specific amounts derived from a subcellular fractionation experiment. The other data set, `refLocProteinsJadot`, consists of a list of reference proteins and their associated known subcelluar compartments.  As before, to run the program, the `protlocassign` library must be installed.
 
@@ -51,7 +52,7 @@ In Vignette 1, we use `protProfileSummaryTMTms2` and an untransformed average of
 round(tmtMS2totProt, digits=4)
 ```
 
-The function `RSAfromS` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material.
+The function `RSAfromS` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material. Note that the function `RSAfromS` requires that the number of values in each row of the argument `SS` (i.e., the protein profile expressed as specific amounts) match the number of values in the argument `totProt`. Thus, we select the first nine columns of `protProfileSummaryTMTms2`.
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
@@ -62,7 +63,7 @@ dim(protProfileLevelsRSA)
 str(protProfileLevelsRSA)
 ```
 
-Now we put back Nspectra and Nseq in the last columns:
+Since there is additional information in the last two columns of `protProfileSummaryTMTms2` that we want to include in the new file, specifically the numbers of spectra and peptides (`Nspectra` and `Nseq`), we add them to the output as follows:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 protProfileSummaryRSA <- data.frame(protProfileLevelsRSA,

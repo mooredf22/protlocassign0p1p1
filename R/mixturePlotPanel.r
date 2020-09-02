@@ -54,7 +54,7 @@ mixturePlotPanel <- function(Acup=AcupMarkers, totProt, errorReturn=F, fitType="
       #mixturePlot(i=i, j=j, type=fitType, log2Transf=log2Transf)
       mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
 
-      mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, NstartMaterialFractions=6,
+      mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$relAmount, NstartMaterialFractions=6,
                                       totProt=totProt)
       if (!log2Transf & {fitType == "rsa"}) {
        mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjRSA,
@@ -89,7 +89,7 @@ mixturePlotPanel <- function(Acup=AcupMarkers, totProt, errorReturn=F, fitType="
 
 
       mixResult <- mixturePlot(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6, Loc1=i, Loc2=j,
-                  mix.df=mixProtiProtj$mix.df, errorReturn=errorReturn)
+                  input.prop=mixProtiProtj$input.prop, errorReturn=errorReturn)
       if (errorReturn) {
         mixErrorMat <- rbind(mixErrorMat, mixResult)
       }

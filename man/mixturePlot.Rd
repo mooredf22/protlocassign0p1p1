@@ -9,7 +9,7 @@ mixturePlot(
   NstartMaterialFractions = 6,
   Loc1,
   Loc2,
-  mix.df,
+  input.prop,
   errorReturn = F,
   subTitle = NULL,
   xaxisLab = T,
@@ -25,7 +25,7 @@ mixturePlot(
 
 \item{Loc2}{row number of subcellular location 2 of mixture}
 
-\item{mix.df}{true mixture proportions used to make the  mixtures (from proteinMix)}
+\item{input.prop}{true mixture proportions used to make the  mixtures (from proteinMix)}
 
 \item{errorReturn}{Return area of error region if true}
 }

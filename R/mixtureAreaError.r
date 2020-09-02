@@ -4,12 +4,12 @@
 #' @param Loc1  row number of subcellular location 1 of mixture
 #' @param Loc2  row number of subcellular location 2 of mixture
 
-#' @param mix.df  true mixture proportions used to make the  mixtures (from proteinMix)
+#' @param input.prop  true mixture proportions used to make the  mixtures (from proteinMix)
 #' @param errorReturn  Return area of error region if true
 
 
 mixtureAreaError <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1, Loc2,
-                        mix.df) {
+                        input.prop) {
   # mixtures must be a list of equally spaced proportions
   # this program assumes exactly eight subcellular compartments
   # set up color and point lists
@@ -24,7 +24,7 @@ mixtureAreaError <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1,
     #kk=1
     # use trapezoidal rule (trapz from package pracma)
     areaErr <- areaErr +
-      abs(trapz(fracList, as.numeric(mix.df[,kk]) ) -
+      abs(trapz(fracList, as.numeric(input.prop[,kk]) ) -
             trapz(fracList, as.numeric(mixProtiProtjProp[,kk])))
   }
 

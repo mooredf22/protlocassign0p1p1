@@ -162,7 +162,7 @@ round(t(apply(markerLocRrsa,1, function(x) x/sum(x))), digits=3)
 
 ## Simulating proteins resident in multiple subcellular locations
 
-We may simulate data from proteins with multiple residences using the `proteinMix` function. For example, to simulate data from proteins that are distributed in a range of proportions between cytosol and lysosomes, we use this function with relative amounts (`AcupMarkers`) of their single-compartment marker profiles:
+We may simulate data from proteins with multiple residences using the `proteinMix` function. For example, to simulate data from proteins that are distributed in a range of proportions between cytosol and lysosomes, we use this function with relative amounts (`AcupMarkers`) of their single-compartment marker profiles. We specify the mixing locations by the arguments `Loc1=1` and `Loc2=4`, which are the row numbers of the desired compartment profiles in markerLocR:
 
 ```{r, echo=TRUE, eval=TRUE}
 
@@ -170,22 +170,22 @@ AcupMarkers <- relAmtTransform(SS=markerLocR, NstartMaterialFractions=6, totProt
 mixCytoLyso <- proteinMix(AcupMarkers, Loc1=1, Loc2=4)
 ```
 
-The function produces two components.  One component, ‘mix.df’, is a matrix that describes the proportions used to create the simulated multi-resident proteins.  This shows the “true” simulated mixture proportions:
+The function produces two components.  One component, ‘input.prop’, is a matrix that describes the proportions used to create the simulated multi-resident proteins.  This shows the “true” simulated mixture proportions:
 
 ```{r, echo=TRUE, eval=TRUE}
-round(mixCytoLyso$mix.df, digits=2)
+round(mixCytoLyso$input.prop, digits=2)
 ```
 
-The other component, `mixAmount`,  is a matrix that contains the Acup values (relative amounts) for the simulated proteins:
+The other component, `relAmount`,  is a matrix that contains the Acup values (relative amounts) for the simulated proteins:
 
 ```{r, echo=TRUE, eval=TRUE}
-round(mixCytoLyso$mixAmount, digits=3)
+round(mixCytoLyso$relAmount, digits=3)
 ```
 
 Then we can test the CPA algorithm by first converting this mixture data to RSA's:
 
 ```{r, echo=TRUE, eval=TRUE}
-mixCytoLysoRSA <- RSAfromAcup(Acup=mixCytoLyso$mixAmount, 
+mixCytoLysoRSA <- RSAfromAcup(Acup=mixCytoLyso$relAmount, 
                               NstartMaterialFractions=6, totProt=tmtMS2totProt)
 
 round(mixCytoLysoRSA, digits=3)
@@ -207,15 +207,15 @@ Plotting these estimates against the “true” distributions of the simulated p
 
 ## Plotting mixtures of proteins with transformations
 
-We will first illustrate plotting using a simulation of proteins distributed between the cytoplasm and the lysosome.  We will then extend this to examining simulated proteins distributed cytoplasm and each of the other compartments, which provides insights into the different transformations.  Finally, we provide a function that performs simulations on proteins residing between all pairs of compartments.
+We will first illustrate plotting using a simulation of proteins distributed between the cytoplasm and the lysosome.  We will then extend this to examining simulated proteins distributed between cytoplasm and each of the other compartments, which provides insights into the different transformations.  Finally, we provide a function that performs simulations on proteins residing between all pairs of compartments.
 
-For our first simulation, of proteins distributed between two compartments (cyto and lyso), we plot  predicted (based on CPA) and expected (based on the simulation parameters) proportional assignments using the `mixturePlot` function. This function evaluates the prediction error by computing the area separating the predicted and expected protein mixtures via the trapezoidal rule; this is done with the `trapz` function in the `pracma` library, which must have been previously installed. We also need to tell the program which two locations were used to generate the mixtures using `Loc1` and `Loc2`. 
+For our first simulation, of proteins distributed between two compartments (Cyto and Lyso), we plot  predicted (based on CPA) and expected (based on the simulation parameters) proportional assignments using the `mixturePlot` function. This function evaluates the prediction error by computing the area separating the predicted and expected protein mixtures via the trapezoidal rule; this is done with the `trapz` function in the `pracma` library, which must have been previously installed. We also need to tell the program which two locations were used to generate the mixtures using `Loc1` and `Loc2`. 
 
 ```{r, echo=TRUE, eval=TRUE}
 library(pracma)
 mixturePlot(mixProtiProtjProp=mixCytoLysoProp, 
             NstartMaterialFractions=6, Loc1=1, Loc2=4,
-            mix.df=mixCytoLyso$mix.df, xaxisLab=T, yaxisLab=T)
+            input.prop=mixCytoLyso$input.prop, xaxisLab=T, yaxisLab=T)
 ```
 
 Here we see visually that the estimated proportions match the simulated ones. The area separated by the observed and expected CPA estimates, an indication of the goodness of fit, is nearly zero, and is shown in parentheses.
@@ -231,7 +231,7 @@ mixCytoLysoPropLog <- proLocAll(protProfileSummary=mixCytoLysoRSAlog2,
                             n.channels=9)
 round(mixCytoLysoPropLog, digits=3)
 mixturePlot(mixProtiProtjProp=mixCytoLysoPropLog, NstartMaterialFractions=6, Loc1=1, Loc=4,
-              mix.df=mixCytoLyso$mix.df, xaxisLab=T, yaxisLab=T)
+              input.prop=mixCytoLyso$input.prop, xaxisLab=T, yaxisLab=T)
 
 ``` 
 
@@ -251,7 +251,7 @@ for (j in 2:8) {
    mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
 
    # Tranform the mixtures to relative specific amounts
-   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, 
+   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$relAmount, 
                         NstartMaterialFractions=6, totProt=tmtMS2totProt)
     
    # Find the constrained proportional assigments (CPA)                 
@@ -262,7 +262,7 @@ for (j in 2:8) {
    #    and collect the area-based errors (errorReturn=T)                         
     mixResult <- mixturePlot(mixProtiProtjProp=mixProtiProtjProp, 
                              NstartMaterialFractions=6, Loc1=i, Loc2=j, 
-                             mix.df=mixProtiProtj$mix.df, errorReturn = T)
+                             input.prop=mixProtiProtj$input.prop, errorReturn = T)
     mixErrorMat <- rbind(mixErrorMat, mixResult)         
 }
 mixErrorAllCytoRSA <- mixErrorMat
@@ -289,7 +289,7 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
  
    # Transform these mixtures to RSA
-   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, NstartMaterialFractions=6,  
+   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$relAmount, NstartMaterialFractions=6,  
                      totProt=tmtMS2totProt)
    
    # Take a log2 transformation
@@ -303,7 +303,7 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    # Plot the results, including the area-based error estimate
    mixResult <- mixturePlot(mixProtiProtjProp=mixProtiProtjProp, 
                             NstartMaterialFractions=6, Loc1=i, Loc2=j, 
-                            mix.df=mixProtiProtj$mix.df, errorReturn = T)
+                            input.prop=mixProtiProtj$input.prop, errorReturn = T)
    mixErrorMat <- rbind(mixErrorMat, mixResult)
              
 }
@@ -333,7 +333,7 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
  
    # Transform these mixtures to RSA
-   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, 
+   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$relAmount, 
                         NstartMaterialFractions=6, totProt=tmtMS2totProt)
    
    # Now convert to normalized specific amounts
@@ -348,7 +348,7 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    #    and collect the area-based errors (errorReturn=T)
    mixResult <- mixturePlot(mixProtiProtjProp=mixProtiProtjProp, 
                             NstartMaterialFractions=6, Loc1=i, Loc2=j, 
-                            mix.df=mixProtiProtj$mix.df, errorReturn = T)
+                            input.prop=mixProtiProtj$input.prop, errorReturn = T)
    mixErrorMat <- rbind(mixErrorMat, mixResult)
              
 }
@@ -379,7 +379,7 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    mixProtiProtj <- proteinMix(Acup=AcupMarkers, Loc1=i, Loc2=j)
  
    # Transform these mixtures to RSA
-   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$mixAmount, 
+   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$relAmount, 
                           NstartMaterialFractions=6,  totProt=tmtMS2totProt)
    
    # Now convert to normalized specific amounts
@@ -395,7 +395,7 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    # Plot the results, including the area-based error estimate
     mixResult <- mixturePlot(mixProtiProtjProp=mixProtiProtjProp, 
                              NstartMaterialFractions=6, Loc1=i, Loc2=j, 
-                             mix.df=mixProtiProtj$mix.df, errorReturn = T)
+                             input.prop=mixProtiProtj$input.prop, errorReturn = T)
     mixErrorMat <- rbind(mixErrorMat, mixResult)         
 }
 mixErrorAllCytoSpecAmtLog2 <- mixErrorMat
