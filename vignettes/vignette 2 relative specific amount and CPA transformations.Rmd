@@ -52,7 +52,7 @@ In Vignette 1, we use `protProfileSummaryTMTms2` and an untransformed average of
 round(tmtMS2totProt, digits=4)
 ```
 
-The function `RSAfromS` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material. Note that the function `RSAfromS` requires that the number of values in each row of the argument `SS` (i.e., the protein profile expressed as specific amounts) match the number of values in the argument `totProt`. Thus, we select the first nine columns of `protProfileSummaryTMTms2`.
+The function `RSAfromS` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material. Note that the function `RSAfromS` requires that the number of values in each row of the argument `SS` (i.e., the protein profile expressed as specific amounts or normalized specific amounts) match the number of values in the argument `totProt`. Thus, we select the first nine columns of `protProfileSummaryTMTms2`.
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}

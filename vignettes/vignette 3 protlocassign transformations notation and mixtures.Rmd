@@ -83,8 +83,8 @@ As noted above, for protein $\alpha$ in fraction $l$, we have ${{a}_{\alpha ,l}}
 $\mathbf{A}=\widetilde{\mathbf{S}}\cdot\mathrm{diag}(\mathbf{t})=\left[\begin{matrix}{\widetilde{s}}_{11}t_1&{\widetilde{s}}_{12}t_2&\cdots&{\widetilde{s}}_{19}t_9\\{\widetilde{s}}_{21}t_1&{\widetilde{s}}_{22}t_2&\cdots&{\widetilde{s}}_{29}t_9\\\vdots&\vdots&&\vdots\\{\widetilde{s}}_{n1}t_1&{\widetilde{s}}_{n2}t_2&\cdots&{\widetilde{s}}_{n9}t_9\\\end{matrix}\right]$
 
 
-We need this matrix to do the next step, which is to convert to a common scale for all proteins. We do this by normalizing to the amount of protein $\alpha$ in the starting material, which we denote as $a_{\alpha, h}$. In some experiments, if the homogenate is measured directly, this can be calculated from ${{s}_{\alpha ,h}}{{t}_{h}}$.
-Alternatively, if a complete set of fractions that entirely represent the homogenate are available, it is preferable to calculate this by summing $s_{\alpha,l}t_l$ over these fractions. In our case, the first six fractions (N, M, L1, L2, P, and  S) are a complete set of differential fractions that represent the starting material, and thus 
+We need this matrix to do the next step, which is to convert to a common scale for all proteins. We do this by normalizing to the amount of protein $\alpha$ in the starting material, which we denote as $a_{\alpha, h}$. In some experiments, if the homogenate is measured directly, this can be calculated from ${\widetilde{s}_{\alpha ,h}}{{t}_{h}}$.
+Alternatively, if a complete set of fractions that entirely represent the homogenate are available, it is preferable to calculate this by summing $\widetilde{s}_{\alpha,l}t_l$ over these fractions. In our case, the first six fractions (N, M, L1, L2, P, and  S) are a complete set of differential fractions that represent the starting material, and thus 
 
 $${a_{\alpha ,h}} = \sum\nolimits_{i = 1}^6 {{\tilde{s}_{\alpha ,i}}{t_i}} $$
 and $t_h=\sum_{i=1}^{6}t_i$. Note that this is readily calculated by summing the first six elements of $\mathbf{t}$.
@@ -195,9 +195,9 @@ round(mixCytoLysoRSA, digits=3)
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data using the previously generated RSA-transformed marker protein profiles:
 
 ```{r, echo=TRUE, eval=TRUE}
-mixCytoLysoProp <- proLocAll(protProfileSummary=mixCytoLysoRSA, markerLocR=markerLocRrsa,
+mixCytoLysoPropRSA <- proLocAll(protProfileSummary=mixCytoLysoRSA, markerLocR=markerLocRrsa,
                             n.channels=9)
-round(mixCytoLysoProp, digits=3)
+round(mixCytoLysoPropRSA, digits=3)
 ```
 
 
@@ -207,13 +207,11 @@ Plotting these estimates against the “true” distributions of the simulated p
 
 ## Plotting mixtures of proteins with transformations
 
-We will first illustrate plotting using a simulation of proteins distributed between the cytoplasm and the lysosome.  We will then extend this to examining simulated proteins distributed between cytoplasm and each of the other compartments, which provides insights into the different transformations.  Finally, we provide a function that performs simulations on proteins residing between all pairs of compartments.
-
-For our first simulation, of proteins distributed between two compartments (Cyto and Lyso), we plot  predicted (based on CPA) and expected (based on the simulation parameters) proportional assignments using the `mixturePlot` function. This function evaluates the prediction error by computing the area separating the predicted and expected protein mixtures via the trapezoidal rule; this is done with the `trapz` function in the `pracma` library, which must have been previously installed. We also need to tell the program which two locations were used to generate the mixtures using `Loc1` and `Loc2`. 
+For our first simulation, of proteins distributed between two compartments (Cyto and Lyso), we plot  predicted (based on CPA) and expected (based on the simulation parameters) proportional assignments using the `mixturePlot` function. This function also evaluates the prediction error by computing the area separating the predicted and expected protein mixtures via the trapezoidal rule; this is done with the `trapz` function in the `pracma` library, which must have been previously installed. We also need to tell the program which two locations were used to generate the mixtures using `Loc1` and `Loc2`. 
 
 ```{r, echo=TRUE, eval=TRUE}
 library(pracma)
-mixturePlot(mixProtiProtjProp=mixCytoLysoProp, 
+mixturePlot(mixProtiProtjProp=mixCytoLysoPropRSA, 
             NstartMaterialFractions=6, Loc1=1, Loc2=4,
             input.prop=mixCytoLyso$input.prop, xaxisLab=T, yaxisLab=T)
 ```
@@ -223,14 +221,15 @@ Here we see visually that the estimated proportions match the simulated ones. Th
 As an alternative, we may obtain CPA estimates using log-transformed relative amounts, first adding a small constant to avoid taking the log of zero:
 
 ```{r, echo=TRUE, eval=TRUE}
-mixCytoLysoRSAlog2 <- log2(mixCytoLysoRSA + .01)
-markerLocRrsalog2 <- log2(markerLocRrsa + .01)
+mixCytoLysoRSAlog2 <- log2(mixCytoLysoRSA + .00005)
+markerLocRrsalog2 <- log2(markerLocRrsa + .00005)
 
-mixCytoLysoPropLog <- proLocAll(protProfileSummary=mixCytoLysoRSAlog2,
+mixCytoLysoPropRSALog <- proLocAll(protProfileSummary=mixCytoLysoRSAlog2,
                               markerLocR=markerLocRrsalog2,
                             n.channels=9)
-round(mixCytoLysoPropLog, digits=3)
-mixturePlot(mixProtiProtjProp=mixCytoLysoPropLog, NstartMaterialFractions=6, Loc1=1, Loc=4,
+round(mixCytoLysoPropRSALog, digits=3)
+mixturePlot(mixProtiProtjProp=mixCytoLysoPropRSALog, 
+              NstartMaterialFractions=6, Loc1=1, Loc=4,
               input.prop=mixCytoLyso$input.prop, xaxisLab=T, yaxisLab=T)
 
 ``` 
@@ -293,15 +292,15 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
                      totProt=tmtMS2totProt)
    
    # Take a log2 transformation
-   log2MixProtiProtjRSA <- log2(mixProtiProtjRSA + 0.01)
+   log2MixProtiProtjRSA <- log2(mixProtiProtjRSA + 0.00005)
    
                      
    # Obtain CPA estimates from the RSA-transformed mixtures
-   mixProtiProtjProp <- proLocAll(protProfileSummary=log2MixProtiProtjRSA,
+   mixProtiProtjPropRSA <- proLocAll(protProfileSummary=log2MixProtiProtjRSA,
                         markerLocR=log2MarkerLocRrsa, n.channels=9)
                             
    # Plot the results, including the area-based error estimate
-   mixResult <- mixturePlot(mixProtiProtjProp=mixProtiProtjProp, 
+   mixResult <- mixturePlot(mixProtiProtjProp=mixProtiProtjPropRSA, 
                             NstartMaterialFractions=6, Loc1=i, Loc2=j, 
                             input.prop=mixProtiProtj$input.prop, errorReturn = T)
    mixErrorMat <- rbind(mixErrorMat, mixResult)
@@ -317,11 +316,11 @@ mixErrorAllCytoRSAlog2
 ```
 
 
-Now consider using normalized specific amounts, which is what we would use for these mixtures if the amounts of starting material in each fraction were not available. The first two function calls are as above, but we obtain these normalized specific values by constraining the RSA values to sum to 1 before using `proLocAll` with `markerLocRuse' to compute the CPA estimates.
+Now consider using normalized specific amounts, which is what we would use for these mixtures if the amounts of starting material in each fraction were not available. The first two function calls are as above, but we obtain these normalized specific amounts by constraining the RSA values to sum to 1 before using `proLocAll` with `markerLocRuse' to compute the CPA estimates.
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
-
+markerLocRuse <- t(apply(markerLocRrsa, 1, function(x) x/sum(x)))
 #windows(height=10, width=7)
 par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
 
@@ -338,11 +337,10 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    
    # Now convert to normalized specific amounts
    mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
-   markerLocRspecific <- t(apply(markerLocRrsa,1, function(x) x/sum(x)))
                      
-   # Obtain CPA estimates from the RSA-transformed mixtures
+   # Obtain CPA estimates from the normalized specific amount-transformed mixtures
    mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjSpecific,
-                        markerLocR=markerLocRspecific, n.channels=9)
+                        markerLocR=markerLocRuse, n.channels=9)
                             
    # Plot the results, including the area-based error estimate, 
    #    and collect the area-based errors (errorReturn=T)
@@ -362,16 +360,16 @@ Here are the area-based errors:
 mixErrorAllCytoSpecAmt
 ```
 
-Finally, we consider log2-transformed values of normalized specific amounts. This set of plots is similar to the last one except a transformation `y = log2(prop + 0.01)` is applied before obtaining CPA estimates.
+Finally, we consider log2-transformed values of normalized specific amounts. This set of plots is similar to the last one except a transformation `y = log2(prop + 0.01)` is applied before obtaining CPA estimates. We calculate `markerLocRuse` by constraining the row totals to be 1. 
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
-
+markerLocRuse <- t(apply(markerLocRrsa, 1, function(x) x/sum(x)))
 #windows(height=10, width=7)
 par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
 
 mixErrorMat <- NULL
-log2MarkerLocRspecific <- log2(markerLocRspecific + 0.01) # do this here
+log2MarkerLocRuse <- log2(markerLocRuse + 0.00005) # do this here
 i=1  # fix one component of the mixture to the first, which is Cyto
 for (j in 2:8) {   # mix with each of the other compartments, and plot
    #j=4
@@ -384,20 +382,17 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    
    # Now convert to normalized specific amounts
    mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
-   markerLocRspecific <- t(apply(markerLocRrsa,1, function(x) x/sum(x)))
-   log2MixProtiProtjSpecific <- log2(mixProtiProtjSpecific + 0.01)
-   
+   log2MixProtiProtjSpecific <- log2(mixProtiProtjSpecific + 0.00005)
                      
    # Obtain CPA estimates from the RSA-transformed mixtures
    mixProtiProtjProp <- proLocAll(protProfileSummary=log2MixProtiProtjSpecific,
-                        markerLocR=log2MarkerLocRspecific, n.channels=9)
+                        markerLocR=log2MarkerLocRuse, n.channels=9)
                             
    # Plot the results, including the area-based error estimate
     mixResult <- mixturePlot(mixProtiProtjProp=mixProtiProtjProp, 
                              NstartMaterialFractions=6, Loc1=i, Loc2=j, 
                              input.prop=mixProtiProtj$input.prop, errorReturn = T)
-    mixErrorMat <- rbind(mixErrorMat, mixResult)         
-}
+    mixErrorMat <- rbind(mixErrorMat, mixResult)         }
 mixErrorAllCytoSpecAmtLog2 <- mixErrorMat
 ```
 
@@ -436,7 +431,7 @@ log2Transf <- T
 pdf(file=paste("CPA assignProts Jadot", fitType, log2Transf, ".pdf"), width=7, height=11)
 
 errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=tmtMS2totProt, errorReturn = T, 
-              fitType=fitType, log2Transf=log2Transf)
+              fitType=fitType, log2Transf=log2Transf, eps=0.00005)
 dev.off()
 
 # overall errors are as follows:
@@ -448,7 +443,6 @@ sum(errorAll[,3])
 Next are using normalized specific amounts, without and with log-transformed values:
 
 ``` 
-setwd("c:\\temp5")
 
 fitType <- "specAmt"
 log2Transf <- F
@@ -470,7 +464,7 @@ log2Transf <- T
 pdf(file=paste("CPA assignProts Jadot", fitType, log2Transf, ".pdf"), width=7, height=11)
 
 errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=tmtMS2totProt, errorReturn = T, 
-              fitType=fitType, log2Transf=log2Transf)
+              fitType=fitType, log2Transf=log2Transf, eps=0.00005)
 dev.off()
 
 # overall errors are as follows:
@@ -479,8 +473,38 @@ sum(errorAll[,3])
 
 ```
 
+For completeness we also present plots CPA mixture esimates based on relative amounts and log relative amounts. The use of relative amounts is discussed in detail in Vignette 4.
+
+``` 
+
+fitType <- "relAmt"
+log2Transf <- F
+
+pdf(file=paste("CPA assignProts Jadot", fitType=fitType, transf=log2Transf, ".pdf"), width=7, height=11)
+
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=tmtMS2totProt, errorReturn = T, 
+              fitType=fitType, log2Transf=log2Transf)
+dev.off()
+
+# overall errors are as follows:
+errorAll
+sum(errorAll[,3])
 
 
+fitType <- "relAmt"
+log2Transf <- T
+
+pdf(file=paste("CPA assignProts Jadot", fitType, log2Transf, ".pdf"), width=7, height=11)
+
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=tmtMS2totProt, errorReturn = T, 
+              fitType=fitType, log2Transf=log2Transf, eps=0.00005)
+dev.off()
+
+# overall errors are as follows:
+errorAll
+sum(errorAll[,3])
+
+```
 
 
 

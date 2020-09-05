@@ -70,21 +70,41 @@ mixturePlotPanel <- function(Acup=AcupMarkers, totProt, errorReturn=F, fitType="
       }
       if (!log2Transf & {fitType == "specAmt"}) {
         mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
-        markerLocRspecific <- t(apply(markerLocRrsa,1, function(x) x/sum(x)))
+        markerLocRuse <- t(apply(markerLocRrsa,1, function(x) x/sum(x)))   # rows sum to one
         mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjSpecific,
-                                       markerLocR=markerLocRspecific, n.channels=9)
+                                       markerLocR=markerLocRuse, n.channels=9)
       }
 
       if (log2Transf& {fitType == "specAmt"}) {
         # Now convert to normalized specific amounts
         mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
+        markerLocRuse <- t(apply(markerLocRrsa,1, function(x) x/sum(x)))  # rows sum to one
         # Take a log2 transformation
         log2MixProtiProtjSpecific <- log2(mixProtiProtjSpecific + eps)
-        log2MarkerLocR <- log2(markerLocRspecific + eps)
+        log2MarkerLocR <- log2(markerLocRuse + eps)
 
 
         mixProtiProtjProp <- proLocAll(protProfileSummary=log2MixProtiProtjSpecific,
                                        markerLocR=log2MarkerLocR, n.channels=9)
+      }
+
+      if (!log2Transf & {fitType == "relAmt"}) {
+        #mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
+        #markerLocRuse <- t(apply(markerLocRrsa,1, function(x) x/sum(x))) # rows sum to one
+        mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtj$relAmount,
+                                       markerLocR=AcupMarkers, n.channels=9)
+      }
+
+      if (log2Transf& {fitType == "relAmt"}) {
+        # Now convert to normalized specific amounts
+        #mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
+        # Take a log2 transformation
+        #log2MixProtiProtjSpecific <- log2(mixProtiProtj$relAmount + eps)
+        #log2MarkerLocR <- log2(markerLocRuse + eps)
+
+
+        mixProtiProtjProp <- proLocAll(protProfileSummary=log2(mixProtiProtj$relAmount + eps),
+                                       markerLocR=log2(AcupMarkers + eps), n.channels=9)
       }
 
 
