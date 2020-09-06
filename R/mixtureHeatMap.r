@@ -6,9 +6,8 @@
 
 
 mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
-  op <- par()
 
-  par(mfrow=c(3,3))
+  op <- par(mfrow=c(3,3))
   protAmtList <- c("Relative specific amount\n(RSA)",
                    "Normalized specific amount\n(NSA)",
                    "Relative amount\n(Acup)",
