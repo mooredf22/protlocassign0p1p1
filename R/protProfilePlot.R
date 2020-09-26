@@ -114,7 +114,7 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
     }
     max.y <- max(means.peptides.i, na.rm=T)
     min.y <-0
-    n.assign <- nrow(assignPropsUse)
+    n.assign <- nrow(assignPropsMat)
     #indAssignProp.prot <- (1:n.assign)[assignPropsUse$protName == protName.i] # indicators of prots used
 
 

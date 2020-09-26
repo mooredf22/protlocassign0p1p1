@@ -49,20 +49,20 @@ mixturePlot <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1, Loc2
   # <- abs(-0.5 - polyarea(x=c(fracList, 0), y=c(mixProtiProtjProp[,Loc2],0)))
   #area <- area1 + area2
 
-  abline(a=0,b=1, col="gray")
-  abline(a=1,b=-1, col="gray")
+  abline(a=0,b=1, col=col.list[Loc1])
+  abline(a=1,b=-1, col=col.list[Loc2])
   titleText <- paste(loc.list[Loc1], "-", loc.list[Loc2])
   title(paste(titleText, "(", format(round(areaErr,3), nsmall=3), ")\n", subTitle))   # guarantee 3 digits after decimal
   #plotLables
   #loc.list  col.list pch.list
-  #1     Cyto       red        1
-  #2       ER      blue        2
-  #3    Golgi    orange        3
-  #4     Lyso darkgreen        4
-  #5     Mito    orange       17
-  #6      Nuc lightblue        6
-  #7    Perox    purple       15
-  #8       PM     green        8
+  #1     Cyto       red        1  open circle
+  #2       ER      blue        2  triangle
+  #3    Golgi    orange        3  plus
+  #4     Lyso darkgreen        4  X
+  #5     Mito    orange       17  solid triangle
+  #6      Nuc lightblue        6  upside down triangle
+  #7    Perox    purple       15  solid square
+  #8       PM     green        8  asterisk
   if (errorReturn) {
     areaErrOut <- data.frame(loc.list[Loc1], loc.list[Loc2], areaErr)
     names(areaErrOut) <- c("Loc1", "Loc2", "ErrorArea")
