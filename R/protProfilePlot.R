@@ -28,7 +28,8 @@
 
 protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL,
                         n.fractions=9, n.compartments=8,
-                        markerLocR=markerLocRuse, assignPropsMat=assignPropsUse, propCI=F) {
+                        markerLocR=markerLocRuse, assignPropsMat=assignPropsUse, propCI=F,
+                        transType="") {
   # protPlot is the number of the protein to plot
   # protProfileSummaryUse is a matrix with components:
   #    rownames: name of protein
@@ -174,7 +175,7 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
 
   # max.y <- max(c(max(means.peptides.i), max(markerLocR[i,])))
   min.y <- 0
-  par(mar=c(2,1.5,2,1.5))
+  par(mar=c(2,4,2,1.5))
   # The plots are in alphabetical order
   # re-arrange the plots so that they are in this order:
   #   Mito (7)     Lyso  (4)   Perox (5)
@@ -190,9 +191,9 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
       if ({i == 2} | {i == 1}) {
         x <- c(0,5)
         y <- c(0,0.5)
-        par(mar=c(0,0,0,0))
-        plot(y ~ x,type="n",axes=F,cex=1)
-        par(mar=c(2,1.5,2,1.5))
+        par(mar=c(0,1,0,0))
+        plot(y ~ x,type="n",axes=F,cex=1, ylab="")
+        par(mar=c(2,3.5,2,1.5))
       }
     }
 
@@ -206,8 +207,9 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
     mean.i <- as.numeric(markerLocR[i,])
     if (!is.null(finalList)) max.y <- max(c(max(means.peptides.i), max(markerLocR[i,])))
     if (is.null(finalList)) max.y <- max(c(mean.i,yy))
+    par(mar=c(2,4.1,2,1.5))
     plot(mean.i ~ xvals,  axes="F", type="l",
-         ylim=c(min.y, max.y))
+         ylim=c(min.y, max.y), ylab=transType)
     axis(1,at=xvals,labels=fractions.list)
     axis(2)
 

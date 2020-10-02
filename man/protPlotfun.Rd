@@ -13,7 +13,8 @@ protPlotfun(
   n.compartments = 8,
   markerLocR = markerLocRuse,
   assignPropsMat = assignPropsUse,
-  propCI = F
+  propCI = F,
+  transType = ""
 )
 }
 \arguments{

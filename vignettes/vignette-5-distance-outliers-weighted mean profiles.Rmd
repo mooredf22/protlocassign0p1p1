@@ -1,0 +1,71 @@
+---
+title: "Vignette 5: Distance, outlier detection, and weighted mean profile calculation"
+author: "Dirk Moore"
+date: "`r Sys.Date()`"
+#output: rmarkdown::html_vignette
+output:
+  word_document:
+  #  html_document:
+  #mathjax:  default
+  fig_caption:  true
+toc: true
+#section_numbering: true
+#css: ggsci.css
+#output:
+#  word_document:
+#    reference_docx: word-styles-reference-03.docx
+#output: pdf_document
+#fontsize: 10pt
+vignette: >
+  %\VignetteIndexEntry{protlocassign}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+  ```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  #collapse = TRUE,
+  comment = "",
+  fig.width = 4,
+  fig.height = 4,
+  message = FALSE,
+  warning = FALSE,
+  tidy.opts = list(
+    keep.blank.line = TRUE,
+    width.cutoff = 150
+  ),
+  options(width = 150),
+  eval = TRUE
+)
+```
+
+
+
+## Nearest proteins in a data set
+We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first create a distance matrix for the proteins in a list of mean profiles, such as "protProfileSummaryTMTms2". 
+
+```{r, echo=TRUE, eval=TRUE}
+library(protlocassign)
+distUse <- dist(protProfileSummaryTMTms2, method="euclidean")
+```
+Then select the protein names:
+
+```{r, echo=TRUE, eval=TRUE}
+protsUse <- rownames(protProfileSummaryTMTms2)
+```
+Finally, provide a protein name. Here, for the protein "AADAC", we find the 10 nearest proteins.
+
+```{r, echo=TRUE, eval=TRUE}
+protIndex("AAD")
+nearestProts(protName="AADAC", n.nearest=10,  distProts=distUse, protNames=protsUse)
+```
+
+## Outlier rejection and computation of mean profiles
+
+The profiles of some compartments (e.g. nuclear and mitochondrial) show a high relative abundance level in the N or M fractions, respectively, and little in the others. Cytosolic proteins also are high in one fraction (S) and low in the others. Peroxisomes have high activity levels in the L1 and L2 fractions, and low levels in the others, including Nyc2. Lysosomes, like peroxisomes, have high level in the L1 and L2 fractions, but, unlike peroxisomes, high levels in Nyc2. The other compartments (ER, Golgi, and PM) have more complex profiles. Once we have obtained reference profiles for each of the eight compartments, we score each new protein as the optimal combination of the reference proteins, thereby obtaining estimates of the proportionate contributions of each reference profile to that of the protein being considered.
+
+
+The first step is an outlier screen, for each protein, of the abundance levels for each fraction of all of the spectra. Abundance levels $p$ are first log2 transformed via $y = log_2(p + \epsilon)$, where $\epsilon$ is an estimate of the background "noise" in the abundance estimates. Here we used $\epsilon = 0.02988$ based on the distribution of a bacterial protein, as explained in the main paper. Then boxplot outliers are identified as values more than three times the interquartile range beyond the first or third quartile. We discard any spectrum for which any observation is thereby classified as an outlier. This process is repeated for all proteins.
+
+
+
+

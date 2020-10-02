@@ -29,7 +29,7 @@ mixturePlot <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1, Loc2
   if (xaxisLab) axis(1, labels=T, at=c(0, 0.5, 1))
   if (!xaxisLab) axis(1, labels=F)
   for (kk in 1:ncol(mixProtiProtjProp)) {
-    points(mixProtiProtjProp[,kk] ~ fracList, col=col.list[kk], pch=pch.list[kk], cex=1.5)
+    points(mixProtiProtjProp[,kk] ~ fracList, col=col.list[kk], pch=pch.list[kk], cex=0.85)
   # calculate sum of squares of errors
 
   }
@@ -49,8 +49,11 @@ mixturePlot <- function(mixProtiProtjProp, NstartMaterialFractions=6, Loc1, Loc2
   # <- abs(-0.5 - polyarea(x=c(fracList, 0), y=c(mixProtiProtjProp[,Loc2],0)))
   #area <- area1 + area2
 
-  abline(a=0,b=1, col=col.list[Loc1])
-  abline(a=1,b=-1, col=col.list[Loc2])
+  #abline(a=0,b=1, col=col.list[Loc1])
+  #abline(a=1,b=-1, col=col.list[Loc2])
+  segments(0,0,1,1, col=col.list[Loc1])
+  segments(0,1,1,0, col=col.list[Loc2])
+  segments(0,0,1,0, col="gray")
   titleText <- paste(loc.list[Loc1], "-", loc.list[Loc2])
   title(paste(titleText, "(", format(round(areaErr,3), nsmall=3), ")\n", subTitle))   # guarantee 3 digits after decimal
   #plotLables
