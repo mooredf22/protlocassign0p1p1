@@ -34,7 +34,7 @@ nearestProts <- function(protName, n.nearest=5, distProts=distUse, protNames=pro
 
 
   nearest.list <- sort(vect.dist)
-  nearest.indices <- as.numeric(names(nearest.list))[1:n.nearest]
+  #nearest.indices <- as.numeric(names(nearest.list))[1:n.nearest]
   resultAll <- data.frame(names(nearest.list), as.numeric(nearest.list))
   names(resultAll) <- c("protName", "euclidean distance")
   result <- resultAll[1:n.nearest,]
