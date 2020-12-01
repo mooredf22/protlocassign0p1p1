@@ -1,7 +1,7 @@
 \name{tannousSpectral}
 \alias{tannousSpectral}
 \docType{data}
-\title{tannousSpctral
+\title{tannousSpectral
 %%   ~~ data name/kind ... ~~
 }
 \description{
