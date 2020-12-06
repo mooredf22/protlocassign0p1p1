@@ -177,7 +177,8 @@ RSAfromS <- function(SS=protProfileLevels, NstartMaterialFractions=6,
   SSfractions <- SS[,1:nTotFractions]  # columns with SS amounts; excludes additional columns
 
 
-  protAbund <- relAmtTransform(SSfractions,NstartMaterialFractions=6, totProt=totProt)
+  protAbund <- relAmtTransform(SSfractions,NstartMaterialFractions=NstartMaterialFractions,
+                               totProt=totProt)
   Acup <- protAbund
   rsa <- RSAfromAcup(Acup, totProt=totProt)
 

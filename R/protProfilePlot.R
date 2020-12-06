@@ -7,7 +7,7 @@
 #' @param refLocProteins List of reference proteins
 #' @param protProfileSummary data frame of protein names and their relative abundance levels..
 #' @param Nspectra indicator for if there are columns in protProfileSummary for Nspectra
-#'         (number of spectra) and Nseq (number of peptides)
+#'         (number of spectra) and Npep (number of peptides)
 #' @param finalList spectrum-level abundance levels by protein and peptide; Ehis is NULL
 #'        if not available
 #' @param n.fractions  number of fractions per protein
@@ -37,7 +37,7 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
   #
   # If standard errors are not available, se is false, and seMat is NULL
   #  If standard errors are available, se is true, and seMat is the list of proteinss and n.fraction standard errors
-  # If Nspectra and Nseq (number of peptides) are included, Nspectra=T
+  # If Nspectra and Npep (number of peptides) are included, Nspectra=T
   #  markerLoc:  matrix with n.fractions rows and 8 columns.
   #      Column names are the subcellular fractions, Cytosol, ER, Golgi, etc.
   #      Row names are the names of the fractions: N, M, L1, L2, etc.
@@ -157,7 +157,7 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
   #if (length(indAssignProp.prot) > 0) {
     text(x=2.5,y=0.3,paste(protName.i), cex=2)
 
-    NpeptidesPlot <- protProfileSummary$Nseq[protPlot]
+    NpeptidesPlot <- protProfileSummary$Npep[protPlot]
     NspectraPlot <- protProfileSummary$Nspectra[protPlot]
     NpeptidesPlotText <- " peptides and "
 

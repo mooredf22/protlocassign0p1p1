@@ -23,7 +23,7 @@ protPlotfun(
 \item{protProfileSummary}{data frame of protein names and their relative abundance levels..}
 
 \item{Nspectra}{indicator for if there are columns in protProfileSummary for Nspectra
-(number of spectra) and Nseq (number of peptides)}
+(number of spectra) and Npep (number of peptides)}
 
 \item{finalList}{spectrum-level abundance levels by protein and peptide; Ehis is NULL
 if not available}
