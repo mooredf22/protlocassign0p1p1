@@ -101,16 +101,21 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
   #finalList.use.i <- finalList.i[!exc.ind.i,]
     finalList.use.i <-  finalList.i
   #fractions.use.i <- fractions.i
-    fractions.use.i <- finalList.use.i[,-c(1,2)]     # just the numbers
+    #fractions.use.i <- finalList.use.i[,-c(1,2)]     # just the numbers
+    fractions.use.i <- finalList.use.i[,2+1:n.fractions]
+    outlierFlag.i <- finalList.use.i$outlierFlag
     peptide.i <- as.character(finalList.use.i$peptide)
     n.uniq.peptide.i <- length(unique(peptide.i))
     uniq.peptides.list <- unique(peptide.i)
     means.peptides.i <- matrix(NA, nrow=n.uniq.peptide.i, ncol=n.fractions)
+    outlierFlagVec.i <- rep(NA, n.uniq.peptide.i)
     n.spectra.i <- rep(NA, n.uniq.peptide.i)
   #browser()
     for (jj in 1:n.uniq.peptide.i) {
       fractions.use.i.jj <- fractions.use.i[uniq.peptides.list[jj] == peptide.i,]
+      outlierFlag.i.jj <- outlierFlag.i[uniq.peptides.list[jj] == peptide.i]
       means.peptides.i[jj,] <- apply(fractions.use.i.jj,2,mean)
+      outlierFlagVec.i[jj] <- mean(outlierFlag.i.jj)
       n.spectra.i[jj] <- nrow(fractions.use.i.jj)
     }
     max.y <- max(means.peptides.i, na.rm=T)
@@ -231,6 +236,8 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
       }
 
       lines(as.numeric(means.peptides.i[j,]) ~ xvals, cex=0.5, lwd=lwdplot, col=colplot)
+      if (outlierFlagVec.i[j] == 1) lines(as.numeric(means.peptides.i[j,]) ~ xvals,
+                                          cex=0.5, lwd=1, col="orange")
 
     }
   }
