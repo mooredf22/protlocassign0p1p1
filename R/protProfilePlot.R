@@ -113,7 +113,8 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
   #browser()
     for (jj in 1:n.uniq.peptide.i) {
       fractions.use.i.jj <- fractions.use.i[uniq.peptides.list[jj] == peptide.i,]
-      outlierFlag.i.jj <- outlierFlag.i[uniq.peptides.list[jj] == peptide.i]
+      if (!is.null(outlierFlag.i)) outlierFlag.i.jj <- outlierFlag.i[uniq.peptides.list[jj] == peptide.i]
+      if (is.null(outlierFlag.i)) outlierFlag.i.jj <- nrow(fractions.use.i.jj)
       means.peptides.i[jj,] <- apply(fractions.use.i.jj,2,mean)
       outlierFlagVec.i[jj] <- mean(outlierFlag.i.jj)
       n.spectra.i[jj] <- nrow(fractions.use.i.jj)
