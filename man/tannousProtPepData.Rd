@@ -1,7 +1,7 @@
 \name{tannousProtPepData}
 \alias{tannousProtPepData}
 \docType{data}
-\title{tannousProtPepDatal
+\title{tannousProtPepData
 %%   ~~ data name/kind ... ~~
 }
 \description{
