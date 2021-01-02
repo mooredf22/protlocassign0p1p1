@@ -26,8 +26,8 @@
 #'        of upper confidence interval limits
 #'
 
-protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL,
-                        n.fractions=9, n.compartments=8,
+protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL,
+                        protPepData=NULL, refCol=5, n.fractions=9, n.compartments=8,
                         markerLocR=markerLocRuse, assignPropsMat=assignPropsUse, propCI=F,
                         transType="") {
   # protPlot is the number of the protein to plot
@@ -48,8 +48,21 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
   # protPlot <- 93
   #protName.i <- as.character(meanCovarProtsUseAll.t$protNames[protPlot])
   # finalList contains all peptides AND spectra
-
-
+  # protPepData contains protein profiles and mean peptide profiles;
+  #   If this is provided, you cannot have either finalList or protProfileSummary
+  # Can't have both!
+  #if (!is.null(finalList) & !is.null(protPepData)) {
+  #  cat("Cannot have both finalList and protPepData\n")
+  #  stop()
+  #}
+  #if (!is.null(protProfileSummary) & !is.null(protPepData)) {
+  #  cat("Cannot have both protProfileSummary and protPepData\n")
+  #  stop()
+  #}
+  #if (!is.null(protPepData)) {
+    # extract protProfileSumary and pepProfileSummary from protPepData
+   # protPepData.i <- protPepData[protPepData$prot == protName,]
+  #}
   oldpar <- par(no.readonly=TRUE)
   on.exit(par(oldpar))
   protsOK <- {rownames(protProfileSummary) == rownames(assignPropsMat)}
@@ -88,10 +101,11 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
 
   # # # # # # # # # # # # # #
   #  Do the following if "finalList" (the full list of peptides and spectra)
-  #   is available
+  #   are available
   # # # # # # # # # # # # # #
 
-  if (!is.null(finalList)) {
+  #if (!is.null(finalList)) {
+  if (F) {
     finalList.i <- finalList[toupper(finalList$prot) == protName.i, ]
 
     if (nrow(finalList.i) > 0) fractions.i <- finalList.i[,2 + c(1:n.fractions)]
@@ -125,6 +139,18 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
 
 
     n.fractions.i <- nrow(fractions.i)
+  }
+
+  # # # # # # # # # # # # # #
+  #  Do the following if "peptideList" (the list of mean peptide profiles)
+  #   is available
+  # # # # # # # # # # # # # #
+  if (!is.null(protPepData)){
+
+    protPepData.i <- protPepData[protPepData$prot == protName.i,]
+    means.peptides.i <- protPepData.i[,refCol + 1:9]
+    n.spectra.i <- protPepData.i$Nspectra.1
+    outlierFlagVec.i <- {protPepData.i$outlier.num.peptides > 0}
   }
 
 
@@ -218,7 +244,7 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
     axis(1,at=xvals,labels=fractions.list)
     axis(2)
 
-  if (!is.null(finalList)) {
+  if (T) {
     for (j in 1:n.uniq.peptide.i) {
       lwdplot <- 1
       colplot <- "cyan"
@@ -275,13 +301,13 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
   y <- c(0,0.5)
   par(mar=c(0,0,0,0))
   plot(y ~ x, type="n", axes=F)
-  if (!is.null(finalList)) {
+  if (T) {
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
          col=c("yellow", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"), lwd=c(2,2,1,2,3,4), lty=c(1,1,1,1,1,1))
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
          col=c("black", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"), lwd=c(2,2,1,2,3,4), lty=c(2,1,1,1,1,1))
   }
-  if (is.null(finalList)) {
+  if (F) {
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile"),
            col=c("yellow", "red"), lwd=c(2,2), lty=c(1,1))
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile"),

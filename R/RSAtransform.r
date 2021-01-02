@@ -164,15 +164,15 @@ RSAfromS <- function(SS=protProfileLevels, NstartMaterialFractions=6,
                       totProt=NULL) {
 
   missing.rows <- SS[!complete.cases(SS),]
-  if ({nrow(missing.rows) > 0} | {is.null(missing.rows)}) {
-    cat("Error from rsaDirect: missing values not allowed\n")
-    return(missing.rows)
-  }
+  #if ({nrow(missing.rows) > 0} | {is.null(missing.rows)}) {
+  #  cat("Error from RSAfromS: missing values not allowed\n")
+  #  return(missing.rows)
+  #}
   if (ncol(SS) != length(totProt)) {
      cat("Error from rsaDirect: no. of rows of SS must match length of totProt\n")
   }
 
-  startMaterialFractions <- SS[,1:NstartMaterialFractions]
+  startMaterialFractions <- SS[,1:NstartMaterialFractions]   # first columns of SS
   nTotFractions <- length(totProt)    # number of all fractions
   SSfractions <- SS[,1:nTotFractions]  # columns with SS amounts; excludes additional columns
 

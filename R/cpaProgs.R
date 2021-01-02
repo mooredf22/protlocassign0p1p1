@@ -157,7 +157,7 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
     Nseq.i <- NULL
   }
   #channelsProb.i <- matrix(NA, nrow=nboot, ncol=8)
-
+ if (!anyNA(yy)) {
   startValsUnif <- rep(1/n.compartments, n.compartments)   # start with uniform probabilities
   if (!is.null(assignProbsStart)) startVals <- as.numeric(assignProbsStart[i, 2:(n.compartments + 1)]) # start with
   if (!log2Transf) {
@@ -211,6 +211,9 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
 
 
     parEstTemp <- channelsMeanProb.i
+ }
+  if (!anyNA(yy)) parEstTemp <- rep(NA, n.compartments)
+
     if (SpectraSeqInd) parEst <- c(parEstTemp, Nspectra.i, Nseq.i)
     if (!SpectraSeqInd) parEst <- parEstTemp
 
