@@ -150,7 +150,7 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
 
   if (SpectraSeqInd) {  #if these variables are present
     Nspectra.i <- protProfileSummary$Nspectra[i]   # this is the number of spectra for a protein
-    Nseq.i <- protProfileSummary$Nseq[i] # number of unique sequences
+    Npep.i <- protProfileSummary$Npep[i] # number of unique sequences
   }
   if (!SpectraSeqInd) {
     Nspectra.i <- NULL
@@ -212,9 +212,9 @@ protLocAssign <- function(i, protProfileSummary, markerLocR, n.channels, showPro
 
     parEstTemp <- channelsMeanProb.i
  }
-  if (!anyNA(yy)) parEstTemp <- rep(NA, n.compartments)
+  #if (!anyNA(yy)) parEstTemp <- rep(NA, n.compartments)
 
-    if (SpectraSeqInd) parEst <- c(parEstTemp, Nspectra.i, Nseq.i)
+    if (SpectraSeqInd) parEst <- c(parEstTemp, Nspectra.i, Npep.i)
     if (!SpectraSeqInd) parEst <- parEstTemp
 
 

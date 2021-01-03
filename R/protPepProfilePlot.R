@@ -105,41 +105,7 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
   # # # # # # # # # # # # # #
 
   #if (!is.null(finalList)) {
-  if (F) {
-    finalList.i <- finalList[toupper(finalList$prot) == protName.i, ]
 
-    if (nrow(finalList.i) > 0) fractions.i <- finalList.i[,2 + c(1:n.fractions)]
-    if (nrow(finalList.i) == 0) stop("no corresponding spectra in finalList")
-    Nspectra <- nrow(finalList.i)
-    Npeptides <- length(unique(finalList.i$peptide))
-
-    finalList.use.i <-  finalList.i
-
-    fractions.use.i <- finalList.use.i[,2+1:n.fractions]
-    outlierFlag.i <- finalList.use.i$outlierFlag
-    peptide.i <- as.character(finalList.use.i$peptide)
-    n.uniq.peptide.i <- length(unique(peptide.i))
-    uniq.peptides.list <- unique(peptide.i)
-    means.peptides.i <- matrix(NA, nrow=n.uniq.peptide.i, ncol=n.fractions)
-    outlierFlagVec.i <- rep(NA, n.uniq.peptide.i)
-    n.spectra.i <- rep(NA, n.uniq.peptide.i)
-  #browser()
-    # compute mean profiles for each peptide
-    for (jj in 1:n.uniq.peptide.i) {
-      fractions.use.i.jj <- fractions.use.i[uniq.peptides.list[jj] == peptide.i,]
-      if (!is.null(outlierFlag.i)) outlierFlag.i.jj <- outlierFlag.i[uniq.peptides.list[jj] == peptide.i]
-      if (is.null(outlierFlag.i)) outlierFlag.i.jj <- nrow(fractions.use.i.jj)
-      means.peptides.i[jj,] <- apply(fractions.use.i.jj,2,mean)
-      outlierFlagVec.i[jj] <- mean(outlierFlag.i.jj)
-      n.spectra.i[jj] <- nrow(fractions.use.i.jj)
-    }
-    max.y <- max(means.peptides.i, na.rm=T)
-    min.y <-0
-    n.assign <- nrow(assignPropsMat)
-
-
-    n.fractions.i <- nrow(fractions.i)
-  }
 
   # # # # # # # # # # # # # #
   #  Do the following if "peptideList" (the list of mean peptide profiles)
@@ -151,6 +117,7 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
     means.peptides.i <- protPepData.i[,refCol + 1:9]
     n.spectra.i <- protPepData.i$Nspectra.1
     outlierFlagVec.i <- {protPepData.i$outlier.num.peptides > 0}
+    n.unique.peptide.i <- nrow(protPepData.i)
   }
 
 
@@ -236,8 +203,10 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
     ##?? means.peptides.i <- meanProteinLevels[{names(as.data.frame(markerLocR)) == as.character(assign.i)},]
     #mean.i <- markerLoc[,i]
     mean.i <- as.numeric(markerLocR[i,])
-    if (!is.null(finalList)) max.y <- max(c(max(means.peptides.i), max(markerLocR[i,])))
-    if (is.null(finalList)) max.y <- max(c(mean.i,yy))
+    max.y <- max(c(max(means.peptides.i), max(markerLocR[i,])))
+    n.uniq.peptide.i <- nrow(means.peptides.i)
+    #if (!is.null(finalList)) max.y <- max(c(max(means.peptides.i), max(markerLocR[i,])))
+    #if (is.null(finalList)) max.y <- max(c(mean.i,yy))
     par(mar=c(2,4.1,2,1.5))
     plot(mean.i ~ xvals,  axes="F", type="l",
          ylim=c(min.y, max.y), ylab=transType)
@@ -263,10 +232,11 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
 
       lines(as.numeric(means.peptides.i[j,]) ~ xvals, cex=0.5, lwd=lwdplot, col=colplot)
       if (outlierFlagVec.i[j] == 1) lines(as.numeric(means.peptides.i[j,]) ~ xvals,
-                                          cex=0.5, lwd=1, col="orange")
+                                          cex=0.5, lwd=2, col="orange")
 
     }
   }
+
 
 
 
@@ -302,10 +272,12 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
   par(mar=c(0,0,0,0))
   plot(y ~ x, type="n", axes=F)
   if (T) {
-    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
-         col=c("yellow", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"), lwd=c(2,2,1,2,3,4), lty=c(1,1,1,1,1,1))
-    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
-         col=c("black", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"), lwd=c(2,2,1,2,3,4), lty=c(2,1,1,1,1,1))
+    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra", "Outliers"),
+         col=c("yellow", "red", "cyan", "deepskyblue", "dodgerblue3", "blue", "orange"),
+         lwd=c(2,2,1,2,3,4,2), lty=c(1,1,1,1,1,1,1))
+    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra", "Outliers"),
+         col=c("black", "red", "cyan", "deepskyblue", "dodgerblue3", "blue", "orange"),
+         lwd=c(2,2,1,2,3,4,2), lty=c(2,1,1,1,1,1,7))
   }
   if (F) {
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile"),
