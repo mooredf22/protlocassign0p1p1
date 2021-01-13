@@ -63,7 +63,7 @@ In some experiments, where bookkeeping is not practicable, these are the only va
 
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
-markerLocR <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
+markerLocR <- cpaSetup(protProfileSummary=tannous, refLocProteins=refLocProteinsJadot, n.channels=9)
 round(markerLocR, digits=3)
 
 ```

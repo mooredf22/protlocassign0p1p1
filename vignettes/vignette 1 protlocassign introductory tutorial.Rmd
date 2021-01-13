@@ -84,13 +84,13 @@ Consider for example the TMT MS2 data from Tannous et al. (2020). To get started
 
 ```{r, echo=TRUE}
 library(protlocassign)
-dim(protProfileSummaryTMTms2)
+dim(tannous)
 ```
 
 Now look at the first few rows of the data using the `head` command, rounding to improve legibility. The first nine columns represent the average levels of the different fractions, across spectra. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. (While we use a nested random effects model described in Jadot, 2016 to compute the means across spectra, other methods, including taking a straight average, may be appropriate for other applications.)
 
 ```{r, echo=TRUE}
-round(head(protProfileSummaryTMTms2), digits=2)
+round(head(tannous), digits=2)
 ```
 
 The list containing reference proteins (also called marker proteins) that we use is derived from Jadot et al (2016) and examining the dimensions of the data reveals that it contains 39 rows and two columns, the first for the protein names and the second for their respective subcellular compartments.
@@ -105,7 +105,7 @@ The data set can be viewed by entering its name as follows:
 refLocProteinsJadot
 ```
 
-While the `protProfileSummaryTMTms2` and `refLocProteinsJadot`  data sets are included in the package, they were initially read into R from external files and automatically converted to data frames.  This will need to be done for any new data set.  As an example we demonstrate this for a case where one is working with the Windows operating system and that the data sets reside in a directory `C:\temp\myproteindata`. (If one is working with either the linux or Mac OS, appropriate changes to these procedures will be needed to access files.)
+While the `tannous` and `refLocProteinsJadot`  data sets are included in the package, they were initially read into R from external files and automatically converted to data frames.  This will need to be done for any new data set.  As an example we demonstrate this for a case where one is working with the Windows operating system and that the data sets reside in a directory `C:\temp\myproteindata`. (If one is working with either the linux or Mac OS, appropriate changes to these procedures will be needed to access files.)
 First, set the working directory to point there, either by navigating to it in R studio (session menu pane) or by entering:
 
 
@@ -141,7 +141,7 @@ MyRefLocProteins <- read.csv(file="MyRefLocProteins.csv", row.names=F)
 In order to assign proteins proportionately to their respective compartments, we first use the function `cpaSetup` to obtain profiles for the compartments based on the means of the individual reference proteins that represent each compartment. This function produces a matrix that has one row for each compartment and one column for each fraction.
 
 ```{r, echo=TRUE, eval=TRUE}
-markerLocRuse <- cpaSetup(protProfileSummary=protProfileSummaryTMTms2, refLocProteins=refLocProteinsJadot, n.channels=9)
+markerLocRuse <- cpaSetup(protProfileSummary=tannous, refLocProteins=refLocProteinsJadot, n.channels=9)
 ```
 
 We display the data, using rounding to improve readability.
@@ -162,7 +162,7 @@ For example, to plot the profile for plasma membrane, use this:
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
 refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
-                     protProfileSummary=protProfileSummaryTMTms2,
+                     protProfileSummary=tannous,
                      markerLocR=markerLocRuse)
 ```
 
@@ -171,7 +171,7 @@ We see, in the plot title, that this displays the PM compartmental profile (dash
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
 refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
-                     protProfileSummary=protProfileSummaryTMTms2,
+                     protProfileSummary=tannous,
                      markerLocR=markerLocRuse, refProtPlot=2)
 ```
 
@@ -183,7 +183,7 @@ To show all five of the reference proteins that are used to calculate the PM com
 par(mfrow=c(3,2))
 for (j in 1:5) {
   refProfilePlot(refLoc="PM", refLocProteins=refLocProteinsJadot,
-                     protProfileSummary=protProfileSummaryTMTms2,
+                     protProfileSummary=tannous,
                      markerLocR=markerLocRuse, refProtPlot=j)
   }
 ```
@@ -196,7 +196,7 @@ n.loc <- length(loc.list)
 par(mfrow=c(4,2))
 for (i in 1:n.loc) {
   refProfilePlot(refLoc=loc.list[i], refLocProteins=refLocProteinsJadot,
-                     protProfileSummary=protProfileSummaryTMTms2,
+                     protProfileSummary=tannous,
                      markerLocR=markerLocRuse)
   }
 ```
@@ -206,7 +206,7 @@ for (i in 1:n.loc) {
 Once we are satisfied with the marker set and compartment profiles, we can run the CPA routine which, for each protein in our data set, apportions its residency among the different specified compartments. This  may take several minutes to complete. 
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
-assignPropsUse <- proLocAll(protProfileSummary=protProfileSummaryTMTms2,
+assignPropsUse <- proLocAll(protProfileSummary=tannous,
                             markerLocR=markerLocRuse, n.channels=9)
 ```
 
@@ -221,7 +221,7 @@ round(head(assignPropsUse), digits=2)
 We can look at the profile of, for example, the protein "TLN1". We first ensure that the protein is in the dataset:
 
 ```{r, echo=TRUE, eval=TRUE}
-protIndex("TLN1", protProfileSummary=protProfileSummaryTMTms2)
+protIndex("TLN1", protProfileSummary=tannous)
 ```
 
 This function also accepts partial matching of the first few letters of a protein. For example, we can find the indices of the proteins starting with "TLN":
@@ -235,7 +235,7 @@ protIndex("TLN")
 Now we plot the results for protein TLN1:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=9}
-protPlotfun(protName="TLN1", protProfileSummary=protProfileSummaryTMTms2, 
+protPlotfun(protName="TLN1", protProfileSummary=tannous, 
 n.fractions=9, n.compartments=8,
  Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
 ```                        
@@ -266,7 +266,7 @@ To save the plot of a protein (`TLN1` for example) as a pdf file, we first speci
 
 ```
 pdf(file="myPlotPDFfile.pdf", width=7, height=10)
-protPlotfun(protName="TLN1", protProfileSummary=protProfileSummaryTMTms2, 
+protPlotfun(protName="TLN1", protProfileSummary=tannous, 
     n.fractions=9, n.compartments=8,
     Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
 dev.off()
@@ -280,7 +280,7 @@ pdf(file="allPlotsPDFfile.pdf", width=7, height=10)
 n.prots <- nrow(assignPropsUse)
 for (i in 1:n.prots) {
    protPlotfun(protName=rownames(assignPropsUse)[i],
-       protProfileSummary=protProfileSummaryTMTms2, n.fractions=9, n.compartments=8,
+       protProfileSummary=tannous, n.fractions=9, n.compartments=8,
        Nspectra=T, markerLocR=markerLocRuse, assignPropsMat=assignPropsUse)
 }
 dev.off()
