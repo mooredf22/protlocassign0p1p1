@@ -111,11 +111,11 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
   #  Do the following if "peptideList" (the list of mean peptide profiles)
   #   is available
   # # # # # # # # # # # # # #
-  if (!is.null(protPepData)){
+  if (!is.null(protPepData)) {
 
     protPepData.i <- protPepData[protPepData$prot == protName.i,]
     means.peptides.i <- protPepData.i[,refCol + 1:9]
-    n.spectra.i <- protPepData.i$Nspectra.1
+    n.spectra.i <- protPepData.i$Nspectra
     outlierFlagVec.i <- {protPepData.i$outlier.num.peptides > 0}
     n.unique.peptide.i <- nrow(protPepData.i)
   }
