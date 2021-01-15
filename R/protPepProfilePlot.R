@@ -230,9 +230,14 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
         colplot <- "blue"
       }
 
-      lines(as.numeric(means.peptides.i[j,]) ~ xvals, cex=0.5, lwd=lwdplot, col=colplot)
-      if (outlierFlagVec.i[j] == 1) lines(as.numeric(means.peptides.i[j,]) ~ xvals,
+      if (outlierFlagVec.i[j] != 1) {
+        lines(as.numeric(means.peptides.i[j,]) ~ xvals,
+              cex=0.5, lwd=lwdplot, col=colplot)
+      }
+      if (outlierFlagVec.i[j] == 1) {
+        lines(as.numeric(means.peptides.i[j,]) ~ xvals,
                                           cex=0.5, lwd=2, col="orange")
+      }
 
     }
   }
@@ -241,8 +246,8 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
 
 
     lines(yy ~ xvals, col="red", lwd=2)
-    lines(mean.i ~ xvals, lwd=2, col="yellow")
-    lines(mean.i ~ xvals, lwd=2, col="black", lty=2)
+    lines(mean.i ~ xvals, lwd=4, col="black")
+    lines(mean.i ~ xvals, lwd=2, col="yellow", lty=2)
     if (propCI) {
       predPrL.i <- predictedPropL.mat[indAssignProb.prot,i]
       predPrU.i <- predictedPropU.mat[indAssignProb.prot,i]
@@ -273,10 +278,10 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
   plot(y ~ x, type="n", axes=F)
   if (T) {
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra", "Outliers"),
-         col=c("yellow", "red", "cyan", "deepskyblue", "dodgerblue3", "blue", "orange"),
-         lwd=c(2,2,1,2,3,4,2), lty=c(1,1,1,1,1,1,1))
-    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra", "Outliers"),
          col=c("black", "red", "cyan", "deepskyblue", "dodgerblue3", "blue", "orange"),
+         lwd=c(4,2,1,2,3,4,2), lty=c(1,1,1,1,1,1,1))
+    legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra", "Outliers"),
+         col=c("yellow", "red", "cyan", "deepskyblue", "dodgerblue3", "blue", "orange"),
          lwd=c(2,2,1,2,3,4,2), lty=c(2,1,1,1,1,1,7))
   }
   if (F) {
