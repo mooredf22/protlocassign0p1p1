@@ -29,7 +29,7 @@
 protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL,
                         protPepData=NULL, refCol=5, n.fractions=9, n.compartments=8,
                         markerLocR=markerLocRuse, assignPropsMat=assignPropsUse, propCI=F,
-                        transType="") {
+                        transType="", yAxisLabel="") {
   # protPlot is the number of the protein to plot
   # protProfileSummaryUse is a matrix with components:
   #    rownames: name of protein
@@ -64,7 +64,7 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
    # protPepData.i <- protPepData[protPepData$prot == protName,]
   #}
   oldpar <- par(no.readonly=TRUE)
-  on.exit(par(oldpar))
+  #on.exit(par(oldpar))
   protsOK <- {rownames(protProfileSummary) == rownames(assignPropsMat)}
 
   temp <- protIndex(protName, protProfileSummary, exactMatch=T)
@@ -290,4 +290,13 @@ protPepPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=N
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile"),
            col=c("black", "red"), lwd=c(2,2), lty=c(2,1))
   }
+  x <- c(0,5)
+  y <- c(0,0.5)
+
+  plot(y ~ x, type="n", axes=F)
+  par(mar=c(0,0,0,0))
+  plot(y ~ x, type="n", axes=F)
+
+
+  text(x=2.5, y=0.25, labels=yAxisLabel, srt=90, cex=2 )
 }
