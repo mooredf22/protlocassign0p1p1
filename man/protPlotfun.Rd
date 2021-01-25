@@ -14,7 +14,8 @@ protPlotfun(
   markerLocR = markerLocRuse,
   assignPropsMat = assignPropsUse,
   propCI = F,
-  transType = ""
+  transType = "",
+  yAxisLabel = ""
 )
 }
 \arguments{
