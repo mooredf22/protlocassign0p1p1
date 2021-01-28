@@ -39,7 +39,7 @@ In this vignette we explore briefly the effect of using the normalized specific 
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
 library(pracma)
-markerLocR <- cpaSetup(protProfileSummary=tannous, refLocProteins=refLocProteinsJadot, n.channels=9)
+markerLocR <- cpaSetup(protProfileSummary=profilesProtAT5tmtMS2, refLocProteins=refLocProteinsJadot, n.channels=9)
 AcupMarkers <- relAmtTransform(markerLocR, NstartMaterialFractions=6, totProt=tmtMS2totProt)
 ```
 
