@@ -43,11 +43,11 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
   # create mixture
   mixProtiProtj <- proteinMix(AcupMarkers, Loc1=i, Loc2=j)
   mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$relAmount,
-                                NstartMaterialFractions=6, totProt=tmtMS2totProt)
+                                NstartMaterialFractions=6, totProt=totProt)
 
   # find RSA
   markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
-                          totProt=tmtMS2totProt)
+                          totProt=totProt)
   # apply CPA to relative specific amounts (recommended way)
   mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjRSA,
                                markerLocR=markerLocRrsa, n.channels=9)

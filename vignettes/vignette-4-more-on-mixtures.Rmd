@@ -40,7 +40,7 @@ In this vignette we explore briefly the effect of using the normalized specific 
 library(protlocassign)
 library(pracma)
 markerLocR <- cpaSetup(protProfileSummary=profilesProtAT5tmtMS2, refLocProteins=refLocProteinsJadot, n.channels=9)
-AcupMarkers <- relAmtTransform(markerLocR, NstartMaterialFractions=6, totProt=tmtMS2totProt)
+AcupMarkers <- relAmtTransform(markerLocR, NstartMaterialFractions=6, totProt=totProtAT5)
 ```
 
 
@@ -50,14 +50,14 @@ Now create markers using AcupMarkers Cyto (row 1) and Lyso (row 4) in the standa
 i=1
 j=4
 mixProt1Prot4 <- proteinMix(AcupMarkers, Loc1=i, Loc2=j)
-mixProt1Prot4RSA <- RSAfromAcup(Acup=mixProt1Prot4$relAmount, NstartMaterialFractions=6, totProt=tmtMS2totProt)
+mixProt1Prot4RSA <- RSAfromAcup(Acup=mixProt1Prot4$relAmount, NstartMaterialFractions=6, totProt=totProtAT5)
 ```
 
 Next, obtain CPA estimates using the RSA-transformed mixtures and RSA-transformed references profiles. We see that the CPA estimates match the proportions we used to create the mixtures:
 
 ```{r, echo=TRUE, eval=TRUE}
 markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
-        totProt=tmtMS2totProt)
+        totProt=totProtAT5)
 mixProt1Prot4PropRSA <- proLocAll(protProfileSummary=mixProt1Prot4RSA, 
                                markerLocR=markerLocRrsa, n.channels=9)
 round(mixProt1Prot4PropRSA, digits=3)
@@ -194,7 +194,7 @@ i=1  # Cyto
 j=6  # Nuc
 mixProt1Prot6 <- proteinMix(AcupMarkers, Loc1=i, Loc2=j)
 mixProt1Prot6RSA <- RSAfromAcup(Acup=mixProt1Prot6$relAmount, 
-                                NstartMaterialFractions=6, totProt=tmtMS2totProt)
+                                NstartMaterialFractions=6, totProt=totProtAT5)
 
 
 mixProt1Prot6Prop <- proLocAll(protProfileSummary=mixProt1Prot6RSA, 
@@ -296,7 +296,7 @@ If desired, we could obtain only the areas using the `mixtureAreaError` function
 We may visualize the area-based errors for all pairwise mixtures using the `mixtureHeatMap` function, which requires prior installation of the `plot.matrix` R library. For each pair of compartments, this function first creates the mixtures as described earlier using the `Acup` markers. Then it computes the three transformations we have discussed, as well as the log2 transformations of these, and plots them as a 2 by 3 array, with the three transformations (relative specific amounts, normalized specific amounts, and relative amounts) as columns. The first row is the original values, and the second row is a log2 transformation of these values. Colors range from light yellow (for little error) up to red and then to purple (highest error). These 2 by 3 heat maps are arranged in an upper triangular array, with each entry corresponding to a mixture of the row compartment and column compartment.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
-mixtureHeatMap(Acup=AcupMarkers, totProt=tmtMS2totProt)
+mixtureHeatMap(Acup=AcupMarkers, totProt=totProtAT5)
 ```
 
 The following table summarizes the quantities plotted in each two-by-three rectangle.

@@ -62,7 +62,7 @@ Instead of using normalized specific amounts, we may transform them to relative 
 
 ```{r, echo=TRUE, eval=TRUE}
 protProfileLevelsRSA <- RSAfromS(SS=profilesProtAT5tmtMS2[,1:9],
-                                 NstartMaterialFractions=6, totProt=tmtMS2totProt)
+                                 NstartMaterialFractions=6, totProt=totProtAT5)
 distUseRSA <- dist(protProfileLevelsRSA, method="euclidean")
 nearestProts(protName="CTSD", n.nearest=10,  distProts=distUseRSA, protNames=protsUse)
 
