@@ -38,7 +38,7 @@ In Vignette 1 (“Getting Started”) we illustrated the principles of constrain
 
 ## Setting up the data and reference protein files, and transforming to Relative Specific Amounts
 
-As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `profilesProtAT5tmtMS2`, consists of row names that indicate protein identifiers, each of which is followed by data describing the identifier profile across the nine normalized specific amounts derived from a subcellular fractionation experiment. The other data set, `refLocProteinsJadot`, consists of a list of reference proteins and their associated known subcelluar compartments.  As before, to run the program, the `protlocassign` library must be installed.
+As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `profilesProtAT5tmtMS2`, consists of row names that indicate protein identifiers, each of which is followed by data describing the identifier profile across the nine normalized specific amounts derived from a subcellular fractionation experiment. The other data set, `markerListJadot`, consists of a list of reference proteins and their associated known subcelluar compartments.  As before, to run the program, the `protlocassign` library must be installed.
 
 
 
@@ -77,18 +77,18 @@ We also need to transform the profiles of the markers for each compartment.  As 
 To obtain profiles for the reference proteins, use the function `cpaSetup`:
 
 ```{r, echo=TRUE, eval=TRUE}
-markerLocRuse <- cpaSetup(protProfileSummary=profilesProtAT5tmtMS2,
-                          refLocProteins=refLocProteinsJadot, n.channels=9)
-round(markerLocRuse, digits=4)
+markerProfilesuse <- cpaSetup(protProfileSummary=profilesProtAT5tmtMS2,
+                          markerList=markerListJadot, numDataCols=9)
+round(markerProfilesuse, digits=4)
 
 ```
 
 We then use `RSAfromS` to transform these reference profiles.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-markerLocRrsa <- RSAfromS(SS=markerLocRuse, NstartMaterialFractions=6,
+markerProfilesrsa <- RSAfromS(SS=markerProfilesuse, NstartMaterialFractions=6,
        totProt=totProtAT5)
-round(markerLocRrsa, digits=4)
+round(markerProfilesrsa, digits=4)
 
 ```
 
@@ -97,13 +97,13 @@ round(markerLocRrsa, digits=4)
 As in Vignette 1, we can plot reference profiles, but this time using the RSA-transformed data. For example, here is a plot for all markers:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width = 5, fig.height = 7}
-loc.list <- rownames(markerLocRuse)
+loc.list <- rownames(markerProfilesuse)
 n.loc <- length(loc.list)
 par(mfrow=c(4,2))
 for (i in 1:n.loc) {
-  refProfilePlot(refLoc=loc.list[i], refLocProteins=refLocProteinsJadot,
+  refProfilePlot(refLoc=loc.list[i], markerList=markerListJadot,
                      protProfileSummary=protProfileSummaryRSA,
-                     markerLocR=markerLocRrsa)
+                     markerProfiles=markerProfilesrsa)
   }
 ```
 
@@ -111,9 +111,9 @@ for (i in 1:n.loc) {
 Now we can run the CPA routine on the RSA-transformed levels; this may take several minutes to complete. The result is a matrix with protein identifiers as row names, and data indicating the estimated proportional assignments of each protein among the eight subcellular locations.
 
 ```{r, echo=TRUE, eval=TRUE}
-assignPropsUseRSA <- proLocAll(protProfileSummary=protProfileSummaryRSA,
-                                markerLocR=markerLocRrsa, n.channels=9)
-str(assignPropsUseRSA)
+protCPA_AT5tmtMS2RSA <- fitCPA(protProfileSummary=protProfileSummaryRSA,
+                                markerProfiles=markerProfilesrsa, numDataCols=9)
+str(protCPA_AT5tmtMS2RSA)
 ```
 
 
@@ -123,9 +123,9 @@ Now we plot the results for protein TLN1:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
 
-protPlotfun(protName="TLN1", protProfileSummary=protProfileSummaryRSA, n.fractions=9,
-                        Nspectra=T, markerLocR=markerLocRrsa,
-                        assignPropsMat=assignPropsUseRSA)
+protPlotfun(protName="TLN1", protProfileSummary=protProfileSummaryRSA, numDataCols=9,
+                        Nspectra=T, markerProfiles=markerProfilesrsa,
+                        assignPropsMat=protCPA_AT5tmtMS2RSA)
 ```
 
 The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 36 percent residence proportion to plasma membrane and 51 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-blacklines.

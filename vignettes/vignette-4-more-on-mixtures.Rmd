@@ -39,8 +39,8 @@ In this vignette we explore briefly the effect of using the normalized specific 
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
 library(pracma)
-markerLocR <- cpaSetup(protProfileSummary=profilesProtAT5tmtMS2, refLocProteins=refLocProteinsJadot, n.channels=9)
-AcupMarkers <- relAmtTransform(markerLocR, NstartMaterialFractions=6, totProt=totProtAT5)
+markerProfiles <- cpaSetup(protProfileSummary=profilesProtAT5tmtMS2, markerList=markerListJadot, numDataCols=9)
+AcupMarkers <- relAmtTransform(markerProfiles, NstartMaterialFractions=6, totProt=totProtAT5)
 ```
 
 
@@ -56,10 +56,10 @@ mixProt1Prot4RSA <- RSAfromAcup(Acup=mixProt1Prot4$relAmount, NstartMaterialFrac
 Next, obtain CPA estimates using the RSA-transformed mixtures and RSA-transformed references profiles. We see that the CPA estimates match the proportions we used to create the mixtures:
 
 ```{r, echo=TRUE, eval=TRUE}
-markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
+markerProfilesrsa <- RSAfromS(SS=markerProfiles, NstartMaterialFractions=6,
         totProt=totProtAT5)
-mixProt1Prot4PropRSA <- proLocAll(protProfileSummary=mixProt1Prot4RSA, 
-                               markerLocR=markerLocRrsa, n.channels=9)
+mixProt1Prot4PropRSA <- fitCPA(protProfileSummary=mixProt1Prot4RSA, 
+                               markerProfiles=markerProfilesrsa, numDataCols=9)
 round(mixProt1Prot4PropRSA, digits=3)
 ```
 
@@ -73,9 +73,9 @@ round(mixProt1Prot4SpecAmt, digits=3)
 Following Vignette 3, we may see what happens if we apply the CPA routine to these normalized specific values
 ```{r, echo=TRUE, eval=TRUE}
 
-mixProt1Prot4PropSpecAmt <- proLocAll(protProfileSummary=mixProt1Prot4SpecAmt,
-                                      markerLocR=markerLocR,
-                             n.channels=9)
+mixProt1Prot4PropSpecAmt <- fitCPA(protProfileSummary=mixProt1Prot4SpecAmt,
+                                      markerProfiles=markerProfiles,
+                             numDataCols=9)
 round(mixProt1Prot4PropSpecAmt, digits=3)
 ```
 
@@ -85,8 +85,8 @@ Now, instead of transforming the Acup mixtures to RSA's, what happens if we just
 
 ```{r, echo=TRUE, eval=TRUE}
 mixProt1Prot4PropAcup <- 
-                  proLocAll(protProfileSummary=mixProt1Prot4$relAmount,
-                                   markerLocR=AcupMarkers, n.channels=9)
+                  fitCPA(protProfileSummary=mixProt1Prot4$relAmount,
+                                   markerProfiles=AcupMarkers, numDataCols=9)
 round(mixProt1Prot4PropAcup, digits=3)
 ```
 
@@ -135,18 +135,18 @@ As an alternative to RSA, let us apply a log2 transformation of the Acup values.
 eps <- 0.00005
 
 
-mixProt1Prot4PropRSALog2 <- proLocAll(protProfileSummary=log2(mixProt1Prot4RSA + eps), 
-                               markerLocR=log2(markerLocRrsa + eps), n.channels=9)
+mixProt1Prot4PropRSALog2 <- fitCPA(protProfileSummary=log2(mixProt1Prot4RSA + eps), 
+                               markerProfiles=log2(markerProfilesrsa + eps), numDataCols=9)
 round(mixProt1Prot4PropRSALog2, digits=3)
 
 mixProt1Prot4PropSpecAmtLog2 <- 
-            proLocAll(protProfileSummary=log2(mixProt1Prot4SpecAmt + eps),
-                        markerLocR=log2(markerLocR + eps), n.channels=9)
+            fitCPA(protProfileSummary=log2(mixProt1Prot4SpecAmt + eps),
+                        markerProfiles=log2(markerProfiles + eps), numDataCols=9)
 round(mixProt1Prot4PropSpecAmtLog2, digits=3)
 
 mixProt1Prot4PropAcupLog2 <- 
-            proLocAll(protProfileSummary=log2(mixProt1Prot4$relAmount + eps),
-                        markerLocR=log2(AcupMarkers + eps) , n.channels=9)
+            fitCPA(protProfileSummary=log2(mixProt1Prot4$relAmount + eps),
+                        markerProfiles=log2(AcupMarkers + eps) , numDataCols=9)
 round(mixProt1Prot4PropAcupLog2, digits=3)
 
 ```
@@ -197,8 +197,8 @@ mixProt1Prot6RSA <- RSAfromAcup(Acup=mixProt1Prot6$relAmount,
                                 NstartMaterialFractions=6, totProt=totProtAT5)
 
 
-mixProt1Prot6Prop <- proLocAll(protProfileSummary=mixProt1Prot6RSA, 
-                               markerLocR=markerLocRrsa, n.channels=9)
+mixProt1Prot6Prop <- fitCPA(protProfileSummary=mixProt1Prot6RSA, 
+                               markerProfiles=markerProfilesrsa, numDataCols=9)
 round(mixProt1Prot6Prop, digits=3)
 ```
 As noted earlier, the simulated proportions are estimated very accurately.
@@ -209,8 +209,8 @@ Following Vignette 3, we may see what happens if we apply the CPA routine to pro
 mixProt1Prot6SpecAmt <- t(apply(mixProt1Prot6RSA,1, function(x) x/sum(x)))
 
 mixProt1Prot6PropSpecAmt <- 
-                    proLocAll(protProfileSummary=mixProt1Prot6SpecAmt,
-                    markerLocR=markerLocR, n.channels=9)
+                    fitCPA(protProfileSummary=mixProt1Prot6SpecAmt,
+                    markerProfiles=markerProfiles, numDataCols=9)
 round(mixProt1Prot6PropSpecAmt, digits=3)
 ```
 
@@ -220,8 +220,8 @@ Now do this using the relative amounts for markers (“Acup markers”) and simu
 
 
 ```{r, echo=TRUE, eval=TRUE}
-mixProt1Prot6PropAcup <- proLocAll(protProfileSummary=mixProt1Prot6$relAmount,
-                                   markerLocR=AcupMarkers, n.channels=9)
+mixProt1Prot6PropAcup <- fitCPA(protProfileSummary=mixProt1Prot6$relAmount,
+                                   markerProfiles=AcupMarkers, numDataCols=9)
 ```
 
 Note that, unlike with the Cyto-Lyso mixture, the estimates with the Cyto-Nuc mixture are very accurate:
@@ -257,19 +257,19 @@ Now try a log2 transformationon different types of simulated protein and marker 
 eps <- 0.00005
 
 mixProt1Prot6PropLog2 <- 
-           proLocAll(protProfileSummary=log2(mixProt1Prot6RSA + eps), 
-                      markerLocR=log2(markerLocRrsa + eps), n.channels=9)
+           fitCPA(protProfileSummary=log2(mixProt1Prot6RSA + eps), 
+                      markerProfiles=log2(markerProfilesrsa + eps), numDataCols=9)
 round(mixProt1Prot6PropLog2, digits=3)
 
 mixProt1Prot6PropSpecAmtLog2 <- 
-           proLocAll(protProfileSummary=log2(mixProt1Prot6SpecAmt + eps),
-                      markerLocR=log2(markerLocR + eps), n.channels=9)
+           fitCPA(protProfileSummary=log2(mixProt1Prot6SpecAmt + eps),
+                      markerProfiles=log2(markerProfiles + eps), numDataCols=9)
 round(mixProt1Prot6PropSpecAmt, digits=3)
 
 
 mixProt1Prot6PropAcupLog2 <- 
-           proLocAll(protProfileSummary=log2(mixProt1Prot6$relAmount + eps),
-                           markerLocR=log2(AcupMarkers + eps), n.channels=9)
+           fitCPA(protProfileSummary=log2(mixProt1Prot6$relAmount + eps),
+                           markerProfiles=log2(AcupMarkers + eps), numDataCols=9)
 round(mixProt1Prot6PropAcupLog2, digits=3)
 ```
 

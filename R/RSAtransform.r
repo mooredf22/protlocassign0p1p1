@@ -16,9 +16,9 @@
 # # # # # # # # #
 
 # function name change
-#abundanceTransform <- function(markerLocR, NstartMaterialFractions=6,
+#abundanceTransform <- function(markerProfiles, NstartMaterialFractions=6,
 
-# markerLocR -> SS   # no need to limit this to the marker profiles
+# markerProfiles -> SS   # no need to limit this to the marker profiles
 # amtProtFrac -> AA  # these are the amounts of protein (or other species)
 # relAmtProtFrac -> Acup  # relative amounts
                 # normalize specific amounts in each fraction
@@ -39,14 +39,14 @@ relAmtTransform <- function(SS, NstartMaterialFractions=6,
 
   # Compute amount of protein in a given fraction
   # yellow in Excel spreadsheet: "RSAtransformation instructions Lobel 29 Apr 2019"
-  #amtProtFracOrig <- data.frame(markerLocR %*% diag(totProt))  # old, inefficient way
+  #amtProtFracOrig <- data.frame(markerProfiles %*% diag(totProt))  # old, inefficient way
 
   # use sweep operator
   # length(totProt)
   #  [1] 9
-  # dim(markerLocR)[1]
+  # dim(markerProfiles)[1]
   #  [1] 8   # 8 rows
-  # dim(markerLocR)[2]
+  # dim(markerProfiles)[2]
   # [1] 9    # 9 columns
   # Therefore, sweep across dimension 2
 
@@ -63,7 +63,7 @@ relAmtTransform <- function(SS, NstartMaterialFractions=6,
   #Difp <- sum(totProt[1:NstartMaterialFractions])   # total protein in the differential fractions
   #propFrac <- totProt/Difp  # proportion of protein in the differential fractions
   #rsa <- data.frame(as.matrix(relAmtProtFrac) %*% diag(1/propFrac))
-  #names(rsa) <- colnames(markerLocR)
+  #names(rsa) <- colnames(markerProfiles)
 
   # return just Acup; no need for AA
 
@@ -97,7 +97,7 @@ RSAfromAcup <- function(Acup, NstartMaterialFractions=6,
   rsa <- sweep(Acup, 2, 1/t.cup, "*")
   names(rsa) <- colnames(Acup)
 
-  # The following, which standardizes rsa rows to sum to one, returns the original markerLocR !!
+  # The following, which standardizes rsa rows to sum to one, returns the original markerProfiles !!
   SSfromRSA <- t(apply(rsa,1, function(x) x/sum(x)))  # this is deprecated; no need
 
   rsa
@@ -152,7 +152,7 @@ proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
   }
 
 
-#' Directly compute relative specific activity from protProfileSummary (or from markerLocR)
+#' Directly compute relative specific activity from protProfileSummary (or from markerProfiles)
 #'
 #' @param protProfileLevels A matrix (with no prot names) giving the abundance level profiles of the subcellular locations, from 'cpaSetup', or many protein profiles
 #' @param NstartMaterialFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S

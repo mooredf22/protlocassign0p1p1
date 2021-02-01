@@ -4,17 +4,17 @@
 \alias{cpaSetup}
 \title{Set up reference profiles for constrained proportional assignment}
 \usage{
-cpaSetup(protProfileSummary, refLocProteins = refLocProteins, n.channels)
+cpaSetup(protProfileSummary, markerList = markerList, numDataCols)
 }
 \arguments{
 \item{protProfileSummary}{data frame of protein identifiers (protName) and their relative abundance in centrifugation fractions.}
 
-\item{refLocProteins}{List of reference proteins and their subcellular locations}
+\item{markerList}{List of reference proteins and their subcellular locations}
 
-\item{n.channels}{Number of channels of abundance levels}
+\item{numDataCols}{Number of channels of abundance levels}
 }
 \value{
-A matrix markerLocR giving the abundance level profiles of the subcellular locations
+A matrix markerProfiles giving the abundance level profiles of the subcellular locations
 }
 \description{
 Set up reference profiles for constrained proportional assignment

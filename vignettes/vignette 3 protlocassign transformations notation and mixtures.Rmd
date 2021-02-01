@@ -63,8 +63,8 @@ In some experiments, where bookkeeping is not practicable, these are the only va
 
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
-markerLocR <- cpaSetup(protProfileSummary=profilesProtAT5tmtMS2, refLocProteins=refLocProteinsJadot, n.channels=9)
-round(markerLocR, digits=3)
+markerProfiles <- cpaSetup(protProfileSummary=profilesProtAT5tmtMS2, markerList=markerListJadot, numDataCols=9)
+round(markerProfiles, digits=3)
 
 ```
 
@@ -116,7 +116,7 @@ The function `relAmtTransform` computes this:
 
 ```{r, echo=TRUE, eval=TRUE}
 
-AcupMarkers <- relAmtTransform(SS=markerLocR, NstartMaterialFractions=6, 
+AcupMarkers <- relAmtTransform(SS=markerProfiles, NstartMaterialFractions=6, 
                                totProt=totProtAT5)
 round(AcupMarkers, digits=5)
 ```
@@ -139,34 +139,34 @@ We can get the RSA matrix from `AcupMarkers` and `totProtAT5` as follows:
 
 
 ```{r, echo=TRUE, eval=TRUE}
-markerLocRrsa <- RSAfromAcup(AcupMarkers, totProt=totProtAT5)
-round(markerLocRrsa, digits=3)
+markerProfilesrsa <- RSAfromAcup(AcupMarkers, totProt=totProtAT5)
+round(markerProfilesrsa, digits=3)
 ```
 
 
 Note that we can also obtain the RSA transformed data directly from normalized specific amount data as described in Vignette 2:
 
 ```{r, echo=TRUE, eval=TRUE}
-markerLocRrsa_2 <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
+markerProfilesrsa_2 <- RSAfromS(SS=markerProfiles, NstartMaterialFractions=6,
         totProt=totProtAT5)
 
-round(markerLocRrsa_2, digits=3)
+round(markerProfilesrsa_2, digits=3)
 ```
 
-Finally, if we normalize an RSA profile so that the rows sum to one, this yields a normalized specific amount profile. Consider example the matrix `markerLocRrsa`, which contains the RSA-transformed marker profiles. We normalize the rows using the `apply` function, and then transpose using the `t` function to yield a matrix of the normalized specific amounts; these values are  identical to those that we started with in `markerLocR`:
+Finally, if we normalize an RSA profile so that the rows sum to one, this yields a normalized specific amount profile. Consider example the matrix `markerProfilesrsa`, which contains the RSA-transformed marker profiles. We normalize the rows using the `apply` function, and then transpose using the `t` function to yield a matrix of the normalized specific amounts; these values are  identical to those that we started with in `markerProfiles`:
 
 ```{r, echo=TRUE, eval=TRUE}
-round(t(apply(markerLocRrsa,1, function(x) x/sum(x))), digits=3)
+round(t(apply(markerProfilesrsa,1, function(x) x/sum(x))), digits=3)
 ```
 
 
 ## Simulating proteins resident in multiple subcellular locations
 
-We may simulate data from proteins with multiple residences using the `proteinMix` function. For example, to simulate data from proteins that are distributed in a range of proportions between cytosol and lysosomes, we use this function with relative amounts (`AcupMarkers`) of their single-compartment marker profiles. We specify the mixing locations by the arguments `Loc1=1` and `Loc2=4`, which are the row numbers of the desired compartment profiles in markerLocR:
+We may simulate data from proteins with multiple residences using the `proteinMix` function. For example, to simulate data from proteins that are distributed in a range of proportions between cytosol and lysosomes, we use this function with relative amounts (`AcupMarkers`) of their single-compartment marker profiles. We specify the mixing locations by the arguments `Loc1=1` and `Loc2=4`, which are the row numbers of the desired compartment profiles in markerProfiles:
 
 ```{r, echo=TRUE, eval=TRUE}
 
-AcupMarkers <- relAmtTransform(SS=markerLocR, NstartMaterialFractions=6, totProt=totProtAT5)
+AcupMarkers <- relAmtTransform(SS=markerProfiles, NstartMaterialFractions=6, totProt=totProtAT5)
 mixCytoLyso <- proteinMix(AcupMarkers, Loc1=1, Loc2=4)
 ```
 
@@ -195,8 +195,8 @@ round(mixCytoLysoRSA, digits=3)
 Finally, we fit the CPA algorithm to this RSA-transformed, simulated data using the previously generated RSA-transformed marker protein profiles:
 
 ```{r, echo=TRUE, eval=TRUE}
-mixCytoLysoPropRSA <- proLocAll(protProfileSummary=mixCytoLysoRSA, markerLocR=markerLocRrsa,
-                            n.channels=9)
+mixCytoLysoPropRSA <- fitCPA(protProfileSummary=mixCytoLysoRSA, markerProfiles=markerProfilesrsa,
+                            numDataCols=9)
 round(mixCytoLysoPropRSA, digits=3)
 ```
 
@@ -222,11 +222,11 @@ As an alternative, we may obtain CPA estimates using log-transformed relative am
 
 ```{r, echo=TRUE, eval=TRUE}
 mixCytoLysoRSAlog2 <- log2(mixCytoLysoRSA + .00005)
-markerLocRrsalog2 <- log2(markerLocRrsa + .00005)
+markerProfilesrsalog2 <- log2(markerProfilesrsa + .00005)
 
-mixCytoLysoPropRSALog <- proLocAll(protProfileSummary=mixCytoLysoRSAlog2,
-                              markerLocR=markerLocRrsalog2,
-                            n.channels=9)
+mixCytoLysoPropRSALog <- fitCPA(protProfileSummary=mixCytoLysoRSAlog2,
+                              markerProfiles=markerProfilesrsalog2,
+                            numDataCols=9)
 round(mixCytoLysoPropRSALog, digits=3)
 mixturePlot(mixProtiProtjProp=mixCytoLysoPropRSALog, 
               NstartMaterialFractions=6, Loc1=1, Loc=4,
@@ -254,8 +254,8 @@ for (j in 2:8) {
                         NstartMaterialFractions=6, totProt=totProtAT5)
     
    # Find the constrained proportional assigments (CPA)                 
-   mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjRSA,
-                         markerLocR=markerLocRrsa, n.channels=9)
+   mixProtiProtjProp <- fitCPA(protProfileSummary=mixProtiProtjRSA,
+                         markerProfiles=markerProfilesrsa, numDataCols=9)
    
    # Plot the results, including the area-based error estimate, 
    #    and collect the area-based errors (errorReturn=T)                         
@@ -280,7 +280,7 @@ Next, consider a log2 transformation `y = log2(prop + 0.01)` of the RSA values b
 par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
 
 mixErrorMat <- NULL
-log2MarkerLocRrsa <- log2(markerLocRrsa + 0.01)  # transform marker profiles
+log2markerProfilesrsa <- log2(markerProfilesrsa + 0.01)  # transform marker profiles
 i=1  # fix one component of the mixture to the first, which is Cyto
 for (j in 2:8) {   # mix with each of the other compartments, and plot
    #j=4
@@ -296,8 +296,8 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    
                      
    # Obtain CPA estimates from the RSA-transformed mixtures
-   mixProtiProtjPropRSA <- proLocAll(protProfileSummary=log2MixProtiProtjRSA,
-                        markerLocR=log2MarkerLocRrsa, n.channels=9)
+   mixProtiProtjPropRSA <- fitCPA(protProfileSummary=log2MixProtiProtjRSA,
+                        markerProfiles=log2markerProfilesrsa, numDataCols=9)
                             
    # Plot the results, including the area-based error estimate
    mixResult <- mixturePlot(mixProtiProtjProp=mixProtiProtjPropRSA, 
@@ -316,11 +316,11 @@ mixErrorAllCytoRSAlog2
 ```
 
 
-Now consider using normalized specific amounts, which is what we would use for these mixtures if the amounts of starting material in each fraction were not available. The first two function calls are as above, but we obtain these normalized specific amounts by constraining the RSA values to sum to 1 before using `proLocAll` with `markerLocRuse' to compute the CPA estimates.
+Now consider using normalized specific amounts, which is what we would use for these mixtures if the amounts of starting material in each fraction were not available. The first two function calls are as above, but we obtain these normalized specific amounts by constraining the RSA values to sum to 1 before using `fitCPA` with `markerProfilesuse' to compute the CPA estimates.
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
-markerLocRuse <- t(apply(markerLocRrsa, 1, function(x) x/sum(x)))
+markerProfilesuse <- t(apply(markerProfilesrsa, 1, function(x) x/sum(x)))
 #windows(height=10, width=7)
 par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
 
@@ -339,8 +339,8 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
                      
    # Obtain CPA estimates from the normalized specific amount-transformed mixtures
-   mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjSpecific,
-                        markerLocR=markerLocRuse, n.channels=9)
+   mixProtiProtjProp <- fitCPA(protProfileSummary=mixProtiProtjSpecific,
+                        markerProfiles=markerProfilesuse, numDataCols=9)
                             
    # Plot the results, including the area-based error estimate, 
    #    and collect the area-based errors (errorReturn=T)
@@ -360,16 +360,16 @@ Here are the area-based errors:
 mixErrorAllCytoSpecAmt
 ```
 
-Finally, we consider log2-transformed values of normalized specific amounts. This set of plots is similar to the last one except a transformation `y = log2(prop + 0.01)` is applied before obtaining CPA estimates. We calculate `markerLocRuse` by constraining the row totals to be 1. 
+Finally, we consider log2-transformed values of normalized specific amounts. This set of plots is similar to the last one except a transformation `y = log2(prop + 0.01)` is applied before obtaining CPA estimates. We calculate `markerProfilesuse` by constraining the row totals to be 1. 
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 10}
-markerLocRuse <- t(apply(markerLocRrsa, 1, function(x) x/sum(x)))
+markerProfilesuse <- t(apply(markerProfilesrsa, 1, function(x) x/sum(x)))
 #windows(height=10, width=7)
 par(mfrow=c(4,2))  # create a 4 by 2 matrix of plots
 
 mixErrorMat <- NULL
-log2MarkerLocRuse <- log2(markerLocRuse + 0.00005) # do this here
+log2markerProfilesuse <- log2(markerProfilesuse + 0.00005) # do this here
 i=1  # fix one component of the mixture to the first, which is Cyto
 for (j in 2:8) {   # mix with each of the other compartments, and plot
    #j=4
@@ -385,8 +385,8 @@ for (j in 2:8) {   # mix with each of the other compartments, and plot
    log2MixProtiProtjSpecific <- log2(mixProtiProtjSpecific + 0.00005)
                      
    # Obtain CPA estimates from the RSA-transformed mixtures
-   mixProtiProtjProp <- proLocAll(protProfileSummary=log2MixProtiProtjSpecific,
-                        markerLocR=log2MarkerLocRuse, n.channels=9)
+   mixProtiProtjProp <- fitCPA(protProfileSummary=log2MixProtiProtjSpecific,
+                        markerProfiles=log2markerProfilesuse, numDataCols=9)
                             
    # Plot the results, including the area-based error estimate
     mixResult <- mixturePlot(mixProtiProtjProp=mixProtiProtjProp, 

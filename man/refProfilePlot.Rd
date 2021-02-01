@@ -6,20 +6,20 @@
 \usage{
 refProfilePlot(
   refLoc,
-  refLocProteins = refLocProteinsJadot,
+  markerList = markerListJadot,
   protProfileSummary = protProfileSummaryTMTms2,
-  markerLocR = markerLocR,
+  markerProfiles = markerProfiles,
   refProtPlot = NULL
 )
 }
 \arguments{
 \item{refLoc}{the name of the reference subcellular compartment to plot}
 
-\item{refLocProteins}{List of reference proteins}
+\item{markerList}{List of reference proteins}
 
 \item{protProfileSummary}{data frame of protein names (as row names) and relative abundance levels.}
 
-\item{markerLocR}{A matrix markerLocR giving the abundance level profiles of the subcellular locations}
+\item{markerProfiles}{A matrix markerProfiles giving the abundance level profiles of the subcellular locations}
 }
 \description{
 This function plots profiles of reference proteins and also the average profile for each compartment

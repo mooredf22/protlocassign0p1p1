@@ -46,40 +46,40 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
                                 NstartMaterialFractions=6, totProt=totProt)
 
   # find RSA
-  markerLocRrsa <- RSAfromS(SS=markerLocR, NstartMaterialFractions=6,
+  markerProfilesrsa <- RSAfromS(SS=markerProfiles, NstartMaterialFractions=6,
                           totProt=totProt)
   # apply CPA to relative specific amounts (recommended way)
-  mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjRSA,
-                               markerLocR=markerLocRrsa, n.channels=9)
+  mixProtiProtjProp <- fitCPA(protProfileSummary=mixProtiProtjRSA,
+                               markerProfiles=markerProfilesrsa, numDataCols=9)
 
   # normalized specific amounts
   mixProtiProtjSpecAmt <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
 
   # apply CPA to normalized specific amounts
-  mixProtiProtjPropSpecAmt <- proLocAll(protProfileSummary=mixProtiProtjSpecAmt,
-                                      markerLocR=markerLocR,
-                                      n.channels=9)
+  mixProtiProtjPropSpecAmt <- fitCPA(protProfileSummary=mixProtiProtjSpecAmt,
+                                      markerProfiles=markerProfiles,
+                                      numDataCols=9)
 
   # apply CPA to relative amounts (Acup)
   mixProtiProtjPropAcup <-
-    proLocAll(protProfileSummary=mixProtiProtj$relAmount,
-            markerLocR=AcupMarkers, n.channels=9)
+    fitCPA(protProfileSummary=mixProtiProtj$relAmount,
+            markerProfiles=AcupMarkers, numDataCols=9)
 
   # log transformed
   eps <- 0.00005
 
 
-  mixProtiProtjPropLog2 <- proLocAll(protProfileSummary=log2(mixProtiProtjRSA + eps),
-                                   markerLocR=log2(markerLocRrsa + eps), n.channels=9)
+  mixProtiProtjPropLog2 <- fitCPA(protProfileSummary=log2(mixProtiProtjRSA + eps),
+                                   markerProfiles=log2(markerProfilesrsa + eps), numDataCols=9)
 
 
   mixProtiProtjPropSpecAmtLog2 <-
-    proLocAll(protProfileSummary=log2(mixProtiProtjSpecAmt + eps),
-            markerLocR=log2(markerLocR + eps), n.channels=9)
+    fitCPA(protProfileSummary=log2(mixProtiProtjSpecAmt + eps),
+            markerProfiles=log2(markerProfiles + eps), numDataCols=9)
 
   mixProtiProtjPropAcupLog2 <-
-    proLocAll(protProfileSummary=log2(mixProtiProtj$relAmount + eps),
-            markerLocR=log2(AcupMarkers + eps) , n.channels=9)
+    fitCPA(protProfileSummary=log2(mixProtiProtj$relAmount + eps),
+            markerProfiles=log2(AcupMarkers + eps) , numDataCols=9)
 
 
 

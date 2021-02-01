@@ -2,7 +2,7 @@
 % Please edit documentation in R/RSAtransform.r
 \name{RSAfromS}
 \alias{RSAfromS}
-\title{Directly compute relative specific activity from protProfileSummary (or from markerLocR)}
+\title{Directly compute relative specific activity from protProfileSummary (or from markerProfiles)}
 \usage{
 RSAfromS(SS = protProfileLevels, NstartMaterialFractions = 6, totProt = NULL)
 }
@@ -17,5 +17,5 @@ RSAfromS(SS = protProfileLevels, NstartMaterialFractions = 6, totProt = NULL)
 protProfileRSA: relative specific activity
 }
 \description{
-Directly compute relative specific activity from protProfileSummary (or from markerLocR)
+Directly compute relative specific activity from protProfileSummary (or from markerProfiles)
 }

@@ -5,22 +5,22 @@
 #' This function plots profiles of reference proteins and also the average profile for each compartment
 #'
 #' @param refLoc  the name of the reference subcellular compartment to plot
-#' @param refLocProteins List of reference proteins
+#' @param markerList List of reference proteins
 #' @param protProfileSummary data frame of protein names (as row names) and relative abundance levels.
-#' @param markerLocR A matrix markerLocR giving the abundance level profiles of the subcellular locations
+#' @param markerProfiles A matrix markerProfiles giving the abundance level profiles of the subcellular locations
 #'
 
 
-refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, protProfileSummary=protProfileSummaryTMTms2,
-                           markerLocR=markerLocR, refProtPlot=NULL)  {
-  n.channels <- ncol(markerLocR)
+refProfilePlot <- function(refLoc, markerList=markerListJadot, protProfileSummary=protProfileSummaryTMTms2,
+                           markerProfiles=markerProfiles, refProtPlot=NULL)  {
+  n.channels <- ncol(markerProfiles)
   protNames <- rownames(protProfileSummary)
   # add protName column for merge
   protProfileSummaryWithProteins <- data.frame(protNames, protProfileSummary)
   names(protProfileSummaryWithProteins)[1] <- "protName"
-  meanReferenceProts <- merge(x=refLocProteins, y=protProfileSummaryWithProteins,
+  meanReferenceProts <- merge(x=markerList, y=protProfileSummaryWithProteins,
                             by.x="protName", by.y="protName", all.x=F, sort=F)
-  markerLoc <- t(markerLocR)
+  markerLoc <- t(markerProfiles)
   max.val <- max(markerLoc)
   #if (pdfout) pdf(file=paste("ClassificationMarkerProfilesTransformOutlierRej", dataUse, markersUse, ".pdf", sep=''), width=9, height=10)
   #if (!pdfout) windows(width=9, height=10)
@@ -28,7 +28,7 @@ refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, protProfi
   #if (dataUse == "TMT10revisit3") pdf(file="ClassificationMarkerProfiles3.pdf", width=9, height=10)
   #par(mfrow=c(4,3))
   fractions.list <- rownames(markerLoc)
-  compartments.list <- rownames(markerLocR)
+  compartments.list <- rownames(markerProfiles)
 
   # stop if refLoc not found
   if (!(refLoc %in% compartments.list)) {
@@ -37,10 +37,10 @@ refProfilePlot <- function(refLoc, refLocProteins=refLocProteinsJadot, protProfi
   }
 
   location.list <- colnames(markerLoc)
-  #location.list <- sort(unique(refLocProteins$referenceCompartment))
-  #location.list2 <- unique(refLocProteins$referenceCompartment) # should be same as location.list
+  #location.list <- sort(unique(markerList$referenceCompartment))
+  #location.list2 <- unique(markerList$referenceCompartment) # should be same as location.list
   #if (sum({location.list == location.list2}) != length(location.list)) {
-  #    cat("error: locations in markerLoc don't match those in refLocProteins\n")
+  #    cat("error: locations in markerLoc don't match those in markerList\n")
   #}
 
 

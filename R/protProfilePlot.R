@@ -4,16 +4,16 @@
 #'   the peptide profiles, and also the reference profile for each compartment
 #'
 #' @param protName Name of the protein to plot
-#' @param refLocProteins List of reference proteins
+#' @param markerList List of reference proteins
 #' @param protProfileSummary data frame of protein names and their relative abundance levels..
 #' @param Nspectra indicator for if there are columns in protProfileSummary for Nspectra
 #'         (number of spectra) and Npep (number of peptides)
 #' @param finalList spectrum-level abundance levels by protein and peptide; Ehis is NULL
 #'        if not available
-#' @param n.fractions  number of fractions per protein
+#' @param numDataCols  number of fractions per protein
 #' @param n.compartments number of compartments (8 in Jadot data)
-#' @param markerLocR A matrix markerLocR giving the abundance level profiles of the subcellular locations
-#'        n.compartments = 8 columns are subcellular locations, and n.fractions rows are the fraction names
+#' @param markerProfiles A matrix markerProfiles giving the abundance level profiles of the subcellular locations
+#'        n.compartments = 8 columns are subcellular locations, and numDataCols rows are the fraction names
 #' @param assignPropsMat A matrix of assignment proportions, from the constrained proportional assignment algorithm,
 #'        and optionally upper and lower 95 percent confidence limits
 #' @param propCI True if lower and upper confidence intervals are included in assignPros
@@ -27,18 +27,18 @@
 #'
 
 protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL,
-                        n.fractions=9, n.compartments=8,
-                        markerLocR=markerLocRuse, assignPropsMat=assignPropsUse, propCI=F,
+                        numDataCols=9, n.compartments=8,
+                        markerProfiles=markerProfilesNSA, assignPropsMat, propCI=F,
                         transType="", yAxisLabel="") {
   # protPlot is the number of the protein to plot
   # protProfileSummaryUse is a matrix with components:
   #    rownames: name of protein
-  #    N, M, L1, ... : relative protein levels for fractions 1 through n.fractions; must sum to 1
+  #    N, M, L1, ... : relative protein levels for fractions 1 through numDataCols; must sum to 1
   #
   # If standard errors are not available, se is false, and seMat is NULL
   #  If standard errors are available, se is true, and seMat is the list of proteinss and n.fraction standard errors
   # If Nspectra and Npep (number of peptides) are included, Nspectra=T
-  #  markerLoc:  matrix with n.fractions rows and 8 columns.
+  #  markerLoc:  matrix with numDataCols rows and 8 columns.
   #      Column names are the subcellular fractions, Cytosol, ER, Golgi, etc.
   #      Row names are the names of the fractions: N, M, L1, L2, etc.
   #      Column and row names are required
@@ -77,14 +77,14 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
   ##if(!protsOK) cat("Error: protein names don't match\n")
   ##stopifnot(protsOK)
   #assignProbsOut <- protProfileSummary[,1:(1+8)]   # just the protein name and the assigned proportions to the 8 compartments
-  meanProteinLevels <- protProfileSummary[,1:n.fractions]  # just the profiles
+  meanProteinLevels <- protProfileSummary[,1:numDataCols]  # just the profiles
 
   protNames <- rownames(protProfileSummary)
   protNameUnique <- make.unique(protNames)
   rownames(meanProteinLevels) <- protNameUnique
-  subCellNames <- rownames(markerLocR)
+  subCellNames <- rownames(markerProfiles)
 
-  fractions.list <- colnames(markerLocR)  # column names[protPlot])
+  fractions.list <- colnames(markerProfiles)  # column names[protPlot])
 
   # # # # # # # # # # # # # #
   #  Do the following if "finalList" (the full list of peptides and spectra)
@@ -94,19 +94,19 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
   if (!is.null(finalList)) {
     finalList.i <- finalList[toupper(finalList$prot) == protName.i, ]
 
-    if (nrow(finalList.i) > 0) fractions.i <- finalList.i[,2 + c(1:n.fractions)]
+    if (nrow(finalList.i) > 0) fractions.i <- finalList.i[,2 + c(1:numDataCols)]
     if (nrow(finalList.i) == 0) stop("no corresponding spectra in finalList")
     Nspectra <- nrow(finalList.i)
     Npeptides <- length(unique(finalList.i$peptide))
 
     finalList.use.i <-  finalList.i
 
-    fractions.use.i <- finalList.use.i[,2+1:n.fractions]
+    fractions.use.i <- finalList.use.i[,2+1:numDataCols]
     outlierFlag.i <- finalList.use.i$outlierFlag
     peptide.i <- as.character(finalList.use.i$peptide)
     n.uniq.peptide.i <- length(unique(peptide.i))
     uniq.peptides.list <- unique(peptide.i)
-    means.peptides.i <- matrix(NA, nrow=n.uniq.peptide.i, ncol=n.fractions)
+    means.peptides.i <- matrix(NA, nrow=n.uniq.peptide.i, ncol=numDataCols)
     outlierFlagVec.i <- rep(NA, n.uniq.peptide.i)
     n.spectra.i <- rep(NA, n.uniq.peptide.i)
   #browser()
@@ -124,13 +124,13 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
     n.assign <- nrow(assignPropsMat)
 
 
-    n.fractions.i <- nrow(fractions.i)
+    numDataCols.i <- nrow(fractions.i)
   }
 
 
   yy <- as.numeric(meanProteinLevels[protPlot,])
 
-  xvals <- 1:n.fractions
+  xvals <- 1:numDataCols
   #max.y <- max(channelsAll, na.rm=T)
   #max.y <- max(meanProteinLevels, na.rm=T)
   min.y <-0
@@ -178,7 +178,7 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
  #   text(x=2.5,y=0.3,protName.i, cex=2)
  # }
 
-  # max.y <- max(c(max(means.peptides.i), max(markerLocR[i,])))
+  # max.y <- max(c(max(means.peptides.i), max(markerProfiles[i,])))
   min.y <- 0
   par(mar=c(2,4,2,1.5))
   # The plots are in alphabetical order
@@ -206,11 +206,11 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
 
     #assignLong.i <- names(markerLoc)[i]
     assignLong.i <- subCellNames[i]
-    #channels.i <- meanProteinLevels[{names(as.data.frame(markerLocR)) == as.character(assign.i)},]
-    ##?? means.peptides.i <- meanProteinLevels[{names(as.data.frame(markerLocR)) == as.character(assign.i)},]
+    #channels.i <- meanProteinLevels[{names(as.data.frame(markerProfiles)) == as.character(assign.i)},]
+    ##?? means.peptides.i <- meanProteinLevels[{names(as.data.frame(markerProfiles)) == as.character(assign.i)},]
     #mean.i <- markerLoc[,i]
-    mean.i <- as.numeric(markerLocR[i,])
-    if (!is.null(finalList)) max.y <- max(c(max(means.peptides.i), max(markerLocR[i,])))
+    mean.i <- as.numeric(markerProfiles[i,])
+    if (!is.null(finalList)) max.y <- max(c(max(means.peptides.i), max(markerProfiles[i,])))
     if (is.null(finalList)) max.y <- max(c(mean.i,yy))
     par(mar=c(2,4.1,2,1.5))
     plot(mean.i ~ xvals,  axes="F", type="l",
