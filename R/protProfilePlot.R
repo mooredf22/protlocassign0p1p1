@@ -245,8 +245,9 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
 
 
     lines(yy ~ xvals, col="red", lwd=2)
-    lines(mean.i ~ xvals, lwd=2, col="yellow")
-    lines(mean.i ~ xvals, lwd=2, col="black", lty=2)
+
+    lines(mean.i ~ xvals, lwd=4, col="black", lty=1)   # thick black solid line
+    lines(mean.i ~ xvals, lwd=2, col="yellow", lty=2)  # thinner yellow dashed line
     if (propCI) {
       predPrL.i <- predictedPropL.mat[indAssignProb.prot,i]
       predPrU.i <- predictedPropU.mat[indAssignProb.prot,i]
@@ -277,15 +278,15 @@ protPlotfun <- function(protName, protProfileSummary, Nspectra=T, finalList=NULL
   plot(y ~ x, type="n", axes=F)
   if (!is.null(finalList)) {
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
-         col=c("yellow", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"), lwd=c(2,2,1,2,3,4), lty=c(1,1,1,1,1,1))
+         col=c("black", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"), lwd=c(4,2,1,2,3,4), lty=c(1,1,1,1,1,1))
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile", "1 spectrum", "2 spectra", "3-5 spectra", "6+ spectra"),
-         col=c("black", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"), lwd=c(2,2,1,2,3,4), lty=c(2,1,1,1,1,1))
+         col=c("yellow", "red", "cyan", "deepskyblue", "dodgerblue3", "blue"), lwd=c(2,2,1,2,3,4), lty=c(2,1,1,1,1,1))
   }
   if (is.null(finalList)) {
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile"),
-           col=c("yellow", "red"), lwd=c(2,2), lty=c(1,1))
+           col=c("black", "red"), lwd=c(4,2), lty=c(1,1))
     legend(x=1, y=0.4, legend=c("Reference profile", "Average profile"),
-           col=c("black", "red"), lwd=c(2,2), lty=c(2,1))
+           col=c("yellow", "red"), lwd=c(2,2), lty=c(2,1))
   }
   x <- c(0,5)
   y <- c(0,0.5)
