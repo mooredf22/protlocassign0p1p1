@@ -2,7 +2,8 @@
 % Please edit documentation in R/mixturePlotPanel.r
 \name{mixturePlotPanel}
 \alias{mixturePlotPanel}
-\title{plot mixture of all two compartment profile combinations as panel; assumes eight compartments}
+\title{plot mixture of all two compartment profile combinations as panel; assumes eight compartments
+Also assumes that "markerProfilesrsa" has been previously defined}
 \usage{
 mixturePlotPanel(
   Acup = AcupMarkers,
@@ -28,4 +29,5 @@ mixturePlotPanel(
 }
 \description{
 plot mixture of all two compartment profile combinations as panel; assumes eight compartments
+Also assumes that "markerProfilesrsa" has been previously defined
 }

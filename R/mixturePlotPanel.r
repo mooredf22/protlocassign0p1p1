@@ -1,4 +1,5 @@
 #' plot mixture of all two compartment profile combinations as panel; assumes eight compartments
+#' Also assumes that "markerProfilesrsa" has been previously defined
 #' @param Acup relative amount of a given cellular compartment protein that ends up in a given centrifugation fraction
 #' @param totProt vector of amounts starting material in each fraction
 #' @param fitType use (normalized) specific amounts or relative specific amounts
@@ -57,42 +58,42 @@ mixturePlotPanel <- function(Acup=AcupMarkers, totProt, errorReturn=F, fitType="
       mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$relAmount, NstartMaterialFractions=6,
                                       totProt=totProt)
       if (!log2Transf & {fitType == "rsa"}) {
-       mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjRSA,
-                                     markerLocR=markerLocRrsa, n.channels=9)
+       mixProtiProtjProp <- fitCPA(protProfileSummary=mixProtiProtjRSA,
+                                     markerProfiles=markerProfilesrsa, numDataCols=9)
       }
 
       if (log2Transf& {fitType == "rsa"}) {
       # Take a log2 transformation
         log2MixProtiProtjRSA <- log2(mixProtiProtjRSA + eps)
-        log2MarkerLocRrsa <- log2(markerLocRrsa + eps)
-        mixProtiProtjProp <- proLocAll(protProfileSummary=log2MixProtiProtjRSA,
-                                     markerLocR=log2MarkerLocRrsa, n.channels=9)
+        log2MarkerLocRrsa <- log2(markerProfilesrsa + eps)
+        mixProtiProtjProp <- fitCPA(protProfileSummary=log2MixProtiProtjRSA,
+                                     markerProfiles=log2MarkerLocRrsa, numDataCols=9)
       }
       if (!log2Transf & {fitType == "specAmt"}) {
         mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
         markerLocRuse <- t(apply(markerLocRrsa,1, function(x) x/sum(x)))   # rows sum to one
-        mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtjSpecific,
-                                       markerLocR=markerLocRuse, n.channels=9)
+        mixProtiProtjProp <- fitCPA(protProfileSummary=mixProtiProtjSpecific,
+                                       markerProfiles=markerLocRuse, numDataCols=9)
       }
 
       if (log2Transf& {fitType == "specAmt"}) {
         # Now convert to normalized specific amounts
         mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
-        markerLocRuse <- t(apply(markerLocRrsa,1, function(x) x/sum(x)))  # rows sum to one
+        markerLocRuse <- t(apply(markerProfilesrsa,1, function(x) x/sum(x)))  # rows sum to one
         # Take a log2 transformation
         log2MixProtiProtjSpecific <- log2(mixProtiProtjSpecific + eps)
         log2MarkerLocR <- log2(markerLocRuse + eps)
 
 
-        mixProtiProtjProp <- proLocAll(protProfileSummary=log2MixProtiProtjSpecific,
-                                       markerLocR=log2MarkerLocR, n.channels=9)
+        mixProtiProtjProp <- fitCPA(protProfileSummary=log2MixProtiProtjSpecific,
+                                       markerProfiles=log2MarkerLocR, numDataCols=9)
       }
 
       if (!log2Transf & {fitType == "relAmt"}) {
         #mixProtiProtjSpecific <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
         #markerLocRuse <- t(apply(markerLocRrsa,1, function(x) x/sum(x))) # rows sum to one
-        mixProtiProtjProp <- proLocAll(protProfileSummary=mixProtiProtj$relAmount,
-                                       markerLocR=AcupMarkers, n.channels=9)
+        mixProtiProtjProp <- fitCPA(protProfileSummary=mixProtiProtj$relAmount,
+                                       markerProfiles=AcupMarkers, numDataCols=9)
       }
 
       if (log2Transf& {fitType == "relAmt"}) {
@@ -103,8 +104,8 @@ mixturePlotPanel <- function(Acup=AcupMarkers, totProt, errorReturn=F, fitType="
         #log2MarkerLocR <- log2(markerLocRuse + eps)
 
 
-        mixProtiProtjProp <- proLocAll(protProfileSummary=log2(mixProtiProtj$relAmount + eps),
-                                       markerLocR=log2(AcupMarkers + eps), n.channels=9)
+        mixProtiProtjProp <- fitCPA(protProfileSummary=log2(mixProtiProtj$relAmount + eps),
+                                       markerProfiles=log2(AcupMarkers + eps), numDataCols=9)
       }
 
 
