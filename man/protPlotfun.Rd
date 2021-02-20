@@ -6,12 +6,12 @@
 \usage{
 protPlotfun(
   protName,
-  protProfileSummary,
+  profile,
   Nspectra = T,
   finalList = NULL,
   numDataCols = 9,
   n.compartments = 8,
-  markerProfiles = markerProfilesNSA,
+  refLocationProfiles,
   assignPropsMat,
   propCI = F,
   transType = "",
@@ -21,9 +21,7 @@ protPlotfun(
 \arguments{
 \item{protName}{Name of the protein to plot}
 
-\item{protProfileSummary}{data frame of protein names and their relative abundance levels..}
-
-\item{Nspectra}{indicator for if there are columns in protProfileSummary for Nspectra
+\item{Nspectra}{indicator for if there are columns in profile for Nspectra
 (number of spectra) and Npep (number of peptides)}
 
 \item{finalList}{spectrum-level abundance levels by protein and peptide; Ehis is NULL
@@ -33,7 +31,7 @@ if not available}
 
 \item{n.compartments}{number of compartments (8 in Jadot data)}
 
-\item{markerProfiles}{A matrix markerProfiles giving the abundance level profiles of the subcellular locations
+\item{refLocationProfiles}{A matrix refLocationProfiles giving the abundance level profiles of the subcellular locations
 n.compartments = 8 columns are subcellular locations, and numDataCols rows are the fraction names}
 
 \item{assignPropsMat}{A matrix of assignment proportions, from the constrained proportional assignment algorithm,
@@ -43,10 +41,12 @@ and optionally upper and lower 95 percent confidence limits}
 
 \item{markerList}{List of reference proteins}
 
+\item{protProfileSummary}{data frame of protein names and their relative abundance levels..}
+
 \item{predictedProp.mat}{A matrix of CPA predicted proportions, from proLocAll}
 
 \item{confint}{indicator for if there are standard errors (from bootstrapping) for the assigned proportions
-(in protProfileSummary)}
+(in profile)}
 
 \item{predictedPropL.mat}{Matrix of lower confidence limits, one row for each protein, and 9 columns
 of lower confidence interval limits}

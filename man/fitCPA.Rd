@@ -5,8 +5,8 @@
 \title{Carry out constrained proportional assignment on all proteinss}
 \usage{
 fitCPA(
-  protProfileSummary,
-  markerProfiles,
+  profile,
+  refLocationProfiles,
   numDataCols = numDataCols,
   log2Transf = F,
   eps = 2^(-5),
@@ -15,9 +15,9 @@ fitCPA(
 )
 }
 \arguments{
-\item{protProfileSummary}{data frame of protein names (row names) and relative abundance levels.}
+\item{profile}{data frame of protein names (row names) and relative abundance levels.}
 
-\item{markerProfiles}{A matrix giving the abundance level profiles of the subcellular locations}
+\item{refLocationProfiles}{A matrix giving the abundance level profiles of the subcellular locations}
 
 \item{numDataCols}{Number of channels of abundance levels}
 
@@ -30,7 +30,7 @@ if log2Transf=F}
 
 \item{assignProbsStart}{A matrix of starting values, one for each protein. The first column must be protName}
 
-\item{maxR}{A value to truncate values of markerProfiles; if NULL (default), ignore}
+\item{maxR}{A value to truncate values of refLocationProfiles; if NULL (default), ignore}
 }
 \value{
 assignProbsOut  Data frame of proportionate assignments of each protein to compartments
