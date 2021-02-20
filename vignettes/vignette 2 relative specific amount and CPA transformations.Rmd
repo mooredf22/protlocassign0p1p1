@@ -1,5 +1,5 @@
 ---
-title: 'Vignette 2: Relative Specific Amount transformation and CPA'
+title: 'Vignette 2: Relative specific amount (RSA) transformation and CPA'
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
 output:
@@ -33,12 +33,12 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-In Vignette 1 (“Getting Started”) we illustrated the principles of constrained proportional assignment using protein profiles that represent mass spectrometry data from a set of subcellular fractions in the form of normalized specific amounts (equivalent amounts of total protein analyzed per fraction, with the sum of all fractions constrained to 1).  This vignette describes how to use functions in the `protlocassign` package to transform such profiles in a manner that is more useful for inferring proportional residence in subcellular compartments.
+In Vignette 1 (“Getting Started”) we illustrated the principles of constrained proportional assignment using protein profiles that represent mass spectrometry data from a set of subcellular fractions in the form of normalized specific amounts (NSAs). NSA profiles have equivalent amounts of total protein analyzed per fraction, with the sum of all fractions constrained to 1.  This vignette describes how to use functions in the `protlocassign` package to transform NSA profiles in a manner that may be more appropriate for inferring proportional residence in subcellular compartments.
 
 
 ## Setting up the data and reference protein files, and transforming to Relative Specific Amounts
 
-As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `profilesProtAT5tmtMS2`, consists of row names that indicate protein identifiers, each of which is followed by data describing the identifier profile across the nine normalized specific amounts derived from a subcellular fractionation experiment. The other data set, `markerListJadot`, consists of a list of reference proteins and their associated known subcelluar compartments.  As before, to run the program, the `protlocassign` library must be installed.
+As explained in the Vignette 1, as an example we will use two R data sets that are included in the `protlocassign` package.  One, `protProfileNSA_AT5tmtMS2`, consists of row names that indicate protein identifiers, each of which is followed by data describing the identifier profile across the nine normalized specific amounts derived from a subcellular fractionation experiment. The other data set, `markerListJadot`, consists of a list of reference proteins and their associated known subcelluar compartments.  As before, to run the program, the `protlocassign` library must be installed.
 
 
 
@@ -46,49 +46,49 @@ As explained in the Vignette 1, as an example we will use two R data sets that a
 library(protlocassign)
 ```
 
-In Vignette 1, we use `profilesProtAT5tmtMS2` and an untransformed average of reference protein profiles for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as relative specific amounts (RSAs).  As explained in the main text and elaborated in Vignette 3, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `totProtAT5` which is preloaded in `protlocassign`.  Note that the order of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `totProtAT5`) must correspond to those in the data set containing individual protein profiles (e.g., `profilesProtAT5tmtMS2`).
+In Vignette 1, we use `protProfileNSA_AT5tmtMS2` and an untransformed average of reference protein profiles in the form of NSAs for each compartment to conduct CPA. However, it may be advantageous to transform the data prior to conducting CPA to yield a more accurate prediction of cellular location.  For this purpose, we express profile data as relative specific amounts (RSAs).  As explained in the main text and elaborated in Vignette 3, RSA is the ratio of two ratios:  the numerator is the amount of a given protein in a particular fraction divided by the amount of that given protein in the starting material while the denominator is amount of total protein in a particular fraction divided by the amount of total protein in the starting material.  Be aware that to perform this transformation, one needs to have estimates of all these quantities, and this was incorporated into our experimental design.  In our example, the first six fractions (the differential fractions) can be used to estimate amounts in the starting material.  We also measured total protein in each fraction, and these are contained in the 9-element vector `totProtAT5` which is preloaded in `protlocassign`.  Note that the order and numbers of the measurements for total protein (e.g., N, M, L1, L2, P, S, Nyc1, Nyc2 and Nyc3 in `totProtAT5`) must correspond to those in the data set containing individual protein profiles (e.g., `protProfileNSA_AT5tmtMS2`).
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 round(totProtAT5, digits=4)
 ```
 
-The function `RSAfromS` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material. Note that the function `RSAfromS` requires that the number of values in each row of the argument `SS` (i.e., the protein profile expressed as specific amounts or normalized specific amounts) match the number of values in the argument `totProt`. Thus, we select the first nine columns of `profilesProtAT5tmtMS2`.
+The function `RSAfromS` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material. Note that the function `RSAfromS` can use protein profiles expressed either as NSAs or as specific amounts. Thus we select the first nine columns of `protProfileNSA_AT5tmtMS2`.
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-protProfileLevelsRSA <- RSAfromS(SS=profilesProtAT5tmtMS2[,1:9],
+protProfileRSA_AT5tmtMS2 <- RSAfromS(SS=protProfileNSA_AT5tmtMS2[,1:9],
                          NstartMaterialFractions=6, totProt=totProtAT5)
-
-dim(protProfileLevelsRSA)
-str(protProfileLevelsRSA)
+dim(protProfileRSA_AT5tmtMS2)
+str(protProfileRSA_AT5tmtMS2)
 ```
 
-Since there is additional information in the last two columns of `profilesProtAT5tmtMS2` that we want to include in the new file, specifically the numbers of spectra and peptides (`Nspectra` and `Nseq`), we add them to the output as follows:
+Since there is additional information in the last two columns of `protProfileNSA_AT5tmtMS2` that we want to include in the new file, specifically the numbers of spectra and peptides (`Nspectra` and `Nseq`), we add them to the output as follows:
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-protProfileSummaryRSA <- data.frame(protProfileLevelsRSA,
-                          profilesProtAT5tmtMS2[,10:11])
-dim(protProfileSummaryRSA)
-str(protProfileSummaryRSA)
+protProfileRSA_AT5tmtMS2 <- data.frame(protProfileRSA_AT5tmtMS2,
+                          protProfileNSA_AT5tmtMS2[,10:11])
+#note dataframe is being overwritten
+dim(protProfileRSA_AT5tmtMS2)
+str(protProfileRSA_AT5tmtMS2)
 ```
 
-We also need to transform the profiles of the markers for each compartment.  As done in Vignette 1, we use the function `cpaSetup` to average the profiles (which must be normalized specific amounts).  
+We also need to transform the profiles of the markers for each compartment.  As done in Vignette 1, we use the function `locationProfilesetup` to average the profiles (which must be normalized specific amounts).  
 
-To obtain profiles for the reference proteins, use the function `cpaSetup`:
+To obtain profiles for the reference proteins, use the function `locationProfilesetup`:
 
 ```{r, echo=TRUE, eval=TRUE}
-markerProfilesuse <- cpaSetup(protProfileSummary=profilesProtAT5tmtMS2,
+refLocationProfilesNSA <- locationProfileSetup(profile=protProfileNSA_AT5tmtMS2,
                           markerList=markerListJadot, numDataCols=9)
-round(markerProfilesuse, digits=4)
+round(refLocationProfilesNSA, digits=4)
 
 ```
 
 We then use `RSAfromS` to transform these reference profiles.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-markerProfilesrsa <- RSAfromS(SS=markerProfilesuse, NstartMaterialFractions=6,
+refLocationProfilesRSA <- RSAfromS(SS=refLocationProfilesNSA, NstartMaterialFractions=6,
        totProt=totProtAT5)
-round(markerProfilesrsa, digits=4)
+round(refLocationProfilesRSA, digits=4)
 
 ```
 
@@ -97,13 +97,13 @@ round(markerProfilesrsa, digits=4)
 As in Vignette 1, we can plot reference profiles, but this time using the RSA-transformed data. For example, here is a plot for all markers:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width = 5, fig.height = 7}
-loc.list <- rownames(markerProfilesuse)
+loc.list <- rownames(refLocationProfilesRSA)
 n.loc <- length(loc.list)
 par(mfrow=c(4,2))
 for (i in 1:n.loc) {
-  refProfilePlot(refLoc=loc.list[i], markerList=markerListJadot,
-                     protProfileSummary=protProfileSummaryRSA,
-                     markerProfiles=markerProfilesrsa)
+  markerProfilePlot(refLoc=loc.list[i], markerList=markerListJadot,
+                     profile=protProfileRSA_AT5tmtMS2,
+                     refLocationProfiles=refLocationProfilesRSA)
   }
 ```
 
@@ -111,8 +111,8 @@ for (i in 1:n.loc) {
 Now we can run the CPA routine on the RSA-transformed levels; this may take several minutes to complete. The result is a matrix with protein identifiers as row names, and data indicating the estimated proportional assignments of each protein among the eight subcellular locations.
 
 ```{r, echo=TRUE, eval=TRUE}
-protCPA_AT5tmtMS2RSA <- fitCPA(protProfileSummary=protProfileSummaryRSA,
-                                markerProfiles=markerProfilesrsa, numDataCols=9)
+protCPA_AT5tmtMS2RSA <- fitCPA(profile=protProfileRSA_AT5tmtMS2,
+                                refLocationProfiles=refLocationProfilesRSA, numDataCols=9)
 str(protCPA_AT5tmtMS2RSA)
 ```
 
@@ -123,8 +123,8 @@ Now we plot the results for protein TLN1:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=7}
 
-protPlotfun(protName="TLN1", protProfileSummary=protProfileSummaryRSA, numDataCols=9,
-                        Nspectra=T, markerProfiles=markerProfilesrsa,
+protPlotfun(protName="TLN1", profile=protProfileRSA_AT5tmtMS2, numDataCols=9,
+                        Nspectra=T, refLocationProfiles=refLocationProfilesRSA,
                         assignPropsMat=protCPA_AT5tmtMS2RSA)
 ```
 
