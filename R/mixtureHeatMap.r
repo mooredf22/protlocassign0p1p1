@@ -46,40 +46,40 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
                                 NstartMaterialFractions=6, totProt=totProt)
 
   # find RSA
-  markerProfilesrsa <- RSAfromS(SS=markerProfiles, NstartMaterialFractions=6,
+  refLocationProfilesRSA <- RSAfromNSA(NSA=refLocationProfiles, NstartMaterialFractions=6,
                           totProt=totProt)
   # apply CPA to relative specific amounts (recommended way)
-  mixProtiProtjProp <- fitCPA(protProfileSummary=mixProtiProtjRSA,
-                               markerProfiles=markerProfilesrsa, numDataCols=9)
+  mixProtiProtjProp <- fitCPA(profile=mixProtiProtjRSA,
+                               refLocationProfiles=refLocationProfilesRSA, numDataCols=9)
 
   # normalized specific amounts
   mixProtiProtjSpecAmt <- t(apply(mixProtiProtjRSA,1, function(x) x/sum(x)))
 
   # apply CPA to normalized specific amounts
-  mixProtiProtjPropSpecAmt <- fitCPA(protProfileSummary=mixProtiProtjSpecAmt,
-                                      markerProfiles=markerProfiles,
+  mixProtiProtjPropSpecAmt <- fitCPA(profile=mixProtiProtjSpecAmt,
+                                      refLocationProfiles=refLocationProfiles,
                                       numDataCols=9)
 
   # apply CPA to relative amounts (Acup)
   mixProtiProtjPropAcup <-
-    fitCPA(protProfileSummary=mixProtiProtj$relAmount,
-            markerProfiles=AcupMarkers, numDataCols=9)
+    fitCPA(profile=mixProtiProtj$relAmount,
+            refLocationProfiles=AcupMarkers, numDataCols=9)
 
   # log transformed
-  eps <- 0.00005
+  eps <- 0.001
 
 
-  mixProtiProtjPropLog2 <- fitCPA(protProfileSummary=log2(mixProtiProtjRSA + eps),
-                                   markerProfiles=log2(markerProfilesrsa + eps), numDataCols=9)
+  mixProtiProtjPropLog2 <- fitCPA(profile=log2(mixProtiProtjRSA + eps),
+                                   refLocationProfiles=log2(refLocationProfilesRSA + eps), numDataCols=9)
 
 
   mixProtiProtjPropSpecAmtLog2 <-
-    fitCPA(protProfileSummary=log2(mixProtiProtjSpecAmt + eps),
-            markerProfiles=log2(markerProfiles + eps), numDataCols=9)
+    fitCPA(profile=log2(mixProtiProtjSpecAmt + eps),
+            refLocationProfiles=log2(refLocationProfiles + eps), numDataCols=9)
 
   mixProtiProtjPropAcupLog2 <-
-    fitCPA(protProfileSummary=log2(mixProtiProtj$relAmount + eps),
-            markerProfiles=log2(AcupMarkers + eps) , numDataCols=9)
+    fitCPA(profile=log2(mixProtiProtj$relAmount + eps),
+            refLocationProfiles=log2(AcupMarkers + eps) , numDataCols=9)
 
 
 

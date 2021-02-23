@@ -4,10 +4,10 @@
 \alias{relAmtTransform}
 \title{Set up RSA (relative specific amount) profiles for constrained proportional assignment}
 \usage{
-relAmtTransform(SS, NstartMaterialFractions = 6, totProt = NULL)
+relAmtTransform(NSA, NstartMaterialFractions = 6, totProt = NULL)
 }
 \arguments{
-\item{SS}{A matrix giving the specific amount or normalized specific amount
+\item{NSA}{A matrix giving the specific amount or normalized specific amount
 profiles, either marker profiles from 'cpaSetup' (which requires
 normalized specific amounts as input), or a list of many protein profiles}
 

@@ -52,11 +52,11 @@ In Vignette 1, we use `protProfileNSA_AT5tmtMS2` and an untransformed average of
 round(totProtAT5, digits=4)
 ```
 
-The function `RSAfromS` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material. Note that the function `RSAfromS` can use protein profiles expressed either as NSAs or as specific amounts. Thus we select the first nine columns of `protProfileNSA_AT5tmtMS2`.
+The function `RSAfromNSA` calculates transformed profiles from individual and total protein measurements.  This requires specifying which values are used to estimate the amount in the starting material (typically homogenate) and the values used to construct the profile.  In our case, the first six fractions of the nine-fraction profile are summed to estimate the starting material. Note that the function `RSAfromNSA` can use protein profiles expressed either as NSAs or as specific amounts. Thus we select the first nine columns of `protProfileNSA_AT5tmtMS2`.
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-protProfileRSA_AT5tmtMS2 <- RSAfromS(SS=protProfileNSA_AT5tmtMS2[,1:9],
+protProfileRSA_AT5tmtMS2 <- RSAfromNSA(NSA=protProfileNSA_AT5tmtMS2[,1:9],
                          NstartMaterialFractions=6, totProt=totProtAT5)
 dim(protProfileRSA_AT5tmtMS2)
 str(protProfileRSA_AT5tmtMS2)
@@ -83,10 +83,10 @@ round(refLocationProfilesNSA, digits=4)
 
 ```
 
-We then use `RSAfromS` to transform these reference profiles.
+We then use `RSAfromNSA` to transform these reference profiles.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-refLocationProfilesRSA <- RSAfromS(SS=refLocationProfilesNSA, NstartMaterialFractions=6,
+refLocationProfilesRSA <- RSAfromNSA(NSA=refLocationProfilesNSA, NstartMaterialFractions=6,
        totProt=totProtAT5)
 round(refLocationProfilesRSA, digits=4)
 

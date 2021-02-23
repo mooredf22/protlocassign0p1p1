@@ -2,7 +2,7 @@
 
 #' Set up RSA (relative specific amount) profiles for constrained proportional assignment
 #'
-#' @param SS A matrix giving the specific amount or normalized specific amount
+#' @param NSA A matrix giving the specific amount or normalized specific amount
 #'           profiles, either marker profiles from 'cpaSetup' (which requires
 #'           normalized specific amounts as input), or a list of many protein profiles
 #' @param NstartMaterialFractions Number of differential fractions, typically 6, for N, M, L1, L2, P, and S
@@ -18,7 +18,7 @@
 # function name change
 #abundanceTransform <- function(markerProfiles, NstartMaterialFractions=6,
 
-# markerProfiles -> SS   # no need to limit this to the marker profiles
+# markerProfiles -> NSA   # no need to limit this to the marker profiles
 # amtProtFrac -> AA  # these are the amounts of protein (or other species)
 # relAmtProtFrac -> Acup  # relative amounts
                 # normalize specific amounts in each fraction
@@ -26,15 +26,15 @@
     # these are of interest for simulations
 #
 
-relAmtTransform <- function(SS, NstartMaterialFractions=6,
+relAmtTransform <- function(NSA, NstartMaterialFractions=6,
                                totProt=NULL) {
-  if (ncol(SS) != length(totProt)) {
-    cat("Error from relAmtTransoform: no. of rows of SS must match length of totProt\n")
+  if (ncol(NSA) != length(totProt)) {
+    cat("Error from relAmtTransoform: no. of rows of NSA must match length of totProt\n")
   }
 
-  startMaterialFractions <- SS[,1:NstartMaterialFractions]  # just differential fractions
+  startMaterialFractions <- NSA[,1:NstartMaterialFractions]  # just differential fractions
   nTotFractions <- length(totProt)    # number of all fractions
-  SSfractions <- SS[,1:nTotFractions]  # columns with SS amounts; excludes additional columns
+  NSAfractions <- NSA[,1:nTotFractions]  # columns with NSA amounts; excludes additional columns
 
 
   # Compute amount of protein in a given fraction
@@ -50,8 +50,8 @@ relAmtTransform <- function(SS, NstartMaterialFractions=6,
   # [1] 9    # 9 columns
   # Therefore, sweep across dimension 2
 
-  AA <- data.frame(sweep(SSfractions, 2,totProt, "*"))
-  names(AA) <- colnames(SSfractions)
+  AA <- data.frame(sweep(NSAfractions, 2,totProt, "*"))
+  names(AA) <- colnames(NSAfractions)
 
   # Compute amount of given protein in fraction / amount of given protein in starting material
   # use these values to create mixtures
@@ -98,7 +98,7 @@ RSAfromAcup <- function(Acup, NstartMaterialFractions=6,
   names(rsa) <- colnames(Acup)
 
   # The following, which standardizes rsa rows to sum to one, returns the original markerProfiles !!
-  SSfromRSA <- t(apply(rsa,1, function(x) x/sum(x)))  # this is deprecated; no need
+  NSAfromRSA <- t(apply(rsa,1, function(x) x/sum(x)))  # this is deprecated; no need
 
   rsa
 }
@@ -160,24 +160,24 @@ proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
 #'
 #' @return protProfileRSA: relative specific activity
 
-RSAfromS <- function(SS=protProfileLevels, NstartMaterialFractions=6,
+RSAfromNSA <- function(NSA=protProfileLevels, NstartMaterialFractions=6,
                       totProt=NULL) {
 
-  missing.rows <- SS[!complete.cases(SS),]
+  missing.rows <- NSA[!complete.cases(NSA),]
   #if ({nrow(missing.rows) > 0} | {is.null(missing.rows)}) {
   #  cat("Error from RSAfromS: missing values not allowed\n")
   #  return(missing.rows)
   #}
-  if (ncol(SS) != length(totProt)) {
-     cat("Error from rsaDirect: no. of rows of SS must match length of totProt\n")
+  if (ncol(NSA) != length(totProt)) {
+     cat("Error from rsaDirect: no. of rows of NSA must match length of totProt\n")
   }
 
-  startMaterialFractions <- SS[,1:NstartMaterialFractions]   # first columns of SS
+  startMaterialFractions <- NSA[,1:NstartMaterialFractions]   # first columns of NSA
   nTotFractions <- length(totProt)    # number of all fractions
-  SSfractions <- SS[,1:nTotFractions]  # columns with SS amounts; excludes additional columns
+  NSAfractions <- NSA[,1:nTotFractions]  # columns with NSA amounts; excludes additional columns
 
 
-  protAbund <- relAmtTransform(SSfractions,NstartMaterialFractions=NstartMaterialFractions,
+  protAbund <- relAmtTransform(NSAfractions,NstartMaterialFractions=NstartMaterialFractions,
                                totProt=totProt)
   Acup <- protAbund
   rsa <- RSAfromAcup(Acup, totProt=totProt)
