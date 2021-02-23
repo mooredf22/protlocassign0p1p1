@@ -3,7 +3,7 @@
 \name{mixturePlotPanel}
 \alias{mixturePlotPanel}
 \title{plot mixture of all two compartment profile combinations as panel; assumes eight compartments
-Also assumes that "markerProfilesrsa" has been previously defined}
+Also assumes that "refLocationProfilesRSA" has been previously defined}
 \usage{
 mixturePlotPanel(
   Acup = AcupMarkers,
@@ -29,5 +29,5 @@ mixturePlotPanel(
 }
 \description{
 plot mixture of all two compartment profile combinations as panel; assumes eight compartments
-Also assumes that "markerProfilesrsa" has been previously defined
+Also assumes that "refLocationProfilesRSA" has been previously defined
 }

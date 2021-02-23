@@ -32,15 +32,15 @@ knitr::opts_chunk$set(
   eval = TRUE
 )
 ```
-In this vignette we explore briefly the effect of using the normalized specific amounts, relative specific amounts, and relative amounts, and their log transformations. We illustrate using two mixtures: Cyto with Lyso and Cyto with Nuc. We begin by creating the normalized amounts for the reference proteins, which we will use to create mixtures.
+In this vignette we explore briefly the effect of using the normalized specific amounts (NSAs), relative specific amounts (RSAs), and relative amounts (Acup), and their log transformations on CPA.  We also discuss the underlying reasons why the different transformations can yield different results, which may be useful in choosing the appropriate transformation for a particular protein distribution. We illustrate using two mixtures: Cyto with Lyso and Cyto with Nuc. We begin by creating the NSA profiles for the reference compartments, which we will use for further transformations and to create mixtures.
 
-## Applying CPA to relative specific amounts, normalized specific amounts, or relative amounts derived from simulated mixtures of Cyto and Lyso
+## Applying CPA to relative specific amounts (RSA's), normalized specific amounts (NSA's), or relative amounts (Acup) derived from simulated mixtures of Cyto and Lyso
 
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
 library(pracma)
-markerProfiles <- cpaSetup(protProfileSummary=profilesProtAT5tmtMS2, markerList=markerListJadot, numDataCols=9)
-AcupMarkers <- relAmtTransform(markerProfiles, NstartMaterialFractions=6, totProt=totProtAT5)
+refLocationProfiles <- locationProfileSetup(profile=profilesProtAT5tmtMS2, markerList=markerListJadot, numDataCols=9)
+AcupMarkers <- relAmtTransform(refLocationProfiles, NstartMaterialFractions=6, totProt=totProtAT5)
 ```
 
 
@@ -56,37 +56,37 @@ mixProt1Prot4RSA <- RSAfromAcup(Acup=mixProt1Prot4$relAmount, NstartMaterialFrac
 Next, obtain CPA estimates using the RSA-transformed mixtures and RSA-transformed references profiles. We see that the CPA estimates match the proportions we used to create the mixtures:
 
 ```{r, echo=TRUE, eval=TRUE}
-markerProfilesrsa <- RSAfromS(SS=markerProfiles, NstartMaterialFractions=6,
+refLocationProfilesRSA <- RSAfromNSA(NSA=refLocationProfiles, NstartMaterialFractions=6,
         totProt=totProtAT5)
-mixProt1Prot4PropRSA <- fitCPA(protProfileSummary=mixProt1Prot4RSA, 
-                               markerProfiles=markerProfilesrsa, numDataCols=9)
+mixProt1Prot4PropRSA <- fitCPA(profile=mixProt1Prot4RSA, 
+                               refLocationProfiles=refLocationProfilesRSA, numDataCols=9)
 round(mixProt1Prot4PropRSA, digits=3)
 ```
 
 We may obtain the normalized specific amounts transformation of `mixProtiProtjRSA` by constraining the row sums to 1, as discussed in Vignette 3. We do this as follows:
 
 ```{r, echo=TRUE, eval=TRUE}
-mixProt1Prot4SpecAmt <- t(apply(mixProt1Prot4RSA,1, function(x) x/sum(x)))
-round(mixProt1Prot4SpecAmt, digits=3)
+mixProt1Prot4NSA <- t(apply(mixProt1Prot4RSA,1, function(x) x/sum(x)))
+round(mixProt1Prot4NSA, digits=3)
 ```
 
-Following Vignette 3, we may see what happens if we apply the CPA routine to these normalized specific values
+Following Vignette 3, we may see what happens if we apply the CPA routine to these normalized specific amounts (NSA's)
 ```{r, echo=TRUE, eval=TRUE}
 
-mixProt1Prot4PropSpecAmt <- fitCPA(protProfileSummary=mixProt1Prot4SpecAmt,
-                                      markerProfiles=markerProfiles,
+mixProt1Prot4PropNSA <- fitCPA(profile=mixProt1Prot4NSA,
+                                      refLocationProfiles=refLocationProfiles,
                              numDataCols=9)
-round(mixProt1Prot4PropSpecAmt, digits=3)
+round(mixProt1Prot4PropNSA, digits=3)
 ```
 
 As noted in Vignette 3, the estimates of the proportions deviate somewhat from those used to generate the mixtures.
 
-Now, instead of transforming the Acup mixtures to RSA's, what happens if we just use the Acup mixtures themselves, i.e., the relative amounts? The results show significant departures of the CPA estimates from the proportions used to create the mixtures:
+Now, instead of transforming the Acup mixtures to RSA's or using NSA's, what happens if we just use the Acup mixtures themselves, i.e., the relative amounts? The results show significant departures of the CPA estimates from the proportions used to create the mixtures:
 
 ```{r, echo=TRUE, eval=TRUE}
 mixProt1Prot4PropAcup <- 
-                  fitCPA(protProfileSummary=mixProt1Prot4$relAmount,
-                                   markerProfiles=AcupMarkers, numDataCols=9)
+                  fitCPA(profile=mixProt1Prot4$relAmount,
+                                   refLocationProfiles=AcupMarkers, numDataCols=9)
 round(mixProt1Prot4PropAcup, digits=3)
 ```
 
@@ -96,17 +96,17 @@ To understand why, here are the AcupMarkers. Note that the three Nyc columns, wh
 round(AcupMarkers, digits=5)
 ```
 
-Following are plots of the CPA estimated vs actual mixture proportions for RSA-transformed values, normalized specific amounts, and relative (Acup) amounts.
+Following are plots of the CPA estimated vs actual mixture proportions for RSA-transformed values, NSA's, and relative (Acup) amounts.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
 par(mfrow=c(1,3))
 mixturePlot(mixProtiProtjProp=mixProt1Prot4PropRSA, NstartMaterialFractions=6,
             Loc1=i, Loc2=j, input.prop=mixProt1Prot4$input.prop, errorReturn = T,
             subTitle="RSA")
-mixturePlot(mixProtiProtjProp=mixProt1Prot4PropSpecAmt, 
+mixturePlot(mixProtiProtjProp=mixProt1Prot4PropNSA, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             input.prop=mixProt1Prot4$input.prop, errorReturn = T,
-            subTitle="SpecAmt")
+            subTitle="NSA")
 mixturePlot(mixProtiProtjProp=mixProt1Prot4PropAcup, NstartMaterialFractions=6, 
             Loc1=i, Loc2=j, input.prop=mixProt1Prot4$input.prop, errorReturn = T,
             subTitle="RelAmt")
@@ -119,7 +119,7 @@ We may obtain only the areas by using the `mixtureAreaError` function.
 mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropRSA, 
             NstartMaterialFractions=6,
             Loc1=i, Loc2=j, input.prop=mixProt1Prot4$input.prop)
-mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropSpecAmt, 
+mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropNSA, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             input.prop=mixProt1Prot4$input.prop)
 mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropAcup, 
@@ -132,35 +132,35 @@ mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropAcup,
 As an alternative to RSA, let us apply a log2 transformation of the Acup values. The resulting CPA estimates are much closer to the true values, but not as close as we had obtained using the RSA transformation:
 
 ```{r, echo=TRUE, eval=TRUE}
-eps <- 0.00005
+eps <- 0.001
 
 
-mixProt1Prot4PropRSALog2 <- fitCPA(protProfileSummary=log2(mixProt1Prot4RSA + eps), 
-                               markerProfiles=log2(markerProfilesrsa + eps), numDataCols=9)
+mixProt1Prot4PropRSALog2 <- fitCPA(profile=log2(mixProt1Prot4RSA + eps), 
+                               refLocationProfiles=log2(refLocationProfilesRSA + eps), numDataCols=9)
 round(mixProt1Prot4PropRSALog2, digits=3)
 
-mixProt1Prot4PropSpecAmtLog2 <- 
-            fitCPA(protProfileSummary=log2(mixProt1Prot4SpecAmt + eps),
-                        markerProfiles=log2(markerProfiles + eps), numDataCols=9)
-round(mixProt1Prot4PropSpecAmtLog2, digits=3)
+mixProt1Prot4PropNSALog2 <- 
+            fitCPA(profile=log2(mixProt1Prot4NSA + eps),
+                        refLocationProfiles=log2(refLocationProfiles + eps), numDataCols=9)
+round(mixProt1Prot4PropNSALog2, digits=3)
 
 mixProt1Prot4PropAcupLog2 <- 
-            fitCPA(protProfileSummary=log2(mixProt1Prot4$relAmount + eps),
-                        markerProfiles=log2(AcupMarkers + eps) , numDataCols=9)
+            fitCPA(profile=log2(mixProt1Prot4$relAmount + eps),
+                        refLocationProfiles=log2(AcupMarkers + eps) , numDataCols=9)
 round(mixProt1Prot4PropAcupLog2, digits=3)
 
 ```
 
-Following are plots of the CPA estimated vs actual mixture proportions for simulated proteins where the different profiles (RSA, normalized specific amounts, and relative amounts)_ are log2-transformed.
+Following are plots of the CPA estimated vs actual mixture proportions for simulated proteins where the different profiles (relative specific amounts (RSA's), normalized specific amounts (NSA's), and relative amounts (Acup) are log2-transformed.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
 par(mfrow=c(1,3))
 mixturePlot(mixProtiProtjProp=mixProt1Prot4PropRSALog2, NstartMaterialFractions=6,
             Loc1=i, Loc2=j, input.prop=mixProt1Prot4$input.prop, errorReturn = T,
             subTitle="Log2RSA")
-mixturePlot(mixProtiProtjProp=mixProt1Prot4PropSpecAmtLog2, NstartMaterialFractions=6, 
+mixturePlot(mixProtiProtjProp=mixProt1Prot4PropNSALog2, NstartMaterialFractions=6, 
             Loc1=i, Loc2=j, input.prop=mixProt1Prot4$input.prop, errorReturn = T,
-            subTitle="Log2SpecAmt")
+            subTitle="Log2NSA")
 mixturePlot(mixProtiProtjProp=mixProt1Prot4PropAcupLog2, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             input.prop=mixProt1Prot4$input.prop, errorReturn = T,
@@ -173,7 +173,7 @@ Here are just the areas:
 mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropRSALog2, 
             NstartMaterialFractions=6,
             Loc1=i, Loc2=j, input.prop=mixProt1Prot4$input.prop)
-mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropSpecAmtLog2, 
+mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropNSALog2, 
             NstartMaterialFractions=6, 
             Loc1=i, Loc2=j, input.prop=mixProt1Prot4$input.prop)
 mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropAcupLog2, 
@@ -181,7 +181,7 @@ mixtureAreaError(mixProtiProtjProp=mixProt1Prot4PropAcupLog2,
             input.prop=mixProt1Prot4$input.prop)
 ```
 
-## Applying CPA to relative specific amounts, normalized specific amounts, or relative amounts derived from simulated mixtures of Cyto and Nuc
+## Applying CPA to RSA's, NSA's, or Acup derived from simulated mixtures of Cyto and Nuc
 
 In the previous sections we showed that one can apply CPA to Cyto-Lyso mixtures using a range of transformations, and we saw that the best results were obtained using relative specific values, and the worst results from using relative amounts (Acup transformations). Then we saw that log-transformations of the relative amounts improved the quality of the estimates considerably. 
 
@@ -197,21 +197,21 @@ mixProt1Prot6RSA <- RSAfromAcup(Acup=mixProt1Prot6$relAmount,
                                 NstartMaterialFractions=6, totProt=totProtAT5)
 
 
-mixProt1Prot6Prop <- fitCPA(protProfileSummary=mixProt1Prot6RSA, 
-                               markerProfiles=markerProfilesrsa, numDataCols=9)
+mixProt1Prot6Prop <- fitCPA(profile=mixProt1Prot6RSA, 
+                               refLocationProfiles=refLocationProfilesRSA, numDataCols=9)
 round(mixProt1Prot6Prop, digits=3)
 ```
 As noted earlier, the simulated proportions are estimated very accurately.
 
-Following Vignette 3, we may see what happens if we apply the CPA routine to profiles containing  normalized specific amounts:
+Following Vignette 3, we may see what happens if we apply the CPA routine to profiles containing  NSA's:
 
 ```{r, echo=TRUE, eval=TRUE}
-mixProt1Prot6SpecAmt <- t(apply(mixProt1Prot6RSA,1, function(x) x/sum(x)))
+mixProt1Prot6NSA <- t(apply(mixProt1Prot6RSA,1, function(x) x/sum(x)))
 
-mixProt1Prot6PropSpecAmt <- 
-                    fitCPA(protProfileSummary=mixProt1Prot6SpecAmt,
-                    markerProfiles=markerProfiles, numDataCols=9)
-round(mixProt1Prot6PropSpecAmt, digits=3)
+mixProt1Prot6PropNSA <- 
+                    fitCPA(profile=mixProt1Prot6NSA,
+                    refLocationProfiles=refLocationProfiles, numDataCols=9)
+round(mixProt1Prot6PropNSA, digits=3)
 ```
 
 As noted in Vignette 3, the estimates of the proportions deviate somewhat from those used to generate the mixtures.
@@ -220,8 +220,8 @@ Now do this using the relative amounts for markers (“Acup markers”) and simu
 
 
 ```{r, echo=TRUE, eval=TRUE}
-mixProt1Prot6PropAcup <- fitCPA(protProfileSummary=mixProt1Prot6$relAmount,
-                                   markerProfiles=AcupMarkers, numDataCols=9)
+mixProt1Prot6PropAcup <- fitCPA(profile=mixProt1Prot6$relAmount,
+                                   refLocationProfiles=AcupMarkers, numDataCols=9)
 ```
 
 Note that, unlike with the Cyto-Lyso mixture, the estimates with the Cyto-Nuc mixture are very accurate:
@@ -238,10 +238,10 @@ mixturePlot(mixProtiProtjProp=mixProt1Prot6Prop,
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             input.prop=mixProt1Prot6$input.prop, errorReturn = T,
             subTitle="RSA")
-mixturePlot(mixProtiProtjProp=mixProt1Prot6PropSpecAmt, 
+mixturePlot(mixProtiProtjProp=mixProt1Prot6PropNSA, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             input.prop=mixProt1Prot6$input.prop, errorReturn = T,
-            subTitle="SpecAmt")
+            subTitle="NSA")
 mixturePlot(mixProtiProtjProp=mixProt1Prot6PropAcup, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             input.prop=mixProt1Prot6$input.prop, errorReturn = T,
@@ -251,25 +251,25 @@ mixturePlot(mixProtiProtjProp=mixProt1Prot6PropAcup,
 
 ## Applying CPA to log transformations of Cyto and Nuc mixtures
 
-Now try a log2 transformationon different types of simulated protein and marker profiles (RSA, normalized specific amounts, and relative amounts). Note that the CPA values are different.
+Now try a log2 transformationon different types of simulated protein and marker profiles (RSA's, NSA's, and Acup). Note that the CPA values are different.
 
 ```{r, echo=TRUE, eval=TRUE}
-eps <- 0.00005
+eps <- 0.001
 
 mixProt1Prot6PropLog2 <- 
-           fitCPA(protProfileSummary=log2(mixProt1Prot6RSA + eps), 
-                      markerProfiles=log2(markerProfilesrsa + eps), numDataCols=9)
+           fitCPA(profile=log2(mixProt1Prot6RSA + eps), 
+                      refLocationProfiles=log2(refLocationProfilesRSA + eps), numDataCols=9)
 round(mixProt1Prot6PropLog2, digits=3)
 
-mixProt1Prot6PropSpecAmtLog2 <- 
-           fitCPA(protProfileSummary=log2(mixProt1Prot6SpecAmt + eps),
-                      markerProfiles=log2(markerProfiles + eps), numDataCols=9)
-round(mixProt1Prot6PropSpecAmt, digits=3)
+mixProt1Prot6PropNSALog2 <- 
+           fitCPA(profile=log2(mixProt1Prot6NSA + eps),
+                      refLocationProfiles=log2(refLocationProfiles + eps), numDataCols=9)
+round(mixProt1Prot6PropNSA, digits=3)
 
 
 mixProt1Prot6PropAcupLog2 <- 
-           fitCPA(protProfileSummary=log2(mixProt1Prot6$relAmount + eps),
-                           markerProfiles=log2(AcupMarkers + eps), numDataCols=9)
+           fitCPA(profile=log2(mixProt1Prot6$relAmount + eps),
+                           refLocationProfiles=log2(AcupMarkers + eps), numDataCols=9)
 round(mixProt1Prot6PropAcupLog2, digits=3)
 ```
 
@@ -281,10 +281,10 @@ mixturePlot(mixProtiProtjProp=mixProt1Prot6PropLog2,
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             input.prop=mixProt1Prot6$input.prop, errorReturn = T,
             subTitle="Log2RSA")
-mixturePlot(mixProtiProtjProp=mixProt1Prot6PropSpecAmtLog2, 
+mixturePlot(mixProtiProtjProp=mixProt1Prot6PropNSALog2, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             input.prop=mixProt1Prot6$input.prop, errorReturn = T,
-            subTitle="Log2SpecAmt")
+            subTitle="Log2NSA")
 mixturePlot(mixProtiProtjProp=mixProt1Prot6PropAcupLog2, 
             NstartMaterialFractions=6, Loc1=i, Loc2=j,
             input.prop=mixProt1Prot6$input.prop, errorReturn = T,
@@ -293,9 +293,12 @@ mixturePlot(mixProtiProtjProp=mixProt1Prot6PropAcupLog2,
 
 If desired, we could obtain only the areas using the `mixtureAreaError` function, as we did earlier.
 
-We may visualize the area-based errors for all pairwise mixtures using the `mixtureHeatMap` function, which requires prior installation of the `plot.matrix` R library. For each pair of compartments, this function first creates the mixtures as described earlier using the `Acup` markers. Then it computes the three transformations we have discussed, as well as the log2 transformations of these, and plots them as a 2 by 3 array, with the three transformations (relative specific amounts, normalized specific amounts, and relative amounts) as columns. The first row is the original values, and the second row is a log2 transformation of these values. Colors range from light yellow (for little error) up to red and then to purple (highest error). These 2 by 3 heat maps are arranged in an upper triangular array, with each entry corresponding to a mixture of the row compartment and column compartment.
+## Transformation fitting error heatmaps
+
+We may visualize the area-based errors for all pairwise mixtures using the `mixtureHeatMap` function, which requires prior installation of the `plot.matrix` R library. For each pair of compartments, this function first creates the mixtures as described earlier using the `Acup` markers. Then it computes the three transformations we have discussed, as well as the log2 transformations of these, and plots them as a 2 by 3 array, with the three transformations (RSA's, NSA's, and Acup) as columns. The first row is the original values, and the second row is a log2 transformation of these values. Colors range from light yellow (for little error) up to red and then to purple (highest error). These 2 by 3 heat maps are arranged in an upper triangular array, with each entry corresponding to a mixture of the row compartment and column compartment.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 7, fig.height = 4}
+par(mfrow=c(1,1))
 mixtureHeatMap(Acup=AcupMarkers, totProt=totProtAT5)
 ```
 
@@ -321,3 +324,112 @@ The following table summarizes the quantities plotted in each two-by-three recta
 
   
 This heatmap confirms that relative specific amounts provide the most accurate estimates of the true mixtures, and that relative amounts often (but not always) provide the most inaccurate estimates. The log2-transformed errors (second row of each 2 by 3 heatmap) are never as good as relative specific amounts, but generally improve on estimates based on relative amounts.
+
+## Plotting all pairs of mixtures
+
+We may use the function `mixturePlotPanel` to make these plots for all 8*7/2 = 28 possible pairs of mixtures. The function does this for either RSA-transformed mixtures (`fitType="rsa"`) or mixtures that have been further transformed to normalized specific amounts (`fitType="NSA"`). An option is also available to transform either of these using `y = log2(x + eps)`, where `eps` is a small number; by default, `eps = 0.001`. The option `errorReturn = T` causes the function to return a table of all area-based errors. By summing the third column, we obtain a global measure of error. Because of the large number of pairs, this function must plot to an external pdf file in order to properly format the plots. While these plots cannot be included as part of this vignette, a user may create them using the code below. This code will produce all four combinations of fit type (rsa or specfAmt) and log transformation (True or False). 
+
+First is rsa without and with log-transformed values. The user should set the working directory to the desired location on their device; here we use `C:/temp`:
+
+``` 
+setwd("c:\\temp")
+
+fitType <- "rsa"
+log2Transf <- F
+
+pdf(file=paste("CPA assignProts Jadot", fitType, log2Transf, ".pdf"), width=7, height=11)
+
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=totProtAT5, errorReturn = T, 
+              fitType=fitType, log2Transf=log2Transf)
+dev.off()
+
+# overall errors are as follows:
+errorAll
+sum(errorAll[,3])
+
+
+fitType <- "rsa"
+log2Transf <- T
+
+pdf(file=paste("CPA assignProts Jadot", fitType, log2Transf, ".pdf"), width=7, height=11)
+
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=totProtAT5, errorReturn = T, 
+              fitType=fitType, log2Transf=log2Transf, eps=0.001)
+dev.off()
+
+# overall errors are as follows:
+errorAll
+sum(errorAll[,3])
+
+```
+
+Next are using NSA's, without and with log-transformed values:
+
+``` 
+
+fitType <- "NSA"
+log2Transf <- F
+
+pdf(file=paste("CPA assignProts Jadot", fitType=fitType, transf=log2Transf, ".pdf"), width=7, height=11)
+
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=totProtAT5, errorReturn = T, 
+              fitType=fitType, log2Transf=log2Transf)
+dev.off()
+
+# overall errors are as follows:
+errorAll
+sum(errorAll[,3])
+
+
+fitType <- "NSA"
+log2Transf <- T
+
+pdf(file=paste("CPA assignProts Jadot", fitType, log2Transf, ".pdf"), width=7, height=11)
+
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=totProtAT5, errorReturn = T, 
+              fitType=fitType, log2Transf=log2Transf, eps=0.001)
+dev.off()
+
+# overall errors are as follows:
+errorAll
+sum(errorAll[,3])
+
+```
+
+For completeness we also present plots CPA mixture estimates based on relative amounts and log relative amounts. The use of relative amounts is discussed in detail in Vignette 4.
+
+``` 
+
+fitType <- "relAmt"
+log2Transf <- F
+
+pdf(file=paste("CPA assignProts Jadot", fitType=fitType, transf=log2Transf, ".pdf"), width=7, height=11)
+
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=totProtAT5, errorReturn = T, 
+              fitType=fitType, log2Transf=log2Transf)
+dev.off()
+
+# overall errors are as follows:
+errorAll
+sum(errorAll[,3])
+
+
+fitType <- "relAmt"
+log2Transf <- T
+
+pdf(file=paste("CPA assignProts Jadot", fitType, log2Transf, ".pdf"), width=7, height=11)
+
+errorAll <- mixturePlotPanel(Acup=AcupMarkers, totProt=totProtAT5, errorReturn = T, 
+              fitType=fitType, log2Transf=log2Transf, eps=0.001)
+dev.off()
+
+# overall errors are as follows:
+errorAll
+sum(errorAll[,3])
+
+```
+
+
+
+
+

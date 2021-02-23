@@ -16,10 +16,10 @@
 #' distUse <- dist(protProfileSummaryTMTms2[,2:10], method="euclidean")
 #' protsUse <- protProfileSummaryTMTms2[,1]
 #' nearestProts("AADAC", n.nearest=10,  distProts=distUse, protNames=protsUse)
-nearestProts <- function(protName, n.nearest=5, distProts=distUse, protNames=protsUse) {
+nearestProts <- function(protName, n.nearest=5, distProts=distUse, protNames=protsUse, profile) {
   distProtsMat <- as.matrix(distProts)
 
-    ref <- protIndex(protName)
+    ref <- protIndex(protName, profile)
     if (is.character(ref)) {
       return(ref)
     }

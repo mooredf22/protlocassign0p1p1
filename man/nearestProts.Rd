@@ -8,7 +8,8 @@ nearestProts(
   protName,
   n.nearest = 5,
   distProts = distUse,
-  protNames = protsUse
+  protNames = protsUse,
+  profile
 )
 }
 \arguments{
