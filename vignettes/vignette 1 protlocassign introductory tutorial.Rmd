@@ -77,20 +77,25 @@ These are the only packages required for data that are presented as mean levels 
 
 ## Working with data
 
-To use this package, you will need two data sets. One, referred to here as the protein profile data set, contains rows with a unique identifier followed by data describing its profile across a series of centrifugation fractions. In this vignette, the profiles are specific amounts with sums constrained to 1 ((“normalized specific amounts” or NSAs, see main Paper) but can be in a different form or further transformed to improve the quality of the fit (see Vignettes 2 and 3). In addition, there may be two additional values representing the numbers of peptides and spectra that were used to compute the profile.  The other data set consists of a list of reference proteins and their associated known subcellular compartments.
+To use this package, you will need two data sets. One, referred to here as the protein profile data set, contains rows with a unique identifier followed by data describing its profile across a series of centrifugation fractions. In this vignette, the profiles are specific amounts with sums constrained to 1 (“normalized specific amounts” or NSAs, see main Paper) but can be in a different form or further transformed to improve the quality of the fit (see Vignettes 2 and 3). In addition, there may be two additional values representing the numbers of peptides and spectra that were used to compute the profile.  The other data set consists of a list of reference proteins and their associated known subcellular compartments.
 
 
 Consider for example the TMT MS2 data from Tannous et al. (2020) experiment AT5. To get started, load the package and look at the dimensions of the embedded protein profile data set which shows that it has 7893 rows and 11 columns: 
 
 ```{r, echo=TRUE}
 library(protlocassign)
-dim(protProfileNSA_AT5tmtMS2)
+dim(protNSA_AT5tmtMS2)
 ```
 
-Now look at the first few rows of the data using the `head` command, rounding to improve legibility. The first nine columns represent the protein profile. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. . Note that while we use a nested random effects model described in Jadot, 2016 to compute the means across spectra, other methods, including taking a straight average or weighted average (e.g., based on reporter ion intensities or peak areas), may be appropriate for other applications.
+For the sake of brevity, we rename this protNSA:
+```{r, echo=TRUE}
+protNSA <- protNSA_AT5tmtMS2
+```
+
+Now look at the first few rows of the data using the `head` command, rounding to improve legibility. The first nine columns represent the protein profile. The last two columns, which are optional, give the number of spectra and the number of peptides (sequences) for each protein. Note that while we use a nested random effects model described in Jadot, 2016 to compute the means across spectra, other methods, including taking a straight average or weighted average (e.g., based on reporter ion intensities or peak areas), may be appropriate for other applications.
 
 ```{r, echo=TRUE}
-round(head(protProfileNSA_AT5tmtMS2), digits=2)
+round(head(protNSA), digits=2)
 ```
 
 The list containing reference proteins (also called marker proteins) that we use is derived from Jadot et al (2016) and examining the dimensions of the data reveals that it contains 39 rows and two columns, the first for the protein names and the second for their respective subcellular compartments.
@@ -105,7 +110,7 @@ The data set can be viewed by entering its name as follows:
 markerListJadot
 ```
 
-While the `protProfileNSA_AT5tmtMS2` and `markerListJadot`  data sets are included in the package, they were initially read into R from external files and automatically converted to data frames.  This will need to be done for any new data set.  As an example we demonstrate this for a case where one is working with the Windows operating system and that the data sets reside in a directory `C:\temp\myproteindata`. (If one is working with either the linux or Mac OS, appropriate changes to these procedures will be needed to access files.)
+While the `protNSA` and `markerListJadot`  data sets are included in the package, they were initially read into R from external files and automatically converted to data frames.  This will need to be done for any new data set.  As an example we demonstrate this for a case where one is working with the Windows operating system and that the data sets reside in a directory `C:\temp\myproteindata`. (If one is working with either the linux or Mac OS, appropriate changes to these procedures will be needed to access files.)
 First, set the working directory to point there, either by navigating to it in R studio (session menu pane) or by entering:
 
 
@@ -141,19 +146,19 @@ myMarkerList <- read.csv(file="myMarkerList.csv", row.names=F)
 In order to assign proteins proportionately to their respective compartments, we first use the function `locationProfileSetup` to obtain profiles for the compartments based on the means of the individual reference proteins that represent each compartment. This function produces a matrix that has one row for each compartment and one column for each fraction  that comprises the profile.
 
 ```{r, echo=TRUE, eval=TRUE}
-refLocationProfilesNSA_AT5tmtMS2 <- locationProfileSetup(profile=protProfileNSA_AT5tmtMS2, markerList=markerListJadot, numDataCols=9)
+refLocationProfilesNSA <- locationProfileSetup(profile=protNSA, markerList=markerListJadot, numDataCols=9)
 ```
 
 We display the data, using rounding to improve readability.
 
 ```{r, echo=TRUE, eval=TRUE}
-round(refLocationProfilesNSA_AT5tmtMS2, digits=4)
+round(refLocationProfilesNSA, digits=4)
 ```
 
-To examine the available compartments, view the row names of `refLocationProfilesNSA_AT5tmtMS2`.
+To examine the available compartments, view the row names of `refLocationProfilesNSA`.
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
-rownames(refLocationProfilesNSA_AT5tmtMS2)
+rownames(refLocationProfilesNSA)
 ```
 
 To graphically display a particular compartment profile and its component proteins, use `markerProfilePlot`. 
@@ -162,8 +167,8 @@ For example, to plot the profile for plasma membrane, use this:
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
 markerProfilePlot(refLoc="PM", markerList=markerListJadot,
-                     profile=protProfileNSA_AT5tmtMS2,
-                     refLocationProfiles=refLocationProfilesNSA_AT5tmtMS2)
+                     profile=protNSA,
+                     refLocationProfiles=refLocationProfilesNSA)
 ```
 
 We see, in the plot title, that this displays the PM compartmental profile (dashed yellow-black line) and its five component reference proteins (red lines). To plot, for example, the second PM marker protein, use the option `refProtPlot=2` in the `markerProfilePlot` function:
@@ -171,11 +176,11 @@ We see, in the plot title, that this displays the PM compartmental profile (dash
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold'}
 
 markerProfilePlot(refLoc="PM", markerList=markerListJadot,
-                     profile=protProfileNSA_AT5tmtMS2,
-                     refLocationProfiles=refLocationProfilesNSA_AT5tmtMS2, refProtPlot=2)
+                     profile=protNSA,
+                     refLocationProfiles=refLocationProfilesNSA, refProtPlot=2)
 ```
 
-To show all five of the reference proteins that are used to calculate the PM compartmental profile, use `par(mfrow=c(3,2))` to set up a plot array with 3 rows and 2 columns which will accommodate up to six plots on a single page. Then plot all five of the them one-by-one by looping through the five PM marker proteins by first specifying `for (j in 1:5)` and invoking the option `refProtPlot=j` in the `markerProfilePlot` function. (To make them legible, you may first need to open a new window by entering `windows(width=5, height=7)`.) The parameters in `par(mfrow=c(3,2))` and `for (j in 1:5)` can be adjusted to display any number of plots.
+To show individually each of the five reference proteins that are used to calculate the PM compartmental profile, use `par(mfrow=c(3,2))` to set up a plot array with 3 rows and 2 columns which will accommodate up to six plots on a single page. Then plot all five of the them one-by-one by looping through the five PM marker proteins by first specifying `for (j in 1:5)` and invoking the option `refProtPlot=j` in the `markerProfilePlot` function. (To make them legible, you may first need to open a new window by entering `windows(width=5, height=7)`.) The parameters in `par(mfrow=c(3,2))` and `for (j in 1:5)` can be adjusted to display any number of plots.
 
 
 ```{r, echo=TRUE, eval=TRUE, fig.show='hold', fig.width = 5, fig.height = 7}
@@ -185,21 +190,21 @@ par(mfrow=c(3,2)) # this will be new default layout for subsequent plots.
 
 for (j in 1:5) {
   markerProfilePlot(refLoc="PM", markerList=markerListJadot,
-                     profile=protProfileNSA_AT5tmtMS2,
-                     refLocationProfiles=refLocationProfilesNSA_AT5tmtMS2, refProtPlot=j)
+                     profile=protNSA,
+                     refLocationProfiles=refLocationProfilesNSA, refProtPlot=j)
   }
 ```
 
 To plot all of the compartment and individual marker protein profiles, we may set up a plot window with four rows and two columns and then loop through the eight subcellular compartments.
 
 ```{r, echo=TRUE, eval=TRUE, fig.width = 7, fig.height = 10}
-loc.list <- rownames(refLocationProfilesNSA_AT5tmtMS2)
+loc.list <- rownames(refLocationProfilesNSA)
 n.loc <- length(loc.list)
 par(mfrow=c(4,2))
 for (i in 1:n.loc) {
   markerProfilePlot(refLoc=loc.list[i], markerList=markerListJadot,
-                     profile=protProfileNSA_AT5tmtMS2,
-                     refLocationProfiles=refLocationProfilesNSA_AT5tmtMS2)
+                     profile=protNSA,
+                     refLocationProfiles=refLocationProfilesNSA)
   }
 ```
 
@@ -208,14 +213,14 @@ for (i in 1:n.loc) {
 Once we are satisfied with the marker set and compartment profiles, we can run the CPA routine which, for each protein in our data set, apportions its residency among the different specified compartments. This  may take several minutes to complete. 
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
-protCPAfrom_NSA_AT5tmtMS2 <- fitCPA(profile=protProfileNSA_AT5tmtMS2,
-                            refLocationProfiles=refLocationProfilesNSA_AT5tmtMS2, numDataCols=9)
+protCPAfrom_NSA <- fitCPA(profile=protNSA,
+                            refLocationProfiles=refLocationProfilesNSA, numDataCols=9)
 ```
 
 We can view the structure of the output data file and see that the row names contain the protein names, and the next 8 columns contain the allocation proportions of each protein to the eight compartments. The last two columns are integers representing the numbers of peptides and spectra, which are carried over from the input `protProfileSummary` profile data, these are not essential for the CPA analysis.
 
 ```{r, echo=TRUE, eval=TRUE}
-round(head(protCPAfrom_NSA_AT5tmtMS2), digits=2)
+round(head(protCPAfrom_NSA), digits=2)
 ```
 
 
@@ -223,13 +228,13 @@ round(head(protCPAfrom_NSA_AT5tmtMS2), digits=2)
 We can look at the profile of, for example, the protein "TLN1". We first ensure that the protein is in the dataset:
 
 ```{r, echo=TRUE, eval=TRUE}
-protIndex("TLN1", profile=protProfileNSA_AT5tmtMS2)
+protIndex("TLN1", profile=protNSA)
 ```
 
 This function also accepts partial matching of the first few letters of a protein. For example, we can find the indices of the proteins starting with "TLN":
 
 ```{r, echo=TRUE, eval=TRUE}
-protIndex("TLN", profile=protProfileNSA_AT5tmtMS2)
+protIndex("TLN", profile=protNSA)
 ```
 
 
@@ -237,9 +242,10 @@ protIndex("TLN", profile=protProfileNSA_AT5tmtMS2)
 Now we plot the results for protein TLN1:
 
 ```{r, echo=TRUE, eval=TRUE, fig.width=7, fig.height=9}
-protPlotfun(protName="TLN1", profile=protProfileNSA_AT5tmtMS2, 
+protPlotfun(protName="TLN1", profile=protNSA, 
 numDataCols=9, n.compartments=8,
- Nspectra=T, refLocationProfiles=refLocationProfilesNSA_AT5tmtMS2, assignPropsMat=protCPAfrom_NSA_AT5tmtMS2)
+  Nspectra=T, refLocationProfiles=refLocationProfilesNSA, 
+  assignPropsMat=protCPAfrom_NSA)
 ```                        
 
 The horizontal axis represents the nine fractions, which are N, M, L1, L2, P, S, Nyc.1, Nyc.2, and Nyc.3. In each of the eight plots, the red line is the average profile of the protein. The dashed yellow-black lines show the expected profile for a protein entirely resident in the respective subcellular location. In this set of plots, we see that the CPA procedure assigns a 59 percent residence proportion to plasma membrane and 35 percent residence to cytosol. Visually, we see that the observed red profile closely matches a mixture of the expected yellow-black lines. 
@@ -257,10 +263,10 @@ setwd("C:/temp/myProteinOutput")
 Next, write out the data as a comma separated file, using `write.csv`:
 
 ```
-write.csv(protCPAfrom_NSA_AT5tmtMS2, file="protCPAfrom_NSA_AT5tmtMS2.txt", row.names=T)
+write.csv(protCPAfrom_NSA, file="protCPAfrom_NSA_AT5tmtMS2.txt", row.names=T)
 ```
 
-This writes the CPA results (which we had previously put into the R dataset `protCPAfrom_NSA_AT5tmtMS2`), writing row names, and in comma separated format. Ordinarily one would give the file a `.csv` extension so that Excel would automatically open it when clicking on the file name in Windows. Here we do not recommend that because of a naming issue with proteins. Specifically, some proteins (`MARCH9` for example) will be interpreted by Excel as dates, and switched to a date format (`9-Mar` in this case). To prevent that, save the comma-separated value file as a text file, with extension `.txt`. Then, in Windows, open up the Excel program and navigate within Excel to the `protCPAfrom_NSA_AT5tmtMS2.txt` file and open it. You will then be presented with an Excel import wizard where you specify that columns are separated by commas, and then select the first row (`protName`), and specify that this is a text column. This will prevent Excel from converting protein names to date format.
+This writes the CPA results (which we had previously put into the R dataset `protCPAfrom_NSA`), writing row names, and in comma separated format. Ordinarily one would give the file a `.csv` extension so that Excel would automatically open it when clicking on the file name in Windows. Here we do not recommend that because of a naming issue with proteins. Specifically, some proteins (`MARCH9` for example) will be interpreted by Excel as dates, and switched to a date format (`9-Mar` in this case). To prevent that, save the comma-separated value file as a text file, with extension `.txt`. Then, in Windows, open up the Excel program and navigate within Excel to the `protCPAfrom_NSA_AT5tmtMS2.txt` file and open it. You will then be presented with an Excel import wizard where you specify that columns are separated by commas, and then select the first row (`protName`), and specify that this is a text column. This will prevent Excel from converting protein names to date format.
 
 ### Plot output as pdf files
 
@@ -268,9 +274,10 @@ To save the plot of a protein (`TLN1` for example) as a pdf file, we first speci
 
 ```
 pdf(file="myPlotPDFfile.pdf", width=7, height=10)
-protPlotfun(protName="TLN1", profile=protProfileNSA_AT5tmtMS2, 
+protPlotfun(protName="TLN1", profile=protNSA, 
     numDataCols=9, n.compartments=8,
-    Nspectra=T, refLocationProfiles=refLocationProfilesNSA_AT5tmtMS2, assignPropsMat=protCPAfrom_NSA_AT5tmtMS2)
+    Nspectra=T, refLocationProfiles=refLocationProfilesNSA, 
+    assignPropsMat=protCPAfrom_NSA)
 dev.off()
 ```   
 
@@ -279,11 +286,12 @@ To output plots all of the protein profiles into a single pdf file, one can set 
 
 ```
 pdf(file="allPlotsPDFfile.pdf", width=7, height=10)
-n.prots <- nrow(protCPAfrom_NSA_AT5tmtMS2)
+n.prots <- nrow(protCPAfrom_NSA)
 for (i in 1:n.prots) {
-   protPlotfun(protName=rownames(protCPAfrom_NSA_AT5tmtMS2)[i],
-       profile=protProfileNSA_AT5tmtMS2, numDataCols=9, n.compartments=8,
-       Nspectra=T, refLocationProfiles=refLocationProfilesNSA_AT5tmtMS2, assignPropsMat=protCPAfrom_NSA_AT5tmtMS2)
+   protPlotfun(protName=rownames(protCPAfrom_NSA)[i],
+       profile=protNSA, numDataCols=9, n.compartments=8,
+       Nspectra=T, refLocationProfiles=refLocationProfilesNSA, 
+       assignPropsMat=protCPAfrom_NSA)
 }
 dev.off()
 ```   
