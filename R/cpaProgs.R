@@ -48,7 +48,7 @@ locationProfileSetup <- function(profile, markerList=markerList, numDataCols) {
   # Then plot the profiles
 
   markerLoc <- t(meanProfile)
-  refLocationProfiles <- t(markerLoc)
+  refLocationProfiles <- as.data.frame(t(markerLoc))
   refLocationProfiles
   }
 

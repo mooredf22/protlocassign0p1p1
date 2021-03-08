@@ -4,16 +4,16 @@
 \alias{proteinMix}
 \title{compute a mixture of proteins in two compartments}
 \usage{
-proteinMix(Acup, Loc1, Loc2, increment = 0.1)
+proteinMix(AcupRef, Loc1, Loc2, increment = 0.1)
 }
 \arguments{
+\item{AcupRef}{amount of given protein in fraction / amount of given protein in starting material}
+
 \item{Loc1}{row number of one compartment}
 
 \item{Loc2}{row number of other compartment}
 
 \item{increment}{fraction increment from 0 to 1}
-
-\item{relAmtProtFrac}{amount of given protein in fraction / amount of given protein in starting material}
 }
 \value{
 mixAmount relative amounts of proteins in the fractions

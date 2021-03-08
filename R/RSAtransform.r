@@ -26,7 +26,8 @@
     # these are of interest for simulations
 #
 
-relAmtTransform <- function(NSA, NstartMaterialFractions=6,
+#relAmtTransform <- function(NSA, NstartMaterialFractions=6,
+AcupFromNSA <- function(NSA, NstartMaterialFractions=6,
                                totProt=NULL) {
   if (ncol(NSA) != length(totProt)) {
     cat("Error from relAmtTransoform: no. of rows of NSA must match length of totProt\n")
@@ -96,7 +97,7 @@ RSAfromAcup <- function(Acup, NstartMaterialFractions=6,
   #rsa <- data.frame(as.matrix(relAmtProtFrac) %*% diag(1/propFrac))
   rsa <- sweep(Acup, 2, 1/t.cup, "*")
   names(rsa) <- colnames(Acup)
-
+  rsa <- as.data.frame(rsa)
   # The following, which standardizes rsa rows to sum to one, returns the original markerProfiles !!
   NSAfromRSA <- t(apply(rsa,1, function(x) x/sum(x)))  # this is deprecated; no need
 
@@ -106,15 +107,15 @@ RSAfromAcup <- function(Acup, NstartMaterialFractions=6,
 
 
 #' compute a mixture of proteins in two compartments
-#' @param relAmtProtFrac amount of given protein in fraction / amount of given protein in starting material
+#' @param AcupRef amount of given protein in fraction / amount of given protein in starting material
 #' @param Loc1  row number of one compartment
 #' @param Loc2  row number of other compartment
 #' @param increment fraction increment from 0 to 1
 #' @return mixAmount relative amounts of proteins in the fractions
-proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
+proteinMix <- function(AcupRef, Loc1, Loc2, increment=0.10) {
   # replace mix.df with input.prop throughout
-  # replace relAmount with relAmount througout
-  nrowRef <- nrow(Acup)
+  # replace relAmount with Acup througout
+  nrowRef <- nrow(AcupRef)
   if (Loc1 > Loc2) {
      Loc1orig <- Loc1
      Loc2orig <- Loc2
@@ -122,16 +123,16 @@ proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
      Loc2 <- Loc1orig
   }
   if (Loc2 > nrowRef) cat("Error, not enough rows\n")
-  LocNames <- row.names(Acup)
+  LocNames <- row.names(AcupRef)
   prop.vec <- seq(0,1,increment)
   qrop.vec <- 1 - prop.vec
   nrow.out <- length(prop.vec)
-  relAmount <- NULL
+  Acup <- NULL
   mixProtNames <- NULL
 
   for (i in 1:nrow.out) {
-    relAmount.i <- prop.vec[i]*Acup[Loc1,] + qrop.vec[i]*Acup[Loc2,]
-    relAmount <- rbind(relAmount, relAmount.i)
+    Acup.i <- prop.vec[i]*AcupRef[Loc1,] + qrop.vec[i]*AcupRef[Loc2,]
+    Acup <- rbind(Acup, Acup.i)
     mixProtNames.i <- paste(prop.vec[i],"_", LocNames[Loc1], ":", qrop.vec[i], "_",LocNames[Loc2], sep='')
     mixProtNames <- c(mixProtNames, mixProtNames.i)
 
@@ -146,8 +147,8 @@ proteinMix <- function(Acup, Loc1, Loc2, increment=0.10) {
   names(input.prop) <- row.names(Acup)
   rownames(input.prop) <- mixProtNames
 
-  row.names(relAmount) <- mixProtNames
-  result <- list(relAmount=relAmount, input.prop=input.prop)
+  row.names(Acup) <- mixProtNames
+  result <- list(Acup=Acup, input.prop=input.prop)
   result
   }
 
@@ -177,7 +178,7 @@ RSAfromNSA <- function(NSA=protProfileLevels, NstartMaterialFractions=6,
   NSAfractions <- NSA[,1:nTotFractions]  # columns with NSA amounts; excludes additional columns
 
 
-  protAbund <- relAmtTransform(NSAfractions,NstartMaterialFractions=NstartMaterialFractions,
+  protAbund <- AcupFromNSA(NSAfractions,NstartMaterialFractions=NstartMaterialFractions,
                                totProt=totProt)
   Acup <- protAbund
   rsa <- RSAfromAcup(Acup, totProt=totProt)
