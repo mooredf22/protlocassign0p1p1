@@ -5,7 +5,7 @@
 #' @param eps small positive constant to add before taking a log transformation
 
 
-mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
+mixtureHeatMap <- function(Acup, totProt, eps=0.001) {
 
   op <- par(mfrow=c(3,3))
   protAmtList <- c("Relative specific amount\n(RSA)",
@@ -41,12 +41,12 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
   # i=1
   # j=4
   # create mixture
-  mixProtiProtj <- proteinMix(AcupMarkers, Loc1=i, Loc2=j)
-  mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$relAmount,
+  mixProtiProtj <- proteinMix(refLocationProfilesAcup, Loc1=i, Loc2=j)
+  mixProtiProtjRSA <- RSAfromAcup(Acup=mixProtiProtj$Acup,
                                 NstartMaterialFractions=6, totProt=totProt)
 
   # find RSA
-  refLocationProfilesRSA <- RSAfromNSA(NSA=refLocationProfiles, NstartMaterialFractions=6,
+  refLocationProfilesRSA <- RSAfromNSA(NSA=refLocationProfilesNSA, NstartMaterialFractions=6,
                           totProt=totProt)
   # apply CPA to relative specific amounts (recommended way)
   mixProtiProtjProp <- fitCPA(profile=mixProtiProtjRSA,
@@ -57,13 +57,13 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
 
   # apply CPA to normalized specific amounts
   mixProtiProtjPropSpecAmt <- fitCPA(profile=mixProtiProtjSpecAmt,
-                                      refLocationProfiles=refLocationProfiles,
+                                      refLocationProfiles=refLocationProfilesNSA,
                                       numDataCols=9)
 
   # apply CPA to relative amounts (Acup)
   mixProtiProtjPropAcup <-
-    fitCPA(profile=mixProtiProtj$relAmount,
-            refLocationProfiles=AcupMarkers, numDataCols=9)
+    fitCPA(profile=mixProtiProtj$Acup,
+            refLocationProfiles=refLocationProfilesAcup, numDataCols=9)
 
   # log transformed
   eps <- 0.001
@@ -75,31 +75,31 @@ mixtureHeatMap <- function(Acup=AcupMarkers, totProt, eps=0.01) {
 
   mixProtiProtjPropSpecAmtLog2 <-
     fitCPA(profile=log2(mixProtiProtjSpecAmt + eps),
-            refLocationProfiles=log2(refLocationProfiles + eps), numDataCols=9)
+            refLocationProfiles=log2(refLocationProfilesNSA + eps), numDataCols=9)
 
   mixProtiProtjPropAcupLog2 <-
-    fitCPA(profile=log2(mixProtiProtj$relAmount + eps),
-            refLocationProfiles=log2(AcupMarkers + eps) , numDataCols=9)
+    fitCPA(profile=log2(mixProtiProtj$Acup + eps),
+            refLocationProfiles=log2(refLocationProfilesAcup + eps) , numDataCols=9)
 
 
 
 # # # #
 
-  ae11 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjProp, NstartMaterialFractions=6,
+  ae11 <- mixtureAreaError(mixProtiProtjCPA=mixProtiProtjProp, NstartMaterialFractions=6,
                  Loc1=i, Loc2=j, input.prop=mixProtiProtj$input.prop)
-  ae12 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjPropSpecAmt,
+  ae12 <- mixtureAreaError(mixProtiProtjCPA=mixProtiProtjPropSpecAmt,
                  NstartMaterialFractions=6, Loc1=i, Loc2=j,
                  input.prop=mixProtiProtj$input.prop)
-  ae13 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjPropAcup, NstartMaterialFractions=6,
+  ae13 <- mixtureAreaError(mixProtiProtjCPA=mixProtiProtjPropAcup, NstartMaterialFractions=6,
                  Loc1=i, Loc2=j, input.prop=mixProtiProtj$input.prop)
 
 
 
-  ae21 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjPropLog2, NstartMaterialFractions=6,
+  ae21 <- mixtureAreaError(mixProtiProtjCPA=mixProtiProtjPropLog2, NstartMaterialFractions=6,
                  Loc1=i, Loc2=j, input.prop=mixProtiProtj$input.prop)
-  ae22 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjPropSpecAmtLog2, NstartMaterialFractions=6,
+  ae22 <- mixtureAreaError(mixProtiProtjCPA=mixProtiProtjPropSpecAmtLog2, NstartMaterialFractions=6,
                  Loc1=i, Loc2=j, input.prop=mixProtiProtj$input.prop)
-  ae23 <- mixtureAreaError(mixProtiProtjProp=mixProtiProtjPropAcupLog2,
+  ae23 <- mixtureAreaError(mixProtiProtjCPA=mixProtiProtjPropAcupLog2,
                  NstartMaterialFractions=6, Loc1=i, Loc2=j,
                  input.prop=mixProtiProtj$input.prop)
   errorMat <- matrix(c(ae11, ae12, ae13, ae21, ae22, ae23), nrow=2, byrow=T)

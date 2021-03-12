@@ -5,7 +5,7 @@
 \title{Compute area-based error for mixture of two compartment profiles}
 \usage{
 mixtureAreaError(
-  mixProtiProtjProp,
+  mixProtiProtjCPA,
   NstartMaterialFractions = 6,
   Loc1,
   Loc2,
@@ -13,7 +13,7 @@ mixtureAreaError(
 )
 }
 \arguments{
-\item{mixProtiProtjProp}{data frame of CPA estimated proportions for each mixture}
+\item{mixProtiProtjCPA}{data frame of CPA estimated proportions for each mixture}
 
 \item{NstartMaterialFractions}{Number of fractions that comprise the starting material}
 

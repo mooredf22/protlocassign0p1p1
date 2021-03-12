@@ -4,7 +4,7 @@
 \alias{mixtureHeatMap}
 \title{plot mixture of all two compartment profile combinations as panel; assumes eight compartments}
 \usage{
-mixtureHeatMap(Acup = AcupMarkers, totProt, eps = 0.01)
+mixtureHeatMap(Acup, totProt, eps = 0.01)
 }
 \arguments{
 \item{Acup}{relative amount of a given cellular compartment protein that ends up in a given centrifugation fraction}

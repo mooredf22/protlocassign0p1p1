@@ -1,5 +1,5 @@
 ---
-title: "Vignette 5: Distance, outlier detection, and weighted mean profile calculation"
+title: "Vignette 5: Calculation of distances between proteins"
 author: "Dirk Moore"
 date: "`r Sys.Date()`"
 #output: rmarkdown::html_vignette
@@ -39,31 +39,32 @@ knitr::opts_chunk$set(
 ```
 
 
-
-## Nearest proteins in a data set
-We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first use the R function `dist` to create a distance matrix for the proteins in a list of mean profiles, such as `protProfileNSA_AT5tmtMS2`. 
+We may find the proteins with profiles nearest to a given protein using the function "nearestProts". Distance is computed as the Euclidean distance between profiles. To use the function, we first use the R function `dist` to create a distance matrix for the proteins in a list of mean profiles, such as `protProfileNSA_AT5tmtMS2`. For clarity of presentation, we rename the embedded data sets to remove experiment-specific labels.
 
 ```{r, echo=TRUE, eval=TRUE}
 library(protlocassign)
-distUse <- dist(protProfileNSA_AT5tmtMS2[,1:9], method="euclidean")
+protNSA <- protNSA_AT5tmtMS2
+totProt <- totProtAT5
+distUse <- dist(protNSA[,1:9], method="euclidean")
 ```
+
 Then select the protein names:
 
 ```{r, echo=TRUE, eval=TRUE}
-protsUse <- rownames(protProfileNSA_AT5tmtMS2)
+protsUse <- rownames(protNSA)
 ```
 Finally, provide a protein name. Here, for the protein "CTSD", we find the 10 nearest proteins.
 
 ```{r, echo=TRUE, eval=TRUE}
 nearestProts(protName="CTSD", n.nearest=10,  distProts=distUse, protNames=protsUse,
-             profile=protProfileNSA_AT5tmtMS2)
+             profile=protNSA)
 ```
 
 Instead of using normalized specific amounts, we may transform them to relative specific amounts:
 
 ```{r, echo=TRUE, eval=TRUE}
-protProfileLevelsRSA <- RSAfromNSA(NSA=protProfileNSA_AT5tmtMS2[,1:9],
-                                 NstartMaterialFractions=6, totProt=totProtAT5)
+protProfileLevelsRSA <- RSAfromNSA(NSA=protNSA[,1:9],
+                                 NstartMaterialFractions=6, totProt=totProt)
 distUseRSA <- dist(protProfileLevelsRSA, method="euclidean")
 nearestProts(protName="CTSD", n.nearest=10,  distProts=distUseRSA, protNames=protsUse,
              profile=protProfileLevelsRSA)
